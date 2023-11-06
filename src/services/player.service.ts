@@ -48,7 +48,11 @@ class PlayerService {
 	}
 
 	async getGameStatus(gameId: number) {
-		return (await this.client.get(`/games/${gameId}/status`)) as GameStatus;
+		return (await this.client.get(`/games/${gameId}/status`)) as {
+			cur_turn: number;
+			max_turn: number;
+			remaining: number;
+		};
 	}
 
 	async getGameActions(gameId: number) {

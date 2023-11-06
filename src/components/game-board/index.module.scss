@@ -1,0 +1,13 @@
+.wrapper {
+	border-collapse: collapse;
+	td {
+		border: 1px solid #aaa;
+		width: 32px;
+		height: 32px;
+		padding: 0;
+
+		&.pond {
+			background: #002635;
+		}
+	}
+}
