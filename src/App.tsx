@@ -13,7 +13,7 @@ import wait from './utils/wait';
 function App() {
 	const [gameId, setGameId] = useState<string>();
 	const [game, setGame] = useState<Game>();
-	const [side, setSide] = useState<string>('A');
+	const [side, setSide] = useState<'A' | 'B'>('A');
 	const [isLoadingGame, setIsLoadingGame] = useState(false);
 
 	const handleStart = async () => {
