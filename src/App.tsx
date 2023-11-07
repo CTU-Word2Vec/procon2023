@@ -7,7 +7,8 @@ import GameBoard from './components/game-board';
 import Game from './models/Game';
 import playerService from './services/player.service';
 import tokenService from './services/token.service';
-import GameState from './states/GameState';
+import GameState, { GameStateData } from './states/GameState';
+import randomAction from './utils/randomAction';
 import wait from './utils/wait';
 
 function App() {
@@ -15,18 +16,19 @@ function App() {
 	const [game, setGame] = useState<Game>();
 	const [side, setSide] = useState<'A' | 'B'>('A');
 	const [isLoadingGame, setIsLoadingGame] = useState(false);
+	const [gameState, setGameState] = useState<GameStateData>();
 
 	const handleStart = async () => {
 		if (!gameId) return;
 		try {
 			setIsLoadingGame(true);
 			const game = await playerService.getGameById(+gameId);
-			const actions = await playerService.getGameActions(+gameId);
 
 			setGame(game);
 
 			const gameState = new GameState(game.field);
-			gameState.addActions(actions);
+
+			setGameState(gameState.getData());
 		} catch (error: any) {
 			message.error(error.message);
 		} finally {
@@ -34,7 +36,6 @@ function App() {
 		}
 	};
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const craftmens = useMemo(() => {
 		return game?.field.craftsmen.filter((craftmen) => craftmen.side === side) || [];
 	}, [side, game]);
@@ -59,14 +60,37 @@ function App() {
 			await wait(Math.max(0, startTime.getTime() - now.getTime()));
 		}
 
+		const gameState = new GameState(game.field);
+
+		const actions = await playerService.getGameActions(game.id);
+
+		gameState.addActions(actions);
+
+		setGameState(gameState.getData());
+
 		for (let i = nextTurn; i <= game.num_of_turns; i++) {
 			const { cur_turn } = await playerService.getGameStatus(game.id);
 
 			if ((side === 'A' && cur_turn % 2 !== 0) || (side === 'B' && cur_turn % 2 === 0)) {
-				// TODO: Play here...
+				try {
+					await playerService.createAction(game.id, {
+						turn: cur_turn + 1,
+						actions: craftmens.map((e) => randomAction(e.id)),
+					});
+				} catch (error: any) {
+					message.error(error.message);
+				}
 			}
 
-			await wait(game.time_per_turn * 1000);
+			const actions = await playerService.getGameActions(game.id);
+
+			gameState.addActions(actions);
+
+			setGameState(gameState.getData());
+
+			const { remaining } = await playerService.getGameStatus(game.id);
+
+			await wait(remaining * 1000);
 		}
 	};
 
@@ -74,7 +98,7 @@ function App() {
 		<Row>
 			<Col xs={12}>
 				<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', paddingTop: 64 }}>
-					{game && <GameBoard field={game.field} />}
+					{gameState && <GameBoard state={gameState as GameStateData} />}
 				</div>
 			</Col>
 

@@ -3,7 +3,14 @@ import Field from '@/models/Field';
 import GameAction from '@/models/GameAction';
 import Position, { CraftsmenPosition } from '@/models/Position';
 
-class GameState implements Field {
+export interface GameStateData extends Field {
+	hashedCraftmen: { [x: number]: { [y: number]: CraftsmenPosition | null } | null };
+	hashedWalls: { [x: number]: { [y: number]: 'A' | 'B' | null } | null };
+	hashedPonds: { [x: number]: { [y: number]: Position | null } | null };
+	hashedCastles: { [x: number]: { [y: number]: Position | null } | null };
+}
+
+class GameState implements GameStateData {
 	public name: string;
 	public castle_coeff: number;
 	public wall_coeff: number;
@@ -17,12 +24,11 @@ class GameState implements Field {
 	public id: number;
 	public walls: Position[];
 
-	// TODO: Private properties
 	private lastTurn = 0;
-	private hashedCraftmen: { [x: number]: { [y: number]: CraftsmenPosition | null } | null };
-	private hashedWalls: { [x: number]: { [y: number]: Position | null } | null };
-	private hashedPonds: { [x: number]: { [y: number]: Position | null } | null };
-	private hashedCastles: { [x: number]: { [y: number]: Position | null } | null };
+	public hashedCraftmen: { [x: number]: { [y: number]: CraftsmenPosition | null } | null };
+	public hashedWalls: { [x: number]: { [y: number]: 'A' | 'B' | null } | null };
+	public hashedPonds: { [x: number]: { [y: number]: Position | null } | null };
+	public hashedCastles: { [x: number]: { [y: number]: Position | null } | null };
 
 	constructor(field: Field) {
 		this.name = field.name;
@@ -37,7 +43,6 @@ class GameState implements Field {
 		this.match_id = field.match_id;
 		this.id = field.id;
 
-		// TODO: Private properties
 		this.walls = [];
 		this.hashedCraftmen = {};
 		this.hashedWalls = {};
@@ -45,6 +50,10 @@ class GameState implements Field {
 		this.hashedCastles = {};
 
 		this.firstBuild();
+	}
+
+	public getData() {
+		return { ...this };
 	}
 
 	private firstBuild() {
@@ -68,6 +77,8 @@ class GameState implements Field {
 	}
 
 	public addActions(actions: GameAction[]) {
+		if (!actions.length) return;
+
 		for (let i = 0; i < actions.length; i++) {
 			if (actions[i].turn <= this.lastTurn) {
 				continue;
@@ -128,19 +139,19 @@ class GameState implements Field {
 			case 'BUILD':
 				switch (action.action_param) {
 					case 'LEFT':
-						this.buildWall({ x: craftsman.x - 1, y: craftsman.y });
+						this.buildWall({ x: craftsman.x - 1, y: craftsman.y }, craftsman.side);
 						break;
 
 					case 'RIGHT':
-						this.buildWall({ x: craftsman.x + 1, y: craftsman.y });
+						this.buildWall({ x: craftsman.x + 1, y: craftsman.y }, craftsman.side);
 						break;
 
 					case 'ABOVE':
-						this.buildWall({ x: craftsman.x, y: craftsman.y - 1 });
+						this.buildWall({ x: craftsman.x, y: craftsman.y - 1 }, craftsman.side);
 						break;
 
 					case 'BELOW':
-						this.buildWall({ x: craftsman.x, y: craftsman.y + 1 });
+						this.buildWall({ x: craftsman.x, y: craftsman.y + 1 }, craftsman.side);
 						break;
 				}
 				break;
@@ -148,15 +159,19 @@ class GameState implements Field {
 			case 'DESTROY':
 				switch (action.action_param) {
 					case 'LEFT':
+						this.destroy({ x: craftsman.x - 1, y: craftsman.y });
 						break;
 
 					case 'RIGHT':
+						this.destroy({ x: craftsman.x + 1, y: craftsman.y });
 						break;
 
 					case 'ABOVE':
+						this.destroy({ x: craftsman.x, y: craftsman.y - 1 });
 						break;
 
 					case 'BELOW':
+						this.destroy({ x: craftsman.x, y: craftsman.y + 1 });
 						break;
 				}
 				break;
@@ -167,10 +182,19 @@ class GameState implements Field {
 		}
 	}
 
-	private moveCraftsmen(craftsmen: CraftsmenPosition, pos: Position) {
-		if (!this.canCraftsmenMove({ x: craftsmen.x + pos.x, y: craftsmen.y + pos.y })) return;
+	public destroy(pos: Position) {
+		if (!this.canDestroy(pos)) return;
+		this.hashedWalls[pos.x]![pos.y] = null;
+	}
 
-		this.removeHashCraftmen(craftsmen);
+	public canDestroy(pos: Position) {
+		return !!this.hashedWalls[pos.x]?.[pos.y];
+	}
+
+	public moveCraftsmen(craftsmen: CraftsmenPosition, pos: Position) {
+		if (!this.canCraftsmenMove({ x: craftsmen.x + pos.x, y: craftsmen.y + pos.y }, craftsmen)) return;
+
+		this.removeHashedCraftmen(craftsmen);
 
 		craftsmen.x += pos.x;
 		craftsmen.y += pos.y;
@@ -178,19 +202,20 @@ class GameState implements Field {
 		this.addHashCraftsmen(craftsmen);
 	}
 
-	private canCraftsmenMove(pos: Position) {
+	public canCraftsmenMove(pos: Position, craftsmen: CraftsmenPosition) {
 		if (pos.x < 0 || pos.y < 0) return false;
 		if (pos.x >= this.width || pos.y >= this.height) return false;
 
 		if (this.hashedCraftmen[pos.x]?.[pos.y]) return false;
-		if (this.hashedWalls[pos.x]?.[pos.y]) return false;
 		if (this.hashedPonds[pos.x]?.[pos.y]) return false;
 		if (this.hashedCastles[pos.x]?.[pos.y]) return false;
+
+		if (this.hashedWalls[pos.x]?.[pos.y] && craftsmen.side !== this.hashedWalls[pos.x]![pos.y]) return false;
 
 		return true;
 	}
 
-	private addHashCraftsmen(craftsmen: CraftsmenPosition) {
+	public addHashCraftsmen(craftsmen: CraftsmenPosition) {
 		if (!this.hashedCraftmen[craftsmen.x]) {
 			this.hashedCraftmen[craftsmen.x] = {};
 		}
@@ -198,19 +223,24 @@ class GameState implements Field {
 		this.hashedCraftmen[craftsmen.x]![craftsmen.y] = craftsmen;
 	}
 
-	private removeHashCraftmen(craftsmen: CraftsmenPosition) {
+	public removeHashedCraftmen(craftsmen: CraftsmenPosition) {
 		if (!this.hashedCraftmen[craftsmen.x]) return;
 
 		this.hashedCraftmen[craftsmen.x]![craftsmen.y] = null;
 	}
 
-	private buildWall(pos: Position) {
-		if (this.canBuildWall(pos)) {
-			this.walls.push(pos);
+	public buildWall(pos: Position, side: 'A' | 'B') {
+		if (!this.canBuildWall(pos)) return;
+		this.walls.push(pos);
+
+		if (!this.hashedWalls[pos.x]) {
+			this.hashedWalls[pos.x] = {};
 		}
+
+		this.hashedWalls[pos.x]![pos.y] = side;
 	}
 
-	private canBuildWall(pos: Position) {
+	public canBuildWall(pos: Position) {
 		if (this.hashedCraftmen[pos.x]?.[pos.y]) return false;
 		if (this.hashedWalls[pos.x]?.[pos.y]) return false;
 		if (this.hashedPonds[pos.x]?.[pos.y]) return false;

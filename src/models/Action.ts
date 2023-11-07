@@ -1,18 +1,10 @@
+import { EAction } from '@/constants/action';
+import { EActionParam } from '@/constants/action-params';
 import BaseModel from './BaseModel';
 
 export default interface Action extends BaseModel {
-	action: 'MOVE' | 'BUILD' | 'STAY' | 'DESTROY';
-	action_param?:
-		| 'UP'
-		| 'DOWN'
-		| 'LEFT'
-		| 'RIGHT'
-		| 'UPPER_LEFT'
-		| 'UPPER_RIGHT'
-		| 'LOWER_LEFT'
-		| 'LOWER_RIGHT'
-		| 'ABOVE'
-		| 'BELOW';
+	action: EAction;
+	action_param?: EActionParam;
 	craftsman_id: string;
 	action_id: number;
 }

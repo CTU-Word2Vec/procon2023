@@ -1,5 +1,4 @@
-import Field from '@/models/Field';
-import Position, { CraftsmenPosition } from '@/models/Position';
+import { GameStateData } from '@/states/GameState';
 import clsx from 'clsx';
 import React, { useMemo } from 'react';
 import Castle from '../castle';
@@ -8,64 +7,37 @@ import CraftsmenB from '../craftsmen-b';
 import styles from './index.module.scss';
 
 export interface GameBoardProps {
-	field: Field;
+	state: GameStateData;
 }
 
-export default function GameBoard({ field }: GameBoardProps) {
+export default function GameBoard({ state }: GameBoardProps) {
 	const rows = useMemo(() => {
 		const rows = [];
 
-		const hashedCraftsmen: {
-			[y: number]: {
-				[x: number]: CraftsmenPosition;
-			};
-		} = {};
-
-		for (const craftsmen of field.craftsmen) {
-			if (!hashedCraftsmen[craftsmen.y]) {
-				hashedCraftsmen[craftsmen.y] = {};
-			}
-
-			hashedCraftsmen[craftsmen.y][craftsmen.x] = craftsmen;
-		}
-
-		const hashedCastle: { [y: number]: { [x: number]: Position } } = {};
-
-		for (const castle of field.castles) {
-			if (!hashedCastle[castle.y]) {
-				hashedCastle[castle.y] = {};
-			}
-
-			hashedCastle[castle.y][castle.x] = castle;
-		}
-
-		const hashedPond: { [y: number]: { [x: number]: Position } } = {};
-
-		for (const pond of field.ponds) {
-			if (!hashedPond[pond.y]) {
-				hashedPond[pond.y] = {};
-			}
-
-			hashedPond[pond.y][pond.x] = pond;
-		}
-
-		for (let i = 0; i < field.height; i++) {
+		for (let y = 0; y < state.height; y++) {
 			const cols = [];
 
-			for (let j = 0; j < field.width; j++) {
-				if (hashedCastle[i]?.[j]) {
+			for (let x = 0; x < state.width; x++) {
+				const className = clsx({
+					[styles.pond]: state.hashedPonds[x]?.[y],
+					[styles.wallA]: state.hashedWalls[x]?.[y] == 'A',
+					[styles.wallB]: state.hashedWalls[x]?.[y] == 'B',
+				});
+
+				if (state.hashedCastles[x]?.[y]) {
 					cols.push(
-						<td>
+						<td className={className}>
 							<Castle />
 						</td>,
 					);
 					continue;
 				}
 
-				if (hashedCraftsmen[i]?.[j]) {
-					const craftsmen = hashedCraftsmen[i][j];
+				if (state.hashedCraftmen[x]?.[y]) {
+					const craftsmen = state.hashedCraftmen[x]![y]!;
+
 					cols.push(
-						<td>
+						<td className={className}>
 							{craftsmen.side === 'A' ? (
 								<CraftsmenA id={craftsmen.id} />
 							) : (
@@ -77,13 +49,7 @@ export default function GameBoard({ field }: GameBoardProps) {
 					continue;
 				}
 
-				cols.push(
-					<td
-						className={clsx({
-							[styles.pond]: hashedPond[i]?.[j],
-						})}
-					/>,
-				);
+				cols.push(<td className={className} />);
 			}
 
 			rows.push(
@@ -96,7 +62,7 @@ export default function GameBoard({ field }: GameBoardProps) {
 		}
 
 		return rows;
-	}, [field]);
+	}, [state]);
 
 	return (
 		<table className={styles.wrapper}>

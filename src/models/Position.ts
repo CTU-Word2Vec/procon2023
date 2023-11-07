@@ -5,5 +5,5 @@ export default interface Position {
 
 export interface CraftsmenPosition extends Position {
 	id: string;
-	side: string;
+	side: 'A' | 'B';
 }

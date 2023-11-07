@@ -1,6 +1,7 @@
+import { EAction } from '@/constants/action';
+import { EActionParam } from '@/constants/action-params';
 import Game from '@/models/Game';
 import GameAction from '@/models/GameAction';
-import GameStatus from '@/models/GameStatus';
 import Position, { CraftsmenPosition } from '@/models/Position';
 import createClient from '@/utils/createClient';
 import { AxiosInstance } from 'axios';
@@ -8,15 +9,19 @@ import { AxiosInstance } from 'axios';
 export interface CreateActionDto {
 	turn: number;
 	actions: {
-		action: 'MOVE' | 'BUILD' | 'STAY' | 'DESTROY';
-		action_param?: 'UP' | 'DOWN' | 'LEFT' | 'RIGHT' | 'UPPER_LEFT' | 'UPPER_RIGHT' | 'LOWER_LEFT' | 'LOWER_RIGHT';
+		action: EAction;
+		action_param?: EActionParam;
 		craftsman_id: string;
 	}[];
 }
 
 export interface CreateActionResponse {
 	action: GameAction;
-	status: GameStatus;
+	status: {
+		cur_turn: number;
+		max_turn: number;
+		remaining: number;
+	};
 }
 
 export interface GetTimeResponse {
