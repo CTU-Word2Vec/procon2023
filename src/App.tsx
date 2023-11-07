@@ -5,26 +5,28 @@ import dayjs from 'dayjs';
 import { useMemo, useState } from 'react';
 import GameBoard from './components/game-board';
 import Game from './models/Game';
-import GameStatus from './models/GameStatus';
-import gameService from './services/game.service';
 import playerService from './services/player.service';
+import tokenService from './services/token.service';
+import GameState from './states/GameState';
+import wait from './utils/wait';
 
 function App() {
 	const [gameId, setGameId] = useState<string>();
 	const [game, setGame] = useState<Game>();
 	const [side, setSide] = useState<string>('A');
 	const [isLoadingGame, setIsLoadingGame] = useState(false);
-	const [, setStatus] = useState<GameStatus>();
 
 	const handleStart = async () => {
 		if (!gameId) return;
 		try {
 			setIsLoadingGame(true);
-			const res = await playerService.getGameById(+gameId);
-			const status = await gameService.getGameStatus(+gameId);
-			setStatus(status);
+			const game = await playerService.getGameById(+gameId);
+			const actions = await playerService.getGameActions(+gameId);
 
-			setGame(res);
+			setGame(game);
+
+			const gameState = new GameState(game.field);
+			gameState.addActions(actions);
 		} catch (error: any) {
 			message.error(error.message);
 		} finally {
@@ -32,27 +34,39 @@ function App() {
 		}
 	};
 
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const craftmens = useMemo(() => {
 		return game?.field.craftsmen.filter((craftmen) => craftmen.side === side) || [];
 	}, [side, game]);
 
-	const handleRandom = async () => {
-		if (!gameId) return;
-		try {
-			await playerService.createAction(+gameId, {
-				actions: craftmens.map((e) => {
-					return {
-						action: 'MOVE',
-						craftsman_id: e.id,
-						action_param: 'LEFT',
-					};
-				}),
-				turn: 1,
-			});
+	const handlePlay = async () => {
+		if (!game) return;
 
-			await gameService.getGameStatus(+gameId);
-		} catch (error: any) {
-			message.error(error.message);
+		const now = new Date();
+		const startTime = new Date(game.start_time);
+
+		let nextTurn = side === 'A' ? 2 : 1;
+
+		if (now.getTime() >= startTime.getTime()) {
+			const { cur_turn } = await playerService.getGameStatus(game.id);
+
+			nextTurn = cur_turn;
+
+			if (side === 'A' && nextTurn % 2 !== 0) {
+				nextTurn++;
+			}
+		} else {
+			await wait(Math.max(0, startTime.getTime() - now.getTime()));
+		}
+
+		for (let i = nextTurn; i <= game.num_of_turns; i++) {
+			const { cur_turn } = await playerService.getGameStatus(game.id);
+
+			if ((side === 'A' && cur_turn % 2 !== 0) || (side === 'B' && cur_turn % 2 === 0)) {
+				// TODO: Play here...
+			}
+
+			await wait(game.time_per_turn * 1000);
 		}
 	};
 
@@ -65,11 +79,25 @@ function App() {
 			</Col>
 
 			<Col xs={12} style={{ padding: 10 }}>
-				<Input placeholder='Game Id' value={gameId} onChange={(event) => setGameId(event.target.value)} />
+				<form
+					onSubmit={(event) => {
+						event.preventDefault();
+						handleStart();
+					}}
+				>
+					<Input placeholder='Game Id' value={gameId} onChange={(event) => setGameId(event.target.value)} />
 
-				<Button style={{ marginTop: 10 }} type='primary' loading={isLoadingGame} onClick={handleStart}>
-					Start
-				</Button>
+					<Input
+						placeholder='Token'
+						value={tokenService.token}
+						style={{ marginTop: 10 }}
+						onChange={(event) => (tokenService.token = event.target.value)}
+					/>
+
+					<Button style={{ marginTop: 10 }} type='primary' loading={isLoadingGame} htmlType='submit'>
+						Start
+					</Button>
+				</form>
 
 				<Divider />
 
@@ -82,7 +110,7 @@ function App() {
 							onChange={setSide}
 							options={game.sides.map((e) => ({
 								value: e.side,
-								label: e.team_name,
+								label: `Side ${e.side} - ${e.team_name}`,
 							}))}
 						/>
 
@@ -98,7 +126,9 @@ function App() {
 							</DescriptionsItem>
 						</Descriptions>
 
-						<Button onClick={handleRandom}>Random</Button>
+						<Button onClick={handlePlay} style={{ marginTop: 10 }}>
+							Play
+						</Button>
 					</>
 				)}
 			</Col>

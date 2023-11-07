@@ -1,11 +1,12 @@
 import apiConfig from '@/config/api';
+import tokenService from '@/services/token.service';
 import axios from 'axios';
 
 export default function createClient(baseURL: string = '/') {
 	const client = axios.create({ baseURL: `${apiConfig.url}/${baseURL}` });
 
 	client.interceptors.request.use((req) => {
-		req.headers.Authorization = apiConfig.headers.authorization;
+		req.headers.Authorization = tokenService.token;
 
 		return req;
 	});

@@ -8,8 +8,8 @@ import { AxiosInstance } from 'axios';
 export interface CreateActionDto {
 	turn: number;
 	actions: {
-		action: string;
-		action_param: string;
+		action: 'MOVE' | 'BUILD' | 'STAY' | 'DESTROY';
+		action_param?: 'UP' | 'DOWN' | 'LEFT' | 'RIGHT' | 'UPPER_LEFT' | 'UPPER_RIGHT' | 'LOWER_LEFT' | 'LOWER_RIGHT';
 		craftsman_id: string;
 	}[];
 }
