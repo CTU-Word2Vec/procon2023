@@ -24,11 +24,10 @@ function App() {
 			setIsLoadingGame(true);
 			const game = await playerService.getGameById(+gameId);
 
-			setGame(game);
-
 			const gameState = new GameState(game.field);
 
-			setGameState(gameState.getData());
+			setGameState(gameState);
+			setGame(game);
 		} catch (error: any) {
 			message.error(error.message);
 		} finally {

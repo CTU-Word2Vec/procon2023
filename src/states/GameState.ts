@@ -31,6 +31,8 @@ class GameState implements GameStateData {
 	public hashedCastles: { [x: number]: { [y: number]: Position | null } | null };
 
 	constructor(field: Field) {
+		field = JSON.parse(JSON.stringify(field)) as Field;
+
 		this.name = field.name;
 		this.castle_coeff = field.castle_coeff;
 		this.wall_coeff = field.wall_coeff;
