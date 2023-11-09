@@ -1,3 +1,4 @@
+import { EActionParam } from '@/constants/action-params';
 import Action from '@/models/Action';
 import Field from '@/models/Field';
 import GameAction from '@/models/GameAction';
@@ -9,6 +10,18 @@ export interface GameStateData extends Field {
 	hashedPonds: { [x: number]: { [y: number]: Position | null } | null };
 	hashedCastles: { [x: number]: { [y: number]: Position | null } | null };
 }
+
+const revertActionParam = {
+	UP: 'DOWN',
+	DOWN: 'UP',
+	LEFT: 'RIGHT',
+	RIGHT: 'LEFT',
+	ABOVE: 'BELOW',
+	UPPER_LEFT: 'LOWER_RIGHT',
+	LOWER_RIGHT: 'UPPER_LEFT',
+	UPPER_RIGHT: 'LOWER_LEFT',
+	LOWER_LEFT: 'UPPER_RIGHT',
+};
 
 class GameState implements GameStateData {
 	public name: string;
@@ -25,6 +38,8 @@ class GameState implements GameStateData {
 	public walls: Position[];
 
 	private lastTurn = 0;
+	private lastAction: GameAction | null = null;
+
 	public hashedCraftmen: { [x: number]: { [y: number]: CraftsmenPosition | null } | null };
 	public hashedWalls: { [x: number]: { [y: number]: 'A' | 'B' | null } | null };
 	public hashedPonds: { [x: number]: { [y: number]: Position | null } | null };
@@ -82,7 +97,7 @@ class GameState implements GameStateData {
 		if (!actions.length) return;
 
 		for (let i = 0; i < actions.length; i++) {
-			if (actions[i].turn <= this.lastTurn) {
+			if (actions[i].turn < this.lastTurn) {
 				continue;
 			}
 
@@ -90,14 +105,47 @@ class GameState implements GameStateData {
 				continue;
 			}
 
+			if (actions[i].turn === this.lastAction?.turn && actions[i].id !== this.lastAction.id) {
+				this.revertLastAction();
+			}
+
 			for (const action of actions[i].actions) {
 				for (const craftsman of this.craftsmen) {
-					if (craftsman.id == action.craftsman_id) this.craftsmanDoAction(craftsman, action);
+					if (craftsman.id === action.craftsman_id) this.craftsmanDoAction(craftsman, action);
 				}
 			}
-		}
 
-		this.lastTurn = actions[actions.length - 1].turn;
+			this.lastTurn = actions[i].turn;
+			this.lastAction = actions[i];
+		}
+	}
+
+	private revertLastAction() {
+		if (!this.lastAction) return;
+
+		for (const action of this.lastAction.actions) {
+			for (const craftsman of this.craftsmen) {
+				if (craftsman.id === action.craftsman_id) this.craftmanRevertAction(craftsman, action);
+			}
+		}
+	}
+
+	private craftmanRevertAction(craftsman: CraftsmenPosition, action: Action) {
+		switch (action.action) {
+			case 'MOVE':
+				return this.craftsmanDoAction(craftsman, {
+					...action,
+					action_param: revertActionParam[
+						action.action_param as keyof typeof revertActionParam
+					] as EActionParam,
+				});
+			case 'BUILD':
+				return this.craftsmanDoAction(craftsman, { ...action, action: 'DESTROY' });
+			case 'DESTROY':
+				return this.craftsmanDoAction(craftsman, { ...action, action: 'BUILD' });
+			default:
+				break;
+		}
 	}
 
 	private craftsmanDoAction(craftsman: CraftsmenPosition, action: Action) {
@@ -105,35 +153,35 @@ class GameState implements GameStateData {
 			case 'MOVE':
 				switch (action.action_param) {
 					case 'DOWN':
-						this.moveCraftsmen(craftsman, { x: 0, y: 1 });
+						this.moveCraftsmen(craftsman, { x: 0, y: 1 }, action);
 						break;
 
 					case 'UP':
-						this.moveCraftsmen(craftsman, { x: 0, y: -1 });
+						this.moveCraftsmen(craftsman, { x: 0, y: -1 }, action);
 						break;
 
 					case 'LEFT':
-						this.moveCraftsmen(craftsman, { x: -1, y: 0 });
+						this.moveCraftsmen(craftsman, { x: -1, y: 0 }, action);
 						break;
 
 					case 'RIGHT':
-						this.moveCraftsmen(craftsman, { x: 1, y: 0 });
+						this.moveCraftsmen(craftsman, { x: 1, y: 0 }, action);
 						break;
 
 					case 'LOWER_LEFT':
-						this.moveCraftsmen(craftsman, { x: -1, y: 1 });
+						this.moveCraftsmen(craftsman, { x: -1, y: 1 }, action);
 						break;
 
 					case 'LOWER_RIGHT':
-						this.moveCraftsmen(craftsman, { x: 1, y: 1 });
+						this.moveCraftsmen(craftsman, { x: 1, y: 1 }, action);
 						break;
 
 					case 'UPPER_LEFT':
-						this.moveCraftsmen(craftsman, { x: -1, y: -1 });
+						this.moveCraftsmen(craftsman, { x: -1, y: -1 }, action);
 						break;
 
 					case 'UPPER_RIGHT':
-						this.moveCraftsmen(craftsman, { x: 1, y: -1 });
+						this.moveCraftsmen(craftsman, { x: 1, y: -1 }, action);
 						break;
 				}
 				break;
@@ -141,19 +189,19 @@ class GameState implements GameStateData {
 			case 'BUILD':
 				switch (action.action_param) {
 					case 'LEFT':
-						this.buildWall({ x: craftsman.x - 1, y: craftsman.y }, craftsman.side);
+						this.buildWall({ x: craftsman.x - 1, y: craftsman.y }, craftsman.side, action);
 						break;
 
 					case 'RIGHT':
-						this.buildWall({ x: craftsman.x + 1, y: craftsman.y }, craftsman.side);
+						this.buildWall({ x: craftsman.x + 1, y: craftsman.y }, craftsman.side, action);
 						break;
 
 					case 'ABOVE':
-						this.buildWall({ x: craftsman.x, y: craftsman.y - 1 }, craftsman.side);
+						this.buildWall({ x: craftsman.x, y: craftsman.y - 1 }, craftsman.side, action);
 						break;
 
 					case 'BELOW':
-						this.buildWall({ x: craftsman.x, y: craftsman.y + 1 }, craftsman.side);
+						this.buildWall({ x: craftsman.x, y: craftsman.y + 1 }, craftsman.side, action);
 						break;
 				}
 				break;
@@ -161,40 +209,46 @@ class GameState implements GameStateData {
 			case 'DESTROY':
 				switch (action.action_param) {
 					case 'LEFT':
-						this.destroy({ x: craftsman.x - 1, y: craftsman.y });
+						this.destroy({ x: craftsman.x - 1, y: craftsman.y }, action);
 						break;
 
 					case 'RIGHT':
-						this.destroy({ x: craftsman.x + 1, y: craftsman.y });
+						this.destroy({ x: craftsman.x + 1, y: craftsman.y }, action);
 						break;
 
 					case 'ABOVE':
-						this.destroy({ x: craftsman.x, y: craftsman.y - 1 });
+						this.destroy({ x: craftsman.x, y: craftsman.y - 1 }, action);
 						break;
 
 					case 'BELOW':
-						this.destroy({ x: craftsman.x, y: craftsman.y + 1 });
+						this.destroy({ x: craftsman.x, y: craftsman.y + 1 }, action);
 						break;
 				}
 				break;
 
 			default:
-				console.log('STAY');
 				break;
 		}
 	}
 
-	public destroy(pos: Position) {
-		if (!this.canDestroy(pos)) return;
+	private destroy(pos: Position, action: Action) {
+		if (!this.canDestroy(pos)) {
+			action.action = 'STAY';
+			return;
+		}
+
 		this.hashedWalls[pos.x]![pos.y] = null;
 	}
 
-	public canDestroy(pos: Position) {
+	private canDestroy(pos: Position) {
 		return !!this.hashedWalls[pos.x]?.[pos.y];
 	}
 
-	public moveCraftsmen(craftsmen: CraftsmenPosition, pos: Position) {
-		if (!this.canCraftsmenMove({ x: craftsmen.x + pos.x, y: craftsmen.y + pos.y }, craftsmen)) return;
+	private moveCraftsmen(craftsmen: CraftsmenPosition, pos: Position, action: Action) {
+		if (!this.canCraftsmenMove({ x: craftsmen.x + pos.x, y: craftsmen.y + pos.y }, craftsmen)) {
+			action.action = 'STAY';
+			return;
+		}
 
 		this.removeHashedCraftmen(craftsmen);
 
@@ -204,7 +258,7 @@ class GameState implements GameStateData {
 		this.addHashCraftsmen(craftsmen);
 	}
 
-	public canCraftsmenMove(pos: Position, craftsmen: CraftsmenPosition) {
+	private canCraftsmenMove(pos: Position, craftsmen: CraftsmenPosition) {
 		if (pos.x < 0 || pos.y < 0) return false;
 		if (pos.x >= this.width || pos.y >= this.height) return false;
 
@@ -217,7 +271,7 @@ class GameState implements GameStateData {
 		return true;
 	}
 
-	public addHashCraftsmen(craftsmen: CraftsmenPosition) {
+	private addHashCraftsmen(craftsmen: CraftsmenPosition) {
 		if (!this.hashedCraftmen[craftsmen.x]) {
 			this.hashedCraftmen[craftsmen.x] = {};
 		}
@@ -225,14 +279,18 @@ class GameState implements GameStateData {
 		this.hashedCraftmen[craftsmen.x]![craftsmen.y] = craftsmen;
 	}
 
-	public removeHashedCraftmen(craftsmen: CraftsmenPosition) {
+	private removeHashedCraftmen(craftsmen: CraftsmenPosition) {
 		if (!this.hashedCraftmen[craftsmen.x]) return;
 
 		this.hashedCraftmen[craftsmen.x]![craftsmen.y] = null;
 	}
 
-	public buildWall(pos: Position, side: 'A' | 'B') {
-		if (!this.canBuildWall(pos)) return;
+	private buildWall(pos: Position, side: 'A' | 'B', action: Action) {
+		if (!this.canBuildWall(pos)) {
+			action.action = 'STAY';
+			return;
+		}
+
 		this.walls.push(pos);
 
 		if (!this.hashedWalls[pos.x]) {
@@ -242,7 +300,7 @@ class GameState implements GameStateData {
 		this.hashedWalls[pos.x]![pos.y] = side;
 	}
 
-	public canBuildWall(pos: Position) {
+	private canBuildWall(pos: Position) {
 		if (this.hashedCraftmen[pos.x]?.[pos.y]) return false;
 		if (this.hashedWalls[pos.x]?.[pos.y]) return false;
 		if (this.hashedPonds[pos.x]?.[pos.y]) return false;
