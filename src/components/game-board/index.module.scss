@@ -1,5 +1,12 @@
 .wrapper {
-	border-collapse: collapse;
+	overflow: auto;
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	table {
+		border-collapse: collapse;
+	}
 	td {
 		border: 1px solid #aaa;
 		width: 32px;
@@ -11,11 +18,16 @@
 		}
 
 		&.wallA {
-			background: #9696ff;
+			background: #c7e4ff;
 		}
 
 		&.wallB {
-			background: #ffa2a2;
+			background: #ffcaca;
 		}
 	}
+}
+
+.placeholder {
+	width: 32px;
+	height: 32px;
 }

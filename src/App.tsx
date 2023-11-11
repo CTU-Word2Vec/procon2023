@@ -4,15 +4,14 @@ import { Button, Col, Descriptions, Divider, Input, Row, Select, Space, message 
 import ButtonGroup from 'antd/es/button/button-group';
 import DescriptionsItem from 'antd/es/descriptions/Item';
 import dayjs from 'dayjs';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import ActionList from './components/action-list';
 import GameBoard from './components/game-board';
 import GameSettings from './components/game-settings';
+import GameState, { GameStateData } from './game/GameManager';
 import Game from './models/Game';
 import GameAction from './models/GameAction';
 import playerService from './services/player.service';
-import GameState, { GameStateData } from './states/GameState';
-import randomAction from './utils/randomAction';
 import wait from './utils/wait';
 
 function App() {
@@ -33,7 +32,6 @@ function App() {
 			const actions = await playerService.getGameActions(+gameId);
 
 			const gameState = new GameState(game.field);
-
 			gameState.addActions(actions);
 
 			setGameState(gameState.getData());
@@ -45,10 +43,6 @@ function App() {
 			setIsLoadingGame(false);
 		}
 	};
-
-	const craftmens = useMemo(() => {
-		return game?.field.craftsmen.filter((craftmen) => craftmen.side === side) || [];
-	}, [side, game]);
 
 	const handlePlay = async () => {
 		if (!game) return;
@@ -94,7 +88,7 @@ function App() {
 					try {
 						await playerService.createAction(game.id, {
 							turn: cur_turn + 1,
-							actions: craftmens.map((e) => randomAction(e.id)),
+							actions: gameState.caroGetActions(side),
 						});
 					} catch (error: any) {
 						message.error(error.message);

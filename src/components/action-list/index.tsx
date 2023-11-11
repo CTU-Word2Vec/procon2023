@@ -19,6 +19,7 @@ export default function ActionList({ actions }: ActionListProps) {
 					flexDirection: 'column',
 					gap: 5,
 					marginTop: 10,
+					padding: 10,
 				}}
 			>
 				{actions.map((action) => (
@@ -29,11 +30,11 @@ export default function ActionList({ actions }: ActionListProps) {
 							<div>
 								<Typography style={{ fontWeight: 700 }}>Turn {action.turn}</Typography>
 
-								<Descriptions column={1}>
+								<Descriptions column={1} size='small' bordered>
 									{action.actions.map((craftmen) => (
 										<DescriptionsItem key={craftmen.craftsman_id} label={craftmen.craftsman_id}>
 											<b>
-												{craftmen.action} {craftmen.action_param}
+												{craftmen.action} {craftmen.action !== 'STAY' && craftmen.action_param}
 											</b>
 										</DescriptionsItem>
 									))}

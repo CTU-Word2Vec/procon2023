@@ -1,4 +1,4 @@
-import { GameStateData } from '@/states/GameState';
+import { GameStateData } from '@/game/GameManager';
 import clsx from 'clsx';
 import React, { useMemo } from 'react';
 import Castle from '../castle';
@@ -49,7 +49,11 @@ export default function GameBoard({ state }: GameBoardProps) {
 					continue;
 				}
 
-				cols.push(<td className={className} />);
+				cols.push(
+					<td className={className}>
+						<div className={styles.placeholder}></div>
+					</td>,
+				);
 			}
 
 			rows.push(
@@ -65,12 +69,14 @@ export default function GameBoard({ state }: GameBoardProps) {
 	}, [state]);
 
 	return (
-		<table className={styles.wrapper}>
-			<tbody>
-				{rows.map((row, index) => (
-					<React.Fragment key={index}>{row}</React.Fragment>
-				))}
-			</tbody>
-		</table>
+		<div className={styles.wrapper}>
+			<table>
+				<tbody>
+					{rows.map((row, index) => (
+						<React.Fragment key={index}>{row}</React.Fragment>
+					))}
+				</tbody>
+			</table>
+		</div>
 	);
 }
