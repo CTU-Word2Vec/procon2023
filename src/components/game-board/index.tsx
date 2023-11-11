@@ -1,4 +1,5 @@
 import { GameStateData } from '@/game/GameManager';
+import { Position } from '@/game/Position';
 import clsx from 'clsx';
 import React, { useMemo } from 'react';
 import Castle from '../castle';
@@ -18,13 +19,15 @@ export default function GameBoard({ state }: GameBoardProps) {
 			const cols = [];
 
 			for (let x = 0; x < state.width; x++) {
+				const pos = new Position(x, y);
+
 				const className = clsx({
-					[styles.pond]: state.hashedPonds[x]?.[y],
-					[styles.wallA]: state.hashedWalls[x]?.[y] == 'A',
-					[styles.wallB]: state.hashedWalls[x]?.[y] == 'B',
+					[styles.pond]: state.hashedPonds.exist(pos),
+					[styles.wallA]: state.hashedWalls.read(pos)?.side == 'A',
+					[styles.wallB]: state.hashedWalls.read(pos)?.side == 'B',
 				});
 
-				if (state.hashedCastles[x]?.[y]) {
+				if (state.hashedCastles.exist(pos)) {
 					cols.push(
 						<td className={className}>
 							<Castle />
@@ -33,8 +36,8 @@ export default function GameBoard({ state }: GameBoardProps) {
 					continue;
 				}
 
-				if (state.hashedCraftmen[x]?.[y]) {
-					const craftsmen = state.hashedCraftmen[x]![y]!;
+				if (state.hashedCraftmen.exist(pos)) {
+					const craftsmen = state.hashedCraftmen.read(pos)!;
 
 					cols.push(
 						<td className={className}>

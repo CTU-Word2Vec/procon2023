@@ -12,28 +12,34 @@ export default function ActionList({ actions }: ActionListProps) {
 			<h3 className={styles.title}>Actions</h3>
 
 			<div className={styles.wrapper}>
-				<Timeline>
-					{actions.map((action) => (
-						<Timeline.Item key={action.id} color={action.turn % 2 ? 'red' : 'blue'}>
-							<Alert
-								type={action.turn % 2 ? 'error' : 'info'}
-								message={`Turn ${action.turn}`}
-								description={
-									<Descriptions column={1} size='small' bordered>
-										{action.actions.map((craftmen) => (
-											<DescriptionsItem key={craftmen.craftsman_id} label={craftmen.craftsman_id}>
-												<b>
-													{craftmen.action}{' '}
-													{craftmen.action !== 'STAY' && craftmen.action_param}
-												</b>
-											</DescriptionsItem>
-										))}
-									</Descriptions>
-								}
-							></Alert>
-						</Timeline.Item>
-					))}
-				</Timeline>
+				<Timeline
+					items={actions.map((action) => {
+						return {
+							children: (
+								<Alert
+									type={action.turn % 2 ? 'error' : 'info'}
+									message={`Turn ${action.turn}`}
+									description={
+										<Descriptions column={1} size='small' bordered>
+											{action.actions.map((craftmen) => (
+												<DescriptionsItem
+													key={craftmen.craftsman_id}
+													label={craftmen.craftsman_id}
+												>
+													<b>
+														{craftmen.action}{' '}
+														{craftmen.action !== 'STAY' && craftmen.action_param}
+													</b>
+												</DescriptionsItem>
+											))}
+										</Descriptions>
+									}
+								></Alert>
+							),
+							color: action.turn % 2 ? 'red' : 'blue',
+						};
+					})}
+				/>
 			</div>
 		</>
 	);

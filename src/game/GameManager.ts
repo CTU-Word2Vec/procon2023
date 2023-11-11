@@ -4,7 +4,9 @@ import Field from '@/models/Field';
 import GameAction from '@/models/GameAction';
 import { ActionDto } from '@/services/player.service';
 import { CraftsmenPosition } from './CraftsmenPosition';
+import { HashedType } from './HashedType';
 import { Position } from './Position';
+import { EWallSide, WallPosition } from './WallPosition';
 
 export type GameMode = 'Caro' | 'A*';
 export const gameModes: GameMode[] = ['Caro', 'A*'];
@@ -18,12 +20,12 @@ export interface GameStateData {
 	ponds: Position[];
 	castles: Position[];
 	craftsmen: CraftsmenPosition[];
-	walls: Position[];
+	walls: WallPosition[];
 
-	hashedCraftmen: { [x: number]: { [y: number]: CraftsmenPosition | null } | null };
-	hashedWalls: { [x: number]: { [y: number]: 'A' | 'B' | null } | null };
-	hashedPonds: { [x: number]: { [y: number]: Position | null } | null };
-	hashedCastles: { [x: number]: { [y: number]: Position | null } | null };
+	hashedCraftmen: HashedType<CraftsmenPosition>;
+	hashedWalls: HashedType<WallPosition>;
+	hashedPonds: HashedType<Position>;
+	hashedCastles: HashedType<Position>;
 }
 
 class GameManager implements GameStateData {
@@ -35,18 +37,16 @@ class GameManager implements GameStateData {
 	public ponds: Position[];
 	public castles: Position[];
 	public craftsmen: CraftsmenPosition[];
-	public walls: Position[];
+	public walls: WallPosition[];
 
 	private lastTurn = 0;
 
-	public hashedCraftmen: { [x: number]: { [y: number]: CraftsmenPosition | null } | null };
-	public hashedWalls: { [x: number]: { [y: number]: 'A' | 'B' | null } | null };
-	public hashedPonds: { [x: number]: { [y: number]: Position | null } | null };
-	public hashedCastles: { [x: number]: { [y: number]: Position | null } | null };
+	public hashedCraftmen: HashedType<CraftsmenPosition>;
+	public hashedWalls: HashedType<WallPosition>;
+	public hashedPonds: HashedType<Position>;
+	public hashedCastles: HashedType<Position>;
 
 	constructor(field: Field) {
-		field = JSON.parse(JSON.stringify(field)) as Field;
-
 		this.castle_coeff = field.castle_coeff;
 		this.wall_coeff = field.wall_coeff;
 		this.territory_coeff = field.territory_coeff;
@@ -57,10 +57,10 @@ class GameManager implements GameStateData {
 		this.craftsmen = field.craftsmen.map((e) => new CraftsmenPosition(e.x, e.y, e.id, e.side));
 
 		this.walls = [];
-		this.hashedCraftmen = {};
-		this.hashedWalls = {};
-		this.hashedPonds = {};
-		this.hashedCastles = {};
+		this.hashedCraftmen = new HashedType<CraftsmenPosition>();
+		this.hashedWalls = new HashedType<WallPosition>();
+		this.hashedPonds = new HashedType<Position>();
+		this.hashedCastles = new HashedType<Position>();
 
 		this.firstBuild();
 	}
@@ -71,21 +71,15 @@ class GameManager implements GameStateData {
 
 	private firstBuild() {
 		for (const craftsman of this.craftsmen) {
-			this.addHashCraftsmen(craftsman);
+			this.hashedCraftmen.write(craftsman, craftsman);
 		}
 
 		for (const pond of this.ponds) {
-			if (!this.hashedPonds[pond.x]) {
-				this.hashedPonds[pond.x] = {};
-			}
-			this.hashedPonds[pond.x]![pond.y] = pond;
+			this.hashedPonds.write(pond, pond);
 		}
 
 		for (const castle of this.castles) {
-			if (!this.hashedCastles[castle.x]) {
-				this.hashedCastles[castle.x] = {};
-			}
-			this.hashedCastles[castle.x]![castle.y] = castle;
+			this.hashedCastles.write(castle, castle);
 		}
 	}
 
@@ -114,83 +108,22 @@ class GameManager implements GameStateData {
 	private craftsmanDoAction(craftsman: CraftsmenPosition, action: Action) {
 		switch (action.action) {
 			case 'MOVE':
-				switch (action.action_param) {
-					case 'DOWN':
-						this.moveCraftsmen(craftsman, craftsman.left(), action);
-						break;
-
-					case 'UP':
-						this.moveCraftsmen(craftsman, craftsman.up(), action);
-						break;
-
-					case 'LEFT':
-						this.moveCraftsmen(craftsman, craftsman.left(), action);
-						break;
-
-					case 'RIGHT':
-						this.moveCraftsmen(craftsman, craftsman.right(), action);
-						break;
-
-					case 'LOWER_LEFT':
-						this.moveCraftsmen(craftsman, craftsman.lowerLeft(), action);
-						break;
-
-					case 'LOWER_RIGHT':
-						this.moveCraftsmen(craftsman, craftsman.lowerRight(), action);
-						break;
-
-					case 'UPPER_LEFT':
-						this.moveCraftsmen(craftsman, craftsman.upperLeft(), action);
-						break;
-
-					case 'UPPER_RIGHT':
-						this.moveCraftsmen(craftsman, craftsman.upperRight(), action);
-						break;
-				}
+				this.moveCraftsmen(craftsman, craftsman.getPositionByActionParam(action.action_param!), action);
 				break;
 
 			case 'BUILD':
-				switch (action.action_param) {
-					case 'LEFT':
-						this.buildWall(craftsman.left(), craftsman.side, action);
-						break;
-
-					case 'RIGHT':
-						this.buildWall(craftsman.right(), craftsman.side, action);
-						break;
-
-					case 'ABOVE':
-						this.buildWall(craftsman.above(), craftsman.side, action);
-						break;
-
-					case 'BELOW':
-						this.buildWall(craftsman.below(), craftsman.side, action);
-						break;
-				}
+				this.buildWall(craftsman.getPositionByActionParam(action.action_param!), craftsman.side, action);
 				break;
 
 			case 'DESTROY':
-				switch (action.action_param) {
-					case 'LEFT':
-						this.destroy(craftsman.left(), action);
-						break;
+				this.destroy(craftsman.getPositionByActionParam(action.action_param!), action);
+				break;
 
-					case 'RIGHT':
-						this.destroy(craftsman.right(), action);
-						break;
-
-					case 'ABOVE':
-						this.destroy(craftsman.above(), action);
-						break;
-
-					case 'BELOW':
-						this.destroy(craftsman.below(), action);
-						break;
-				}
+			case 'STAY':
 				break;
 
 			default:
-				break;
+				throw new Error(`Invalid action: (${action.action})`);
 		}
 	}
 
@@ -200,79 +133,59 @@ class GameManager implements GameStateData {
 			return;
 		}
 
-		this.hashedWalls[pos.x]![pos.y] = null;
+		this.hashedWalls.remove(pos);
 	}
 
 	private canDestroy(pos: Position) {
-		return !!this.hashedWalls[pos.x]?.[pos.y];
+		return this.hashedWalls.exist(pos);
 	}
 
 	private moveCraftsmen(craftsmen: CraftsmenPosition, pos: Position, action: Action) {
-		if (!this.canCraftsmenMove(pos, craftsmen)) {
+		if (!this.canCraftsmenMove(craftsmen, pos)) {
 			action.action = 'STAY';
 			return;
 		}
 
-		this.removeHashedCraftmen(craftsmen);
+		this.hashedCraftmen.remove(craftsmen);
 
 		craftsmen.x = pos.x;
 		craftsmen.y = pos.y;
 
-		this.addHashCraftsmen(craftsmen);
+		this.hashedCraftmen.write(craftsmen, craftsmen);
 	}
 
-	private canCraftsmenMove(pos: Position, craftsmen: CraftsmenPosition) {
-		if (pos.x < 0 || pos.y < 0) return false;
-		if (pos.x >= this.width || pos.y >= this.height) return false;
-
-		if (this.hashedCraftmen[pos.x]?.[pos.y]) return false;
-		if (this.hashedPonds[pos.x]?.[pos.y]) return false;
-		if (this.hashedCastles[pos.x]?.[pos.y]) return false;
-
-		if (this.hashedWalls[pos.x]?.[pos.y] && craftsmen.side !== this.hashedWalls[pos.x]![pos.y]) return false;
+	private canCraftsmenMove(craftsmen: CraftsmenPosition, pos: Position) {
+		if (!pos.isValid(this.width, this.height)) return false;
+		if (this.hashedCraftmen.exist(pos)) return false;
+		if (this.hashedPonds.exist(pos)) return false;
+		if (this.hashedCastles.exist(pos)) return false;
+		if (this.hashedWalls.exist(pos) && craftsmen.side !== this.hashedWalls.read(pos)?.side) return false;
 
 		return true;
 	}
 
-	private addHashCraftsmen(craftsmen: CraftsmenPosition) {
-		if (!this.hashedCraftmen[craftsmen.x]) {
-			this.hashedCraftmen[craftsmen.x] = {};
-		}
-
-		this.hashedCraftmen[craftsmen.x]![craftsmen.y] = craftsmen;
-	}
-
-	private removeHashedCraftmen(craftsmen: CraftsmenPosition) {
-		if (!this.hashedCraftmen[craftsmen.x]) return;
-
-		this.hashedCraftmen[craftsmen.x]![craftsmen.y] = null;
-	}
-
-	private buildWall(pos: Position, side: 'A' | 'B', action: Action) {
+	private buildWall(pos: Position, side: EWallSide, action: Action) {
 		if (!this.canBuildWall(pos)) {
 			action.action = 'STAY';
 			return;
 		}
 
-		this.walls.push(pos);
-
-		if (!this.hashedWalls[pos.x]) {
-			this.hashedWalls[pos.x] = {};
-		}
-
-		this.hashedWalls[pos.x]![pos.y] = side;
+		const wall = new WallPosition(pos.x, pos.y, side);
+		this.walls.push(wall);
+		this.hashedWalls.write(wall, wall);
 	}
 
 	private canBuildWall(pos: Position) {
-		if (this.hashedCraftmen[pos.x]?.[pos.y]) return false;
-		if (this.hashedWalls[pos.x]?.[pos.y]) return false;
-		if (this.hashedPonds[pos.x]?.[pos.y]) return false;
-		if (this.hashedCastles[pos.x]?.[pos.y]) return false;
+		if (!pos.isValid(this.width, this.height)) return false;
+		if (this.hashedCraftmen.exist(pos)) return false;
+		if (this.hashedWalls.exist(pos)) return false;
+		if (this.hashedPonds.exist(pos)) return false;
+		if (this.hashedCastles.exist(pos)) return false;
 
 		return true;
 	}
 
-	public caroGetActions(side: 'A' | 'B'): ActionDto[] {
+	public caroGetActions(side: EWallSide): ActionDto[] {
 		const actions: ActionDto[] = [];
 
 		for (const craftmen of this.craftsmen) {
@@ -316,10 +229,7 @@ class GameManager implements GameStateData {
 				return pos;
 			}
 
-			positions.push(pos.upperLeft());
-			positions.push(pos.upperRight());
-			positions.push(pos.lowerLeft());
-			positions.push(pos.lowerRight());
+			positions.push(...pos.topRightBottomLeft());
 		}
 
 		return null;
@@ -343,10 +253,7 @@ class GameManager implements GameStateData {
 	}
 
 	private caroGetBuildActionFromPosition(pos: Position): EBuildDestryParam | null {
-		const above = pos.above();
-		const below = pos.below();
-		const left = pos.left();
-		const right = pos.right();
+		const [above, right, below, left] = pos.topRightBottomLeft();
 
 		if (this.canBuildWall(above) && above.isValid(this.width, this.height)) {
 			return 'ABOVE';

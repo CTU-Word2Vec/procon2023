@@ -184,7 +184,6 @@ function App() {
 								<Select
 									options={gameModes.map((e) => ({ value: e, label: e }))}
 									placeholder='Game mode'
-									labelInValue
 									style={{ flex: 1 }}
 									value={gameMode}
 									onChange={(value) => setGameMode(value)}
