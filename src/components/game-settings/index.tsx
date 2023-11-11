@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import endpointService from '@/services/endpoint.service';
 import playerService from '@/services/player.service';
-import tokenService from '@/services/token.service';
-import { Input, Modal, Space, message } from 'antd';
+import settingService from '@/services/setting.service';
+import { ApiOutlined, ClockCircleOutlined } from '@ant-design/icons';
+import { Input, InputNumber, Modal, Space, message } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import { useEffect, useState } from 'react';
 
@@ -12,16 +12,21 @@ export interface GameSettingsProps {
 }
 
 export default function GameSettings({ open, onCancel }: GameSettingsProps) {
-	const [token, setToken] = useState<string>(() => tokenService.token);
-	const [apiEndpoint, setApiEndpoint] = useState<string>(() => endpointService.endpoint);
+	const [token, setToken] = useState<string>(() => settingService.token);
+	const [apiEndpoint, setApiEndpoint] = useState<string>(() => settingService.endpoint);
+	const [replayDelay, setReplayDelay] = useState<number>(() => settingService.replayDelay);
 
 	useEffect(() => {
-		tokenService.token = token;
+		settingService.token = token;
 	}, [token]);
 
 	useEffect(() => {
-		endpointService.endpoint = apiEndpoint;
+		settingService.endpoint = apiEndpoint;
 	}, [apiEndpoint]);
+
+	useEffect(() => {
+		settingService.replayDelay = replayDelay;
+	}, [replayDelay]);
 
 	const check = async () => {
 		try {
@@ -49,7 +54,19 @@ export default function GameSettings({ open, onCancel }: GameSettingsProps) {
 				<Input
 					placeholder='Api endpoint'
 					value={apiEndpoint}
+					prefix={<ApiOutlined />}
 					onChange={(event) => setApiEndpoint(event.target.value)}
+				/>
+
+				<InputNumber
+					placeholder='Replay delay'
+					value={replayDelay}
+					style={{ width: '100%' }}
+					min={0}
+					max={9000}
+					prefix={<ClockCircleOutlined />}
+					required
+					onChange={(value) => setReplayDelay(value as number)}
 				/>
 			</Space>
 		</Modal>

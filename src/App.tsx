@@ -17,6 +17,7 @@ import GameState, { GameMode, GameStateData, gameModes } from './game/GameManage
 import Game from './models/Game';
 import GameAction from './models/GameAction';
 import playerService from './services/player.service';
+import settingService from './services/setting.service';
 import wait from './utils/wait';
 
 function App() {
@@ -122,7 +123,7 @@ function App() {
 				gameState.addActions([action]);
 
 				setGameState(gameState.getData());
-				await wait(500);
+				await wait(settingService.replayDelay);
 			}
 		} catch (error: any) {
 			message.error(error.message);
@@ -197,20 +198,8 @@ function App() {
 					<Divider />
 
 					{game && (
-						<>
-							<Select
-								style={{ width: '100%' }}
-								placeholder='Side'
-								value={side}
-								suffixIcon={<UserOutlined />}
-								onChange={setSide}
-								options={game.sides.map((e) => ({
-									value: e.side,
-									label: `Side ${e.side} - ${e.team_name}`,
-								}))}
-							/>
-
-							<Descriptions bordered style={{ marginTop: 10 }} column={2}>
+						<Space direction='vertical' style={{ width: '100%' }}>
+							<Descriptions bordered column={2}>
 								<DescriptionsItem label='Game Id'>{game.id}</DescriptionsItem>
 								<DescriptionsItem label='Dimension'>
 									{game.field.width}x{game.field.height}
@@ -222,7 +211,7 @@ function App() {
 								</DescriptionsItem>
 							</Descriptions>
 
-							<Space.Compact style={{ marginTop: 10, width: '100%' }}>
+							<Space.Compact style={{ width: '100%' }}>
 								<Button
 									icon={<PlayCircleOutlined />}
 									type='primary'
@@ -233,6 +222,18 @@ function App() {
 								</Button>
 
 								<Select
+									style={{ flex: 1 }}
+									placeholder='Side'
+									value={side}
+									suffixIcon={<UserOutlined />}
+									onChange={setSide}
+									options={game.sides.map((e) => ({
+										value: e.side,
+										label: `Side ${e.side} - ${e.team_name}`,
+									}))}
+								/>
+
+								<Select
 									options={gameModes.map((e) => ({ value: e, label: e }))}
 									placeholder='Game mode'
 									style={{ flex: 1 }}
@@ -240,8 +241,9 @@ function App() {
 									onChange={(value) => setGameMode(value)}
 								/>
 							</Space.Compact>
+
 							<ActionList actions={gameActions} turn={gameState?.lastTurn} />
-						</>
+						</Space>
 					)}
 				</Col>
 			</Row>

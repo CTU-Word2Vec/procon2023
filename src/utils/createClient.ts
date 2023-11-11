@@ -1,12 +1,11 @@
-import endpointService from '@/services/endpoint.service';
-import tokenService from '@/services/token.service';
+import settingService from '@/services/setting.service';
 import axios from 'axios';
 
 export default function createClient(baseURL: string = '') {
-	const client = axios.create({ baseURL: `${endpointService.endpoint}/${baseURL}` });
+	const client = axios.create({ baseURL: `${settingService.endpoint}/${baseURL}` });
 
 	client.interceptors.request.use((req) => {
-		req.headers.Authorization = tokenService.token;
+		req.headers.Authorization = settingService.token;
 
 		return req;
 	});
