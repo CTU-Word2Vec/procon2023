@@ -1,3 +1,4 @@
+import { CraftsmenPosition } from '@/game/CraftsmenPosition';
 import { GameStateData } from '@/game/GameManager';
 import { Position } from '@/game/Position';
 import clsx from 'clsx';
@@ -9,6 +10,12 @@ import styles from './index.module.scss';
 
 export interface GameBoardProps {
 	state: GameStateData;
+}
+
+function renderCraftsmen(craftmen: CraftsmenPosition) {
+	if (craftmen.side === 'A') return <CraftsmenA id={craftmen.id} />;
+
+	return <CraftsmenB id={craftmen.id} />;
 }
 
 export default function GameBoard({ state }: GameBoardProps) {
@@ -36,22 +43,6 @@ export default function GameBoard({ state }: GameBoardProps) {
 					continue;
 				}
 
-				if (state.hashedCraftmen.exist(pos)) {
-					const craftsmen = state.hashedCraftmen.read(pos)!;
-
-					cols.push(
-						<td className={className}>
-							{craftsmen.side === 'A' ? (
-								<CraftsmenA id={craftsmen.id} />
-							) : (
-								<CraftsmenB id={craftsmen.id} />
-							)}
-						</td>,
-					);
-
-					continue;
-				}
-
 				cols.push(
 					<td className={className}>
 						<div className={styles.placeholder}></div>
@@ -73,13 +64,27 @@ export default function GameBoard({ state }: GameBoardProps) {
 
 	return (
 		<div className={styles.wrapper}>
-			<table>
-				<tbody>
-					{rows.map((row, index) => (
-						<React.Fragment key={index}>{row}</React.Fragment>
-					))}
-				</tbody>
-			</table>
+			<div className={styles.inner}>
+				<table>
+					<tbody>
+						{rows.map((row, index) => (
+							<React.Fragment key={index}>{row}</React.Fragment>
+						))}
+					</tbody>
+				</table>
+
+				{state.craftsmen.map((craftsmen) => (
+					<div
+						key={craftsmen.id}
+						className={styles.flyingCraftsmen}
+						style={{
+							transform: `translate(${craftsmen.x * 33 + 1}px, ${craftsmen.y * 33 + 1}px)`,
+						}}
+					>
+						{renderCraftsmen(craftsmen)}
+					</div>
+				))}
+			</div>
 		</div>
 	);
 }

@@ -31,3 +31,14 @@
 	width: 32px;
 	height: 32px;
 }
+
+.inner {
+	position: relative;
+}
+
+.flyingCraftsmen {
+	position: absolute;
+	left: 0;
+	top: 0;
+	transition: 0.4s ease;
+}
