@@ -13,6 +13,10 @@ class TokenService {
 	}
 
 	set token(v: string) {
+		if (!v) {
+			v = '';
+		}
+
 		this._token = v;
 		window.localStorage.setItem(this._tokenName, v);
 	}

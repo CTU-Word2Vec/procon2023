@@ -1,16 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { PlayCircleOutlined, SettingOutlined } from '@ant-design/icons';
-import { Button, Col, Descriptions, Divider, Input, Modal, Row, Select, Space, message } from 'antd';
+import { Button, Col, Descriptions, Divider, Input, Row, Select, Space, message } from 'antd';
 import ButtonGroup from 'antd/es/button/button-group';
 import DescriptionsItem from 'antd/es/descriptions/Item';
 import dayjs from 'dayjs';
 import { useMemo, useState } from 'react';
 import ActionList from './components/action-list';
 import GameBoard from './components/game-board';
+import GameSettings from './components/game-settings';
 import Game from './models/Game';
 import GameAction from './models/GameAction';
 import playerService from './services/player.service';
-import tokenService from './services/token.service';
 import GameState, { GameStateData } from './states/GameState';
 import randomAction from './utils/randomAction';
 import wait from './utils/wait';
@@ -23,6 +23,7 @@ function App() {
 	const [gameState, setGameState] = useState<GameStateData>();
 	const [isOpenSettingModal, setIsOpenSettingModal] = useState(false);
 	const [gameActions, setGameActions] = useState<GameAction[]>([]);
+	const [isPlaying, setIsPlaying] = useState(false);
 
 	const handleStart = async () => {
 		if (!gameId) return;
@@ -53,6 +54,8 @@ function App() {
 		if (!game) return;
 
 		try {
+			setIsPlaying(true);
+
 			const now = new Date();
 			const startTime = new Date(game.start_time);
 
@@ -81,6 +84,12 @@ function App() {
 			for (let i = nextTurn; i <= game.num_of_turns; i++) {
 				const { cur_turn } = await playerService.getGameStatus(game.id);
 
+				const actions = await playerService.getGameActions(game.id);
+
+				gameState.addActions(actions);
+				setGameState(gameState.getData());
+				setGameActions(actions.reverse());
+
 				if ((side === 'A' && cur_turn % 2 !== 0) || (side === 'B' && cur_turn % 2 === 0)) {
 					try {
 						await playerService.createAction(game.id, {
@@ -92,18 +101,14 @@ function App() {
 					}
 				}
 
-				const actions = await playerService.getGameActions(game.id);
-
-				gameState.addActions(actions);
-				setGameState(gameState.getData());
-				setGameActions(actions.reverse());
-
 				const { remaining } = await playerService.getGameStatus(game.id);
 
 				await wait(remaining * 1000);
 			}
 		} catch (error: any) {
 			message.error(error.message);
+		} finally {
+			setIsPlaying(false);
 		}
 	};
 
@@ -178,9 +183,10 @@ function App() {
 								style={{ marginTop: 10 }}
 								icon={<PlayCircleOutlined />}
 								type='primary'
+								loading={isPlaying}
 								onClick={handlePlay}
 							>
-								Play
+								{isPlaying ? 'Playing...' : 'Play'}
 							</Button>
 						</>
 					)}
@@ -189,18 +195,7 @@ function App() {
 				</Col>
 			</Row>
 
-			<Modal
-				title='Setting'
-				open={isOpenSettingModal}
-				onCancel={() => setIsOpenSettingModal(false)}
-				onOk={() => setIsOpenSettingModal(false)}
-			>
-				<Input
-					placeholder='Token'
-					value={tokenService.token}
-					onChange={(event) => (tokenService.token = event.target.value)}
-				/>
-			</Modal>
+			<GameSettings open={isOpenSettingModal} onCancel={() => setIsOpenSettingModal(false)} />
 		</>
 	);
 }
