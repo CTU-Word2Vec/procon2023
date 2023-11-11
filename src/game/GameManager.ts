@@ -6,6 +6,9 @@ import { ActionDto } from '@/services/player.service';
 import { CraftsmenPosition } from './CraftsmenPosition';
 import { Position } from './Position';
 
+export type GameMode = 'Caro' | 'A*';
+export const gameModes: GameMode[] = ['Caro', 'A*'];
+
 export interface GameStateData {
 	castle_coeff: number;
 	wall_coeff: number;

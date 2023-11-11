@@ -1,14 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { PlayCircleOutlined, SettingOutlined } from '@ant-design/icons';
+import { InfoCircleOutlined, PlayCircleOutlined, SettingOutlined } from '@ant-design/icons';
 import { Button, Col, Descriptions, Divider, Input, Row, Select, Space, message } from 'antd';
-import ButtonGroup from 'antd/es/button/button-group';
 import DescriptionsItem from 'antd/es/descriptions/Item';
 import dayjs from 'dayjs';
 import { useState } from 'react';
 import ActionList from './components/action-list';
 import GameBoard from './components/game-board';
 import GameSettings from './components/game-settings';
-import GameState, { GameStateData } from './game/GameManager';
+import GameState, { GameMode, GameStateData, gameModes } from './game/GameManager';
 import Game from './models/Game';
 import GameAction from './models/GameAction';
 import playerService from './services/player.service';
@@ -23,6 +22,7 @@ function App() {
 	const [isOpenSettingModal, setIsOpenSettingModal] = useState(false);
 	const [gameActions, setGameActions] = useState<GameAction[]>([]);
 	const [isPlaying, setIsPlaying] = useState(false);
+	const [gameMode, setGameMode] = useState<GameMode>('Caro');
 
 	const handleStart = async () => {
 		if (!gameId) return;
@@ -75,7 +75,7 @@ function App() {
 
 			setGameState(gameState.getData());
 
-			for (let i = nextTurn; i <= game.num_of_turns; i++) {
+			for (let i = 0; i <= game.num_of_turns; i++) {
 				const { cur_turn } = await playerService.getGameStatus(game.id);
 
 				const actions = await playerService.getGameActions(game.id);
@@ -85,14 +85,12 @@ function App() {
 				setGameActions(actions.reverse());
 
 				if ((side === 'A' && cur_turn % 2 !== 0) || (side === 'B' && cur_turn % 2 === 0)) {
-					try {
-						await playerService.createAction(game.id, {
+					playerService
+						.createAction(game.id, {
 							turn: cur_turn + 1,
 							actions: gameState.caroGetActions(side),
-						});
-					} catch (error: any) {
-						message.error(error.message);
-					}
+						})
+						.catch((error) => message.error(error.message));
 				}
 
 				const { remaining } = await playerService.getGameStatus(game.id);
@@ -123,13 +121,18 @@ function App() {
 						}}
 					>
 						<Space.Compact style={{ width: '100%' }}>
+							<Button onClick={() => setIsOpenSettingModal(true)}>
+								<SettingOutlined />
+							</Button>
+
 							<Input
 								placeholder='Game Id'
 								value={gameId}
 								onChange={(event) => setGameId(event.target.value)}
 							/>
+
 							<Button
-								icon={<PlayCircleOutlined />}
+								icon={<InfoCircleOutlined />}
 								type='primary'
 								disabled={!gameId}
 								loading={isLoadingGame}
@@ -138,12 +141,6 @@ function App() {
 								Get game data
 							</Button>
 						</Space.Compact>
-
-						<ButtonGroup style={{ marginTop: 10 }}>
-							<Button shape='circle' onClick={() => setIsOpenSettingModal(true)}>
-								<SettingOutlined />
-							</Button>
-						</ButtonGroup>
 					</form>
 
 					<Divider />
@@ -173,15 +170,25 @@ function App() {
 								</DescriptionsItem>
 							</Descriptions>
 
-							<Button
-								style={{ marginTop: 10 }}
-								icon={<PlayCircleOutlined />}
-								type='primary'
-								loading={isPlaying}
-								onClick={handlePlay}
-							>
-								{isPlaying ? 'Playing...' : 'Play'}
-							</Button>
+							<Space.Compact style={{ marginTop: 10, width: '100%' }}>
+								<Button
+									icon={<PlayCircleOutlined />}
+									type='primary'
+									loading={isPlaying}
+									onClick={handlePlay}
+								>
+									{isPlaying ? 'Playing...' : 'Play'}
+								</Button>
+
+								<Select
+									options={gameModes.map((e) => ({ value: e, label: e }))}
+									placeholder='Game mode'
+									labelInValue
+									style={{ flex: 1 }}
+									value={gameMode}
+									onChange={(value) => setGameMode(value)}
+								/>
+							</Space.Compact>
 						</>
 					)}
 
