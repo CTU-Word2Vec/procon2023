@@ -87,7 +87,7 @@ class GameManager implements GameStateData {
 		if (!actions.length) return;
 
 		for (let i = 0; i < actions.length; i++) {
-			if (actions[i].turn < this.lastTurn) {
+			if (actions[i].turn <= this.lastTurn) {
 				continue;
 			}
 
@@ -158,8 +158,7 @@ class GameManager implements GameStateData {
 		if (!pos.isValid(this.width, this.height)) return false;
 		if (this.hashedCraftmen.exist(pos)) return false;
 		if (this.hashedPonds.exist(pos)) return false;
-		if (this.hashedCastles.exist(pos)) return false;
-		if (this.hashedWalls.exist(pos) && craftsmen.side !== this.hashedWalls.read(pos)?.side) return false;
+		if (this.hashedWalls.exist(pos) && craftsmen.side !== this.hashedWalls.read(pos)!.side) return false;
 
 		return true;
 	}

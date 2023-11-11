@@ -72,7 +72,7 @@ export class Position implements IPosition {
 			case 'RIGHT':
 				return this.right();
 			case 'UPPER_LEFT':
-				return this.upperRight();
+				return this.upperLeft();
 			case 'UPPER_RIGHT':
 				return this.upperRight();
 			case 'LOWER_LEFT':
