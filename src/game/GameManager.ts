@@ -228,7 +228,7 @@ class GameManager implements GameStateData {
 				return pos;
 			}
 
-			positions.push(...pos.topRightBottomLeft());
+			positions.push(...pos.upperLeftUpperRightLowerRightLowerLeft());
 		}
 
 		return null;
@@ -254,19 +254,19 @@ class GameManager implements GameStateData {
 	private caroGetBuildActionFromPosition(pos: Position): EBuildDestryParam | null {
 		const [above, right, below, left] = pos.topRightBottomLeft();
 
-		if (this.canBuildWall(above) && above.isValid(this.width, this.height)) {
+		if (this.canBuildWall(above)) {
 			return 'ABOVE';
 		}
 
-		if (this.canBuildWall(below) && below.isValid(this.width, this.height)) {
+		if (this.canBuildWall(below)) {
 			return 'BELOW';
 		}
 
-		if (this.canBuildWall(left) && left.isValid(this.width, this.height)) {
+		if (this.canBuildWall(left)) {
 			return 'LEFT';
 		}
 
-		if (this.canBuildWall(right) && right.isValid(this.width, this.height)) {
+		if (this.canBuildWall(right)) {
 			return 'RIGHT';
 		}
 

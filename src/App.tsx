@@ -83,9 +83,9 @@ function App() {
 			setGameState(gameState.getData());
 
 			for (let i = 0; i <= game.num_of_turns; i++) {
-				const { cur_turn } = await playerService.getGameStatus(game.id);
-
 				const actions = await playerService.getGameActions(game.id);
+
+				const { cur_turn } = await playerService.getGameStatus(game.id);
 
 				gameState.addActions(actions);
 				setGameState(gameState.getData());
