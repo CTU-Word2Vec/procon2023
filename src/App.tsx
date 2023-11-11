@@ -1,6 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { InfoCircleOutlined, PlayCircleOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
-import { App as AntdApp, Button, Col, Descriptions, Divider, Input, Row, Select, Space, message } from 'antd';
+import {
+	InfoCircleOutlined,
+	PlayCircleOutlined,
+	ReloadOutlined,
+	SettingOutlined,
+	UserOutlined,
+} from '@ant-design/icons';
+import { App as AntdApp, Button, Col, Descriptions, Divider, Input, Row, Select, Slider, Space, message } from 'antd';
 import DescriptionsItem from 'antd/es/descriptions/Item';
 import dayjs from 'dayjs';
 import { useState } from 'react';
@@ -23,6 +29,7 @@ function App() {
 	const [gameActions, setGameActions] = useState<GameAction[]>([]);
 	const [isPlaying, setIsPlaying] = useState(false);
 	const [gameMode, setGameMode] = useState<GameMode>('Caro');
+	const [isReplaying, setIsReplaying] = useState(false);
 
 	const handleStart = async () => {
 		if (!gameId) return;
@@ -104,12 +111,50 @@ function App() {
 		}
 	};
 
+	const handleReplay = async () => {
+		try {
+			setIsReplaying(true);
+			const actions = await playerService.getGameActions(+gameId!);
+
+			const gameState = new GameState(game!.field!);
+
+			for (const action of actions) {
+				gameState.addActions([action]);
+
+				setGameState(gameState.getData());
+				await wait(500);
+			}
+		} catch (error: any) {
+			message.error(error.message);
+		} finally {
+			setIsReplaying(false);
+		}
+	};
+
 	return (
 		<AntdApp>
 			<Row>
 				<Col xs={12}>
-					<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', paddingTop: 64 }}>
-						{gameState && <GameBoard state={gameState as GameStateData} />}
+					<div
+						style={{
+							display: 'flex',
+							justifyContent: 'center',
+							alignItems: 'center',
+							paddingTop: 64,
+							flexDirection: 'column',
+						}}
+					>
+						{gameState && (
+							<>
+								<GameBoard state={gameState as GameStateData} />
+								<Slider
+									value={gameState.lastTurn}
+									style={{ width: 640 }}
+									max={game?.num_of_turns || 0}
+									tooltip={{ open: true }}
+								/>
+							</>
+						)}
 					</div>
 				</Col>
 
@@ -130,6 +175,12 @@ function App() {
 								value={gameId}
 								onChange={(event) => setGameId(event.target.value)}
 							/>
+
+							{game && (
+								<Button icon={<ReloadOutlined />} loading={isReplaying} onClick={handleReplay}>
+									Replay
+								</Button>
+							)}
 
 							<Button
 								icon={<InfoCircleOutlined />}
@@ -189,10 +240,9 @@ function App() {
 									onChange={(value) => setGameMode(value)}
 								/>
 							</Space.Compact>
+							<ActionList actions={gameActions} turn={gameState?.lastTurn} />
 						</>
 					)}
-
-					<ActionList actions={gameActions} />
 				</Col>
 			</Row>
 

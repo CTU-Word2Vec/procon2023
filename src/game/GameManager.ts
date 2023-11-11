@@ -22,6 +22,7 @@ export interface GameStateData {
 	craftsmen: CraftsmenPosition[];
 	walls: WallPosition[];
 
+	lastTurn: number;
 	hashedCraftmen: HashedType<CraftsmenPosition>;
 	hashedWalls: HashedType<WallPosition>;
 	hashedPonds: HashedType<Position>;
@@ -39,8 +40,7 @@ class GameManager implements GameStateData {
 	public craftsmen: CraftsmenPosition[];
 	public walls: WallPosition[];
 
-	private lastTurn = 0;
-
+	public lastTurn = 0;
 	public hashedCraftmen: HashedType<CraftsmenPosition>;
 	public hashedWalls: HashedType<WallPosition>;
 	public hashedPonds: HashedType<Position>;
