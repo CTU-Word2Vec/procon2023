@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { InfoCircleOutlined, PlayCircleOutlined, SettingOutlined } from '@ant-design/icons';
-import { Button, Col, Descriptions, Divider, Input, Row, Select, Space, message } from 'antd';
+import { InfoCircleOutlined, PlayCircleOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
+import { App as AntdApp, Button, Col, Descriptions, Divider, Input, Row, Select, Space, message } from 'antd';
 import DescriptionsItem from 'antd/es/descriptions/Item';
 import dayjs from 'dayjs';
 import { useState } from 'react';
@@ -105,7 +105,7 @@ function App() {
 	};
 
 	return (
-		<>
+		<AntdApp>
 			<Row>
 				<Col xs={12}>
 					<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', paddingTop: 64 }}>
@@ -151,6 +151,7 @@ function App() {
 								style={{ width: '100%' }}
 								placeholder='Side'
 								value={side}
+								suffixIcon={<UserOutlined />}
 								onChange={setSide}
 								options={game.sides.map((e) => ({
 									value: e.side,
@@ -197,7 +198,7 @@ function App() {
 			</Row>
 
 			<GameSettings open={isOpenSettingModal} onCancel={() => setIsOpenSettingModal(false)} />
-		</>
+		</AntdApp>
 	);
 }
 
