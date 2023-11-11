@@ -17,7 +17,6 @@ import GameState, { GameMode, GameStateData, gameModes } from './game/GameManage
 import Game from './models/Game';
 import GameAction from './models/GameAction';
 import playerService from './services/player.service';
-import settingService from './services/setting.service';
 import wait from './utils/wait';
 
 function App() {
@@ -119,11 +118,17 @@ function App() {
 
 			const gameState = new GameState(game!.field!);
 
-			for (const action of actions) {
-				gameState.addActions([action]);
+			for (let i = 0; i < actions.length; i++) {
+				const action = actions[i];
 
+				if (action.turn === actions[i + 1]?.turn) {
+					continue;
+				}
+
+				gameState.addActions([action]);
 				setGameState(gameState.getData());
-				await wait(settingService.replayDelay);
+
+				await wait(300);
 			}
 		} catch (error: any) {
 			message.error(error.message);
@@ -152,7 +157,6 @@ function App() {
 									value={gameState.lastTurn}
 									style={{ width: 640 }}
 									max={game?.num_of_turns || 0}
-									tooltip={{ open: true }}
 								/>
 							</>
 						)}
@@ -209,6 +213,7 @@ function App() {
 								<DescriptionsItem label='Start time'>
 									{dayjs(game.start_time).format('DD/MM/YYYY HH:mm:ss')}
 								</DescriptionsItem>
+								<DescriptionsItem label='Turn'>{gameState?.lastTurn}</DescriptionsItem>
 							</Descriptions>
 
 							<Space.Compact style={{ width: '100%' }}>
@@ -242,7 +247,7 @@ function App() {
 								/>
 							</Space.Compact>
 
-							<ActionList actions={gameActions} turn={gameState?.lastTurn} />
+							<ActionList actions={gameActions} />
 						</Space>
 					)}
 				</Col>

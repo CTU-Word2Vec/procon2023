@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import playerService from '@/services/player.service';
 import settingService from '@/services/setting.service';
-import { ApiOutlined, ClockCircleOutlined } from '@ant-design/icons';
-import { Input, InputNumber, Modal, Space, message } from 'antd';
+import { ApiOutlined } from '@ant-design/icons';
+import { Input, Modal, Space, message } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import { useEffect, useState } from 'react';
 
@@ -14,7 +14,6 @@ export interface GameSettingsProps {
 export default function GameSettings({ open, onCancel }: GameSettingsProps) {
 	const [token, setToken] = useState<string>(() => settingService.token);
 	const [apiEndpoint, setApiEndpoint] = useState<string>(() => settingService.endpoint);
-	const [replayDelay, setReplayDelay] = useState<number>(() => settingService.replayDelay);
 
 	useEffect(() => {
 		settingService.token = token;
@@ -23,10 +22,6 @@ export default function GameSettings({ open, onCancel }: GameSettingsProps) {
 	useEffect(() => {
 		settingService.endpoint = apiEndpoint;
 	}, [apiEndpoint]);
-
-	useEffect(() => {
-		settingService.replayDelay = replayDelay;
-	}, [replayDelay]);
 
 	const check = async () => {
 		try {
@@ -56,17 +51,6 @@ export default function GameSettings({ open, onCancel }: GameSettingsProps) {
 					value={apiEndpoint}
 					prefix={<ApiOutlined />}
 					onChange={(event) => setApiEndpoint(event.target.value)}
-				/>
-
-				<InputNumber
-					placeholder='Replay delay'
-					value={replayDelay}
-					style={{ width: '100%' }}
-					min={0}
-					max={9000}
-					prefix={<ClockCircleOutlined />}
-					required
-					onChange={(value) => setReplayDelay(value as number)}
 				/>
 			</Space>
 		</Modal>

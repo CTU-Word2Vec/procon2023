@@ -1,20 +1,12 @@
 import GameAction from '@/models/GameAction';
 import { Alert, Descriptions, Timeline } from 'antd';
 import DescriptionsItem from 'antd/es/descriptions/Item';
-import { useEffect } from 'react';
 import styles from './index.module.scss';
 
 export interface ActionListProps {
 	actions: GameAction[];
-	turn?: number;
 }
-export default function ActionList({ actions, turn }: ActionListProps) {
-	const id = 'turn';
-
-	useEffect(() => {
-		document.querySelector(`.${id}-${turn}`)?.scrollIntoView();
-	}, [id, turn]);
-
+export default function ActionList({ actions }: ActionListProps) {
 	return (
 		<>
 			<h3 className={styles.title}>Actions</h3>
@@ -27,7 +19,6 @@ export default function ActionList({ actions, turn }: ActionListProps) {
 								<Alert
 									type={action.turn % 2 ? 'error' : 'info'}
 									message={`Turn ${action.turn}`}
-									className={`${id}-${action.turn}`}
 									description={
 										<Descriptions column={1} size='small' bordered>
 											{action.actions.map((craftmen) => (
