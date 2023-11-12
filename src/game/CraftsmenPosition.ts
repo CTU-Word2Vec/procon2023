@@ -16,7 +16,7 @@ export class CraftsmenPosition extends Position implements ICraftsmenPosition {
 		this.side = side;
 	}
 
-	getActionToGoToPosition(pos: Position) {
+	public getActionToGoToPosition(pos: Position): ActionDto {
 		const action: ActionDto = {
 			action: 'MOVE',
 			craftsman_id: this.id,
