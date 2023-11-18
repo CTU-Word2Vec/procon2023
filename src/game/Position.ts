@@ -100,7 +100,7 @@ export class Position implements IPosition {
 		return [...this.topRightBottomLeft(), ...this.upperLeftUpperRightLowerRightLowerLeft()];
 	}
 
-	public distance(pos: Position, formular: 'mahata' | 'euclid' = 'euclid'): number {
+	public distance(pos: Position, formular: 'mahata' | 'euclid' = 'mahata'): number {
 		switch (formular) {
 			case 'mahata':
 				return this.manhattanDistance(pos);

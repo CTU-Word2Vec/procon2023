@@ -15,7 +15,15 @@ export default class Craftsmen extends React.Component<CraftmenProps> {
 
 	render(): React.ReactNode {
 		return (
-			<div className={styles.wrapper} style={{ width: 32, height: 32, border: `2px solid ${this.color}` }}>
+			<div
+				className={styles.wrapper}
+				style={{
+					width: 32,
+					height: 32,
+					border: `2px solid ${this.color}`,
+					borderRadius: '50%',
+				}}
+			>
 				<img src={this.imgSource} alt='Craftmen' style={{ width: '100%' }} />
 
 				<span className={styles.id} style={{ background: this.color }}>

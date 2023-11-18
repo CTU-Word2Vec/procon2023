@@ -186,6 +186,8 @@ class GameManager implements GameStateData {
 	}
 
 	public getNextActions(side: EWallSide): ActionDto[] {
+		const startTime = Date.now();
+
 		this.goingTo = new HashedType<Position>();
 		const actions: ActionDto[] = [];
 
@@ -203,6 +205,11 @@ class GameManager implements GameStateData {
 		}
 
 		this.goingTo = new HashedType<Position>();
+
+		const endTime = Date.now();
+
+		console.log(`Time to get next actions: ${endTime - startTime}ms`);
+
 		return actions;
 	}
 

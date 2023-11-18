@@ -1,16 +1,23 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { AppstoreOutlined, PlayCircleOutlined, ReloadOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
-import { App as AntdApp, Button, Col, Descriptions, Divider, Input, Row, Select, Slider, Space, message } from 'antd';
-import DescriptionsItem from 'antd/es/descriptions/Item';
-import dayjs from 'dayjs';
-import { useState } from 'react';
+import {
+	AppstoreOutlined,
+	PlayCircleOutlined,
+	ReloadOutlined,
+	SettingOutlined,
+	ThunderboltOutlined,
+	UserOutlined,
+} from '@ant-design/icons';
+import { App as AntdApp, Button, Col, Divider, Input, Row, Select, Slider, Space, message } from 'antd';
+import { useCallback, useState } from 'react';
 import styles from './App.module.scss';
 import ActionList from './components/action-list';
 import AppHeader from './components/app-header';
 import GameBoard from './components/game-board';
+import GameInfo from './components/game-info';
 import GameSettings from './components/game-settings';
 import GameState, { GameMode, GameStateData, gameModes } from './game/GameManager';
 import { EWallSide } from './game/WallPosition';
+import Action from './models/Action';
 import Game from './models/Game';
 import GameAction from './models/GameAction';
 import playerService from './services/player.service';
@@ -19,7 +26,7 @@ import wait from './utils/wait';
 function App() {
 	const [gameId, setGameId] = useState<string>();
 	const [game, setGame] = useState<Game>();
-	const [side, setSide] = useState<'A' | 'B'>('A');
+	const [side, setSide] = useState<EWallSide>('A');
 	const [isLoadingGame, setIsLoadingGame] = useState(false);
 	const [gameState, setGameState] = useState<GameStateData>();
 	const [isOpenSettingModal, setIsOpenSettingModal] = useState(false);
@@ -28,7 +35,7 @@ function App() {
 	const [gameMode, setGameMode] = useState<GameMode>('Caro');
 	const [isReplaying, setIsReplaying] = useState(false);
 
-	const handleStart = async () => {
+	const handleGetGameData = async () => {
 		if (!gameId) return;
 		try {
 			setIsLoadingGame(true);
@@ -48,98 +55,105 @@ function App() {
 		}
 	};
 
-	const handlePlayTest = async () => {
-		if (!game) return;
+	const handlePlayTest = useCallback(
+		async (game: Game) => {
+			try {
+				setIsPlaying(true);
 
-		try {
-			setIsPlaying(true);
+				const actions: GameAction[] = [];
 
-			const actions: GameAction[] = [];
+				const gameState = new GameState(game.field);
 
-			const gameState = new GameState(game.field);
+				for (let i = 1; i <= game.num_of_turns; i++) {
+					const turnOf: EWallSide = i % 2 !== 0 ? 'A' : 'B';
 
-			for (let i = 1; i <= game.num_of_turns; i++) {
-				const turnOf: EWallSide = i % 2 !== 0 ? 'A' : 'B';
+					const action = gameState.getNextActions(turnOf) as unknown as Action[];
 
-				const action = gameState.getNextActions(turnOf);
-				actions.push({
-					actions: action,
-					turn: i + 1,
-				});
+					actions.push({
+						actions: action,
+						turn: i + 1,
+						created_time: new Date().toISOString(),
+						game_id: game.id,
+						id: i,
+						team_id: i % 2,
+					});
 
-				gameState.addActions(actions);
-				setGameState(gameState.getData());
-				setGameActions(actions.reverse());
-				await wait(100);
-			}
-		} catch (error: any) {
-			message.error(error.message);
-		} finally {
-			setIsPlaying(false);
-		}
-	};
-
-	const handlePlay = async () => {
-		if (!game) return;
-
-		try {
-			setIsPlaying(true);
-
-			const now = new Date();
-			const startTime = new Date(game.start_time);
-
-			let nextTurn = side === 'A' ? 2 : 1;
-
-			if (now.getTime() >= startTime.getTime()) {
-				const { cur_turn } = await playerService.getGameStatus(game.id);
-
-				nextTurn = cur_turn;
-
-				if (side === 'A' && nextTurn % 2 !== 0) {
-					nextTurn++;
+					gameState.addActions(actions);
+					setGameState(gameState.getData());
+					setGameActions(actions.reverse());
+					await wait(10);
 				}
-			} else {
-				await wait(Math.max(0, startTime.getTime() - now.getTime()));
+			} catch (error: any) {
+				message.error(error.message);
+			} finally {
+				setIsPlaying(false);
 			}
+		},
+		[setGameState, setGameActions],
+	);
 
-			const gameState = new GameState(game.field);
+	const handlePlay = useCallback(
+		async (game: Game, side: EWallSide) => {
+			try {
+				setIsPlaying(true);
 
-			const actions = await playerService.getGameActions(game.id);
+				const now = new Date();
+				const startTime = new Date(game.start_time);
 
-			gameState.addActions(actions);
+				let nextTurn = side === 'A' ? 2 : 1;
 
-			setGameState(gameState.getData());
+				if (now.getTime() >= startTime.getTime()) {
+					const { cur_turn } = await playerService.getGameStatus(game.id);
 
-			for (let i = 0; i <= game.num_of_turns; i++) {
+					nextTurn = cur_turn;
+
+					if (side === 'A' && nextTurn % 2 !== 0) {
+						nextTurn++;
+					}
+				} else {
+					await wait(Math.max(0, startTime.getTime() - now.getTime()));
+				}
+
+				const gameState = new GameState(game.field);
+
 				const actions = await playerService.getGameActions(game.id);
 
-				const { cur_turn } = await playerService.getGameStatus(game.id);
-
 				gameState.addActions(actions);
+
 				setGameState(gameState.getData());
-				setGameActions(actions.reverse());
 
-				if ((side === 'A' && cur_turn % 2 !== 0) || (side === 'B' && cur_turn % 2 === 0)) {
-					playerService
-						.createAction(game.id, {
-							turn: cur_turn + 1,
-							actions: gameState.getNextActions(side),
-						})
-						.catch((error) => message.error(error.message));
+				for (let i = 0; i <= game.num_of_turns; i++) {
+					const actions = await playerService.getGameActions(game.id);
+
+					const { cur_turn } = await playerService.getGameStatus(game.id);
+
+					gameState.addActions(actions);
+					setGameState(gameState.getData());
+					setGameActions(actions.reverse());
+
+					if ((side === 'A' && cur_turn % 2 !== 0) || (side === 'B' && cur_turn % 2 === 0)) {
+						playerService
+							.createAction(game.id, {
+								turn: cur_turn + 1,
+								actions: gameState.getNextActions(side),
+							})
+							.catch((error) => message.error(error.message));
+					}
+
+					const { remaining } = await playerService.getGameStatus(game.id);
+
+					await wait(remaining * 1000);
 				}
-
-				const { remaining } = await playerService.getGameStatus(game.id);
-
-				await wait(remaining * 1000);
+			} catch (error: any) {
+				message.error(error.message);
+			} finally {
+				setIsPlaying(false);
 			}
-		} catch (error: any) {
-			message.error(error.message);
-		} finally {
-			setIsPlaying(false);
-		}
-	};
+		},
+		[setIsPlaying, setGameState, setGameActions],
+	);
 
-	const handleReplay = async () => {
+	const handleReplay = useCallback(async () => {
 		try {
 			setIsReplaying(true);
 			const actions = await playerService.getGameActions(+gameId!);
@@ -163,7 +177,7 @@ function App() {
 		} finally {
 			setIsReplaying(false);
 		}
-	};
+	}, [game, gameId, setGameState]);
 
 	return (
 		<AntdApp>
@@ -188,7 +202,7 @@ function App() {
 					<form
 						onSubmit={(event) => {
 							event.preventDefault();
-							handleStart();
+							handleGetGameData();
 						}}
 					>
 						<Space.Compact style={{ width: '100%' }}>
@@ -199,6 +213,7 @@ function App() {
 							<Input
 								placeholder='Game Id'
 								value={gameId}
+								autoFocus
 								onChange={(event) => setGameId(event.target.value)}
 							/>
 						</Space.Compact>
@@ -227,22 +242,8 @@ function App() {
 
 					{game && (
 						<Space direction='vertical' style={{ width: '100%' }}>
-							<Space.Compact style={{ width: '100%' }}>
-								<Button
-									icon={<PlayCircleOutlined />}
-									type='primary'
-									loading={isPlaying}
-									onClick={handlePlay}
-								>
-									{isPlaying ? 'Playing...' : 'Play'}
-								</Button>
-
-								<Button icon={<PlayCircleOutlined />} loading={isPlaying} onClick={handlePlayTest}>
-									{isPlaying ? 'Playing...' : 'Play test'}
-								</Button>
-
+							<Space>
 								<Select
-									style={{ flex: 1 }}
 									placeholder='Side'
 									value={side}
 									suffixIcon={<UserOutlined />}
@@ -256,24 +257,31 @@ function App() {
 								<Select
 									options={gameModes.map((e) => ({ value: e, label: e }))}
 									placeholder='Game mode'
-									style={{ flex: 1 }}
 									value={gameMode}
 									onChange={(value) => setGameMode(value)}
 								/>
-							</Space.Compact>
+							</Space>
 
-							<Descriptions bordered layout='vertical' column={2}>
-								<DescriptionsItem label='Game Id'>{game.id}</DescriptionsItem>
-								<DescriptionsItem label='Dimension'>
-									{game.field.width}x{game.field.height}
-								</DescriptionsItem>
-								<DescriptionsItem label='Time per turn'>{game.time_per_turn} secs</DescriptionsItem>
-								<DescriptionsItem label='Number of turns'>{game.num_of_turns}</DescriptionsItem>
-								<DescriptionsItem label='Start time'>
-									{dayjs(game.start_time).format('DD/MM/YYYY HH:mm:ss')}
-								</DescriptionsItem>
-								<DescriptionsItem label='Turn'>{gameState?.lastTurn}</DescriptionsItem>
-							</Descriptions>
+							<Space style={{ width: '100%' }}>
+								<Button
+									icon={<PlayCircleOutlined />}
+									type='primary'
+									loading={isPlaying}
+									onClick={() => handlePlay(game, side)}
+								>
+									{isPlaying ? 'Playing...' : 'Play'}
+								</Button>
+
+								<Button
+									icon={<ThunderboltOutlined />}
+									loading={isPlaying}
+									onClick={() => handlePlayTest(game)}
+								>
+									{isPlaying ? 'Playing...' : 'Play test'}
+								</Button>
+							</Space>
+
+							<GameInfo game={game} currentTurn={gameState?.lastTurn} />
 
 							<ActionList actions={gameActions} />
 						</Space>
