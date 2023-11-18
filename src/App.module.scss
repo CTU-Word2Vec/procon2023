@@ -1,0 +1,11 @@
+.gameBoard {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding-top: 16px;
+	flex-direction: column;
+	border: 1px solid #ddd;
+	margin: 16px;
+	min-height: 50vh;
+	background: #fafafa;
+}

@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import useDebouce from '@/hooks/useDebouce';
 import playerService from '@/services/player.service';
 import settingService from '@/services/setting.service';
 import { ApiOutlined } from '@ant-design/icons';
@@ -15,13 +16,16 @@ export default function GameSettings({ open, onCancel }: GameSettingsProps) {
 	const [token, setToken] = useState<string>(() => settingService.token);
 	const [apiEndpoint, setApiEndpoint] = useState<string>(() => settingService.endpoint);
 
-	useEffect(() => {
-		settingService.token = token;
-	}, [token]);
+	const deboucedToken = useDebouce(token);
+	const deboucedApiEndpoint = useDebouce(apiEndpoint);
 
 	useEffect(() => {
-		settingService.endpoint = apiEndpoint;
-	}, [apiEndpoint]);
+		settingService.token = deboucedToken;
+	}, [deboucedToken]);
+
+	useEffect(() => {
+		settingService.endpoint = deboucedApiEndpoint;
+	}, [deboucedApiEndpoint]);
 
 	const check = async () => {
 		try {

@@ -1,11 +1,13 @@
 import { Position } from './Position';
 
+export type BaseHashedType<T> = {
+	[x: number]: {
+		[y: number]: T | null;
+	} | null;
+};
+
 export class HashedType<T> {
-	private data: {
-		[x: number]: {
-			[y: number]: T | null;
-		} | null;
-	};
+	private data: BaseHashedType<T>;
 
 	constructor() {
 		this.data = {};
@@ -33,5 +35,9 @@ export class HashedType<T> {
 		if (!this.exist(pos)) return;
 
 		this.data[pos.x]![pos.y] = null;
+	}
+
+	public getBaseHashedType(): BaseHashedType<T> {
+		return this.data;
 	}
 }

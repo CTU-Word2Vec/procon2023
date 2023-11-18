@@ -1,3 +1,6 @@
+$cell-width: 32px;
+$cell-height: 32px;
+
 .wrapper {
 	overflow: auto;
 	width: 100%;
@@ -9,27 +12,15 @@
 	}
 	td {
 		border: 1px solid #aaa;
-		width: 32px;
-		height: 32px;
+		width: $cell-width;
+		height: var$cell-height;
 		padding: 0;
-
-		&.pond {
-			background: #002635;
-		}
-
-		&.wallA {
-			background: #c7e4ff;
-		}
-
-		&.wallB {
-			background: #ffcaca;
-		}
 	}
 }
 
 .placeholder {
-	width: 32px;
-	height: 32px;
+	width: $cell-width;
+	height: $cell-height;
 }
 
 .inner {
@@ -41,4 +32,26 @@
 	left: 0;
 	top: 0;
 	transition: 0.4s ease;
+}
+
+.position {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: $cell-width;
+	height: $cell-height;
+}
+
+.pond {
+	background: #1f9bee;
+	box-shadow: inset 0 0 5px #000000;
+}
+
+.wall {
+	&.A {
+		background: #c7e4ff;
+	}
+	&.B {
+		background: #ffcaca;
+	}
 }

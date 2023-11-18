@@ -1,6 +1,5 @@
 import { CraftsmenPosition } from '@/game/CraftsmenPosition';
 import { GameStateData } from '@/game/GameManager';
-import { Position } from '@/game/Position';
 import clsx from 'clsx';
 import React, { useMemo } from 'react';
 import Castle from '../castle';
@@ -26,25 +25,8 @@ export default function GameBoard({ state }: GameBoardProps) {
 			const cols = [];
 
 			for (let x = 0; x < state.width; x++) {
-				const pos = new Position(x, y);
-
-				const className = clsx({
-					[styles.pond]: state.hashedPonds.exist(pos),
-					[styles.wallA]: state.hashedWalls.read(pos)?.side == 'A',
-					[styles.wallB]: state.hashedWalls.read(pos)?.side == 'B',
-				});
-
-				if (state.hashedCastles.exist(pos)) {
-					cols.push(
-						<td className={className}>
-							<Castle />
-						</td>,
-					);
-					continue;
-				}
-
 				cols.push(
-					<td className={className}>
+					<td>
 						<div className={styles.placeholder}></div>
 					</td>,
 				);
@@ -60,7 +42,7 @@ export default function GameBoard({ state }: GameBoardProps) {
 		}
 
 		return rows;
-	}, [state]);
+	}, [state.width, state.height]);
 
 	return (
 		<div className={styles.wrapper}>
@@ -72,6 +54,38 @@ export default function GameBoard({ state }: GameBoardProps) {
 						))}
 					</tbody>
 				</table>
+
+				{state.walls.map((wall, index) => (
+					<div
+						key={index}
+						className={clsx(styles.position, styles.wall, styles[wall.side])}
+						style={{
+							transform: `translate(${wall.x * 33 + 1}px, ${wall.y * 33 + 1}px)`,
+						}}
+					></div>
+				))}
+
+				{state.castles.map((castle, index) => (
+					<div
+						key={index}
+						className={styles.position}
+						style={{
+							transform: `translate(${castle.x * 33 + 1}px, ${castle.y * 33 + 1}px)`,
+						}}
+					>
+						<Castle />
+					</div>
+				))}
+
+				{state.ponds.map((pond, index) => (
+					<div
+						key={index}
+						className={clsx(styles.position, styles.pond)}
+						style={{
+							transform: `translate(${pond.x * 33 + 1}px, ${pond.y * 33 + 1}px)`,
+						}}
+					></div>
+				))}
 
 				{state.craftsmen.map((craftsmen) => (
 					<div
