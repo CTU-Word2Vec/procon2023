@@ -10,6 +10,7 @@ import AppHeader from './components/app-header';
 import GameBoard from './components/game-board';
 import GameSettings from './components/game-settings';
 import GameState, { GameMode, GameStateData, gameModes } from './game/GameManager';
+import { EWallSide } from './game/WallPosition';
 import Game from './models/Game';
 import GameAction from './models/GameAction';
 import playerService from './services/player.service';
@@ -44,6 +45,37 @@ function App() {
 			message.error(error.message);
 		} finally {
 			setIsLoadingGame(false);
+		}
+	};
+
+	const handlePlayTest = async () => {
+		if (!game) return;
+
+		try {
+			setIsPlaying(true);
+
+			const actions: GameAction[] = [];
+
+			const gameState = new GameState(game.field);
+
+			for (let i = 1; i <= game.num_of_turns; i++) {
+				const turnOf: EWallSide = i % 2 !== 0 ? 'A' : 'B';
+
+				const action = gameState.getNextActions(turnOf);
+				actions.push({
+					actions: action,
+					turn: i + 1,
+				});
+
+				gameState.addActions(actions);
+				setGameState(gameState.getData());
+				setGameActions(actions.reverse());
+				await wait(100);
+			}
+		} catch (error: any) {
+			message.error(error.message);
+		} finally {
+			setIsPlaying(false);
 		}
 	};
 
@@ -91,7 +123,7 @@ function App() {
 					playerService
 						.createAction(game.id, {
 							turn: cur_turn + 1,
-							actions: gameState.caroGetActions(side),
+							actions: gameState.getNextActions(side),
 						})
 						.catch((error) => message.error(error.message));
 				}
@@ -203,6 +235,10 @@ function App() {
 									onClick={handlePlay}
 								>
 									{isPlaying ? 'Playing...' : 'Play'}
+								</Button>
+
+								<Button icon={<PlayCircleOutlined />} loading={isPlaying} onClick={handlePlayTest}>
+									{isPlaying ? 'Playing...' : 'Play test'}
 								</Button>
 
 								<Select

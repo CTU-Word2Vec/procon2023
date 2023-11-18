@@ -46,6 +46,8 @@ class GameManager implements GameStateData {
 	public hashedPonds: HashedType<Position>;
 	public hashedCastles: HashedType<Position>;
 
+	public goingTo: HashedType<Position>;
+
 	constructor(field: Field) {
 		this.castle_coeff = field.castle_coeff;
 		this.wall_coeff = field.wall_coeff;
@@ -61,6 +63,8 @@ class GameManager implements GameStateData {
 		this.hashedWalls = new HashedType<WallPosition>();
 		this.hashedPonds = new HashedType<Position>();
 		this.hashedCastles = new HashedType<Position>();
+
+		this.goingTo = new HashedType<Position>();
 
 		this.firstBuild();
 	}
@@ -86,6 +90,8 @@ class GameManager implements GameStateData {
 	public addActions(actions: GameAction[]) {
 		if (!actions.length) return;
 
+		const startTime = Date.now();
+
 		for (let i = 0; i < actions.length; i++) {
 			if (actions[i].turn <= this.lastTurn) {
 				continue;
@@ -103,20 +109,29 @@ class GameManager implements GameStateData {
 
 			this.lastTurn = actions[i].turn;
 		}
+
+		const endTime = Date.now();
+
+		console.log(`Time to add actions: ${endTime - startTime}ms`);
 	}
 
 	private craftsmanDoAction(craftsman: CraftsmenPosition, action: Action) {
+		if (!this.canCrafsmenDoAction(craftsman, action)) {
+			action.action = 'STAY';
+			return;
+		}
+
 		switch (action.action) {
 			case 'MOVE':
-				this.moveCraftsmen(craftsman, craftsman.getPositionByActionParam(action.action_param!), action);
+				this.moveCraftsmen(craftsman, craftsman.getPositionByActionParam(action.action_param!));
 				break;
 
 			case 'BUILD':
-				this.buildWall(craftsman.getPositionByActionParam(action.action_param!), craftsman.side, action);
+				this.buildWall(craftsman.getPositionByActionParam(action.action_param!), craftsman.side);
 				break;
 
 			case 'DESTROY':
-				this.destroy(craftsman.getPositionByActionParam(action.action_param!), action);
+				this.destroyWall(craftsman.getPositionByActionParam(action.action_param!));
 				break;
 
 			case 'STAY':
@@ -127,25 +142,16 @@ class GameManager implements GameStateData {
 		}
 	}
 
-	private destroy(pos: Position, action: Action) {
-		if (!this.canDestroy(pos)) {
-			action.action = 'STAY';
-			return;
-		}
-
+	private destroyWall(pos: Position) {
 		this.hashedWalls.remove(pos);
+		this.walls = this.walls.filter((e) => !e.equals(pos));
 	}
 
 	private canDestroy(pos: Position) {
 		return this.hashedWalls.exist(pos);
 	}
 
-	private moveCraftsmen(craftsmen: CraftsmenPosition, pos: Position, action: Action) {
-		if (!this.canCraftsmenMove(craftsmen, pos)) {
-			action.action = 'STAY';
-			return;
-		}
-
+	private moveCraftsmen(craftsmen: CraftsmenPosition, pos: Position) {
 		this.hashedCraftmen.remove(craftsmen);
 
 		craftsmen.x = pos.x;
@@ -163,12 +169,7 @@ class GameManager implements GameStateData {
 		return true;
 	}
 
-	private buildWall(pos: Position, side: EWallSide, action: Action) {
-		if (!this.canBuildWall(pos)) {
-			action.action = 'STAY';
-			return;
-		}
-
+	private buildWall(pos: Position, side: EWallSide) {
 		const wall = new WallPosition(pos.x, pos.y, side);
 		this.walls.push(wall);
 		this.hashedWalls.write(wall, wall);
@@ -184,34 +185,84 @@ class GameManager implements GameStateData {
 		return true;
 	}
 
-	public caroGetActions(side: EWallSide): ActionDto[] {
+	public getNextActions(side: EWallSide): ActionDto[] {
+		this.goingTo = new HashedType<Position>();
 		const actions: ActionDto[] = [];
 
 		for (const craftmen of this.craftsmen) {
 			if (craftmen.side !== side) continue;
 
-			const pos = this.caroGetNextPosition(craftmen);
+			const action = this.getNextAction(craftmen);
 
-			if (!pos) {
-				actions.push({
-					action: 'STAY',
-					craftsman_id: craftmen.id,
-				});
+			if (action) {
+				actions.push(action);
 				continue;
 			}
 
-			if (pos.x !== craftmen.x || pos.y !== craftmen.y) {
-				actions.push(craftmen.getActionToGoToPosition(pos));
-				continue;
-			}
-
-			actions.push(this.caroGetBuildAction(craftmen));
+			actions.push(this.getBuildAction(craftmen));
 		}
 
+		this.goingTo = new HashedType<Position>();
 		return actions;
 	}
 
-	private caroGetNextPosition(craftmen: CraftsmenPosition): Position | null {
+	private getNextAction(craftmen: CraftsmenPosition): ActionDto | null {
+		const destroyAction = this.getDestroyAction(craftmen);
+
+		if (destroyAction) {
+			return destroyAction;
+		}
+
+		const pos = this.getNextPosition(craftmen);
+
+		if (!pos) {
+			return {
+				action: 'STAY',
+				craftsman_id: craftmen.id,
+			};
+		}
+
+		if (!pos.equals(craftmen)) {
+			const nextActions = craftmen.getActionsToGoToPosition(pos);
+
+			for (const action of nextActions) {
+				if (this.canCrafsmenDoAction(craftmen, action)) {
+					const nextPos = craftmen.getPositionByActionParam(action.action_param!);
+
+					this.goingTo.write(nextPos, nextPos);
+					return action;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	private canCrafsmenDoAction(craftmen: CraftsmenPosition, action: ActionDto) {
+		const nextPos = craftmen.getPositionByActionParam(action.action_param || 'ABOVE');
+
+		switch (action.action) {
+			case 'STAY':
+				return true;
+			case 'MOVE': {
+				return this.canCraftsmenMove(craftmen, nextPos);
+			}
+			case 'BUILD': {
+				return this.canBuildWall(nextPos);
+			}
+			case 'DESTROY': {
+				return this.canDestroy(nextPos);
+			}
+		}
+	}
+
+	private getNextPosition(craftmen: CraftsmenPosition): Position | null {
+		const closestCastle = this.findClosestCastle(craftmen);
+
+		if (closestCastle) {
+			return closestCastle;
+		}
+
 		const position = new Position(craftmen.x, craftmen.y);
 
 		const positions: Position[] = [];
@@ -221,21 +272,22 @@ class GameManager implements GameStateData {
 			const pos = positions.shift() as Position;
 
 			if (!pos.isValid(this.width, this.height)) continue;
+			if (this.goingTo.exist(pos)) continue;
 
-			const canBuild = !!this.caroGetBuildActionFromPosition(pos);
+			const canBuild = !!this.getBuildActionFromPosition(pos);
 
 			if (canBuild) {
 				return pos;
 			}
 
-			positions.push(...pos.upperLeftUpperRightLowerRightLowerLeft());
+			positions.push(...pos.upperLeftUpperRightLowerRightLowerLeft(), ...pos.topRightBottomLeft());
 		}
 
 		return null;
 	}
 
-	private caroGetBuildAction(craftmen: CraftsmenPosition): ActionDto {
-		const action = this.caroGetBuildActionFromPosition(craftmen);
+	private getBuildAction(craftmen: CraftsmenPosition): ActionDto {
+		const action = this.getBuildActionFromPosition(craftmen);
 
 		if (!action) {
 			return {
@@ -251,7 +303,7 @@ class GameManager implements GameStateData {
 		};
 	}
 
-	private caroGetBuildActionFromPosition(pos: Position): EBuildDestryParam | null {
+	private getBuildActionFromPosition(pos: Position): EBuildDestryParam | null {
 		const [above, right, below, left] = pos.topRightBottomLeft();
 
 		if (this.canBuildWall(above)) {
@@ -268,6 +320,71 @@ class GameManager implements GameStateData {
 
 		if (this.canBuildWall(right)) {
 			return 'RIGHT';
+		}
+
+		return null;
+	}
+
+	private findClosestCastle(craftsmen: CraftsmenPosition) {
+		let min = Infinity;
+		let closestCastle: Position | null = null;
+
+		for (const castle of this.castles) {
+			if (this.goingTo.exist(castle)) continue;
+			if (this.hashedCraftmen.exist(castle) && !craftsmen.equals(castle)) continue;
+
+			const distance = craftsmen.distance(castle);
+
+			if (this.isBuilded(new CraftsmenPosition(castle.x, castle.y, craftsmen.id, craftsmen.side))) continue;
+
+			if (distance < min) {
+				min = distance;
+				closestCastle = castle;
+			}
+		}
+
+		return closestCastle;
+	}
+
+	private isBuilded(craftmen: CraftsmenPosition) {
+		const positions = craftmen.topRightBottomLeft();
+
+		return positions.every((pos) => this.hashedWalls.read(pos)?.side === craftmen.side);
+	}
+
+	private getDestroyAction(craftsmen: CraftsmenPosition): ActionDto | null {
+		const [above, right, below, left] = craftsmen.topRightBottomLeft();
+
+		if (this.hashedWalls.exist(above) && this.hashedWalls.read(above)?.side !== craftsmen.side) {
+			return {
+				action: 'DESTROY',
+				action_param: 'ABOVE',
+				craftsman_id: craftsmen.id,
+			};
+		}
+
+		if (this.hashedWalls.exist(right) && this.hashedWalls.read(right)?.side !== craftsmen.side) {
+			return {
+				action: 'DESTROY',
+				action_param: 'RIGHT',
+				craftsman_id: craftsmen.id,
+			};
+		}
+
+		if (this.hashedWalls.exist(below) && this.hashedWalls.read(below)?.side !== craftsmen.side) {
+			return {
+				action: 'DESTROY',
+				action_param: 'BELOW',
+				craftsman_id: craftsmen.id,
+			};
+		}
+
+		if (this.hashedWalls.exist(left) && this.hashedWalls.read(left)?.side !== craftsmen.side) {
+			return {
+				action: 'DESTROY',
+				action_param: 'LEFT',
+				craftsman_id: craftsmen.id,
+			};
 		}
 
 		return null;

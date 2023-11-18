@@ -99,4 +99,29 @@ export class Position implements IPosition {
 	public allNears(): [Position, Position, Position, Position, Position, Position, Position, Position] {
 		return [...this.topRightBottomLeft(), ...this.upperLeftUpperRightLowerRightLowerLeft()];
 	}
+
+	public distance(pos: Position, formular: 'mahata' | 'euclid' = 'euclid'): number {
+		switch (formular) {
+			case 'mahata':
+				return this.manhattanDistance(pos);
+			case 'euclid':
+				return this.euclideanDistance(pos);
+		}
+	}
+
+	public manhattanDistance(pos: Position): number {
+		return Math.abs(this.x - pos.x) + Math.abs(this.y - pos.y);
+	}
+
+	public euclideanDistance(pos: Position): number {
+		return Math.sqrt(Math.pow(this.x - pos.x, 2) + Math.pow(this.y - pos.y, 2));
+	}
+
+	public isNear(pos: Position): boolean {
+		return this.distance(pos) === 1;
+	}
+
+	public equals(pos: Position): boolean {
+		return this.x === pos.x && this.y === pos.y;
+	}
 }
