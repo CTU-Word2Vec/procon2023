@@ -1,6 +1,7 @@
 import GameAction from '@/models/GameAction';
-import { Alert, Descriptions, Typography } from 'antd';
+import { Alert, Descriptions, Timeline } from 'antd';
 import DescriptionsItem from 'antd/es/descriptions/Item';
+import styles from './index.module.scss';
 
 export interface ActionListProps {
 	actions: GameAction[];
@@ -8,40 +9,37 @@ export interface ActionListProps {
 export default function ActionList({ actions }: ActionListProps) {
 	return (
 		<>
-			<h3 style={{ marginTop: 10, fontWeight: 700 }}>Actions</h3>
+			<h3 className={styles.title}>Actions</h3>
 
-			<div
-				style={{
-					height: 400,
-					overflow: 'auto',
-					border: '1px solid #ddd',
-					display: 'flex',
-					flexDirection: 'column',
-					gap: 5,
-					marginTop: 10,
-				}}
-			>
-				{actions.map((action) => (
-					<Alert
-						key={action.id}
-						type={action.turn % 2 === 0 ? 'info' : 'error'}
-						message={
-							<div>
-								<Typography style={{ fontWeight: 700 }}>Turn {action.turn}</Typography>
-
-								<Descriptions column={1}>
-									{action.actions.map((craftmen) => (
-										<DescriptionsItem key={craftmen.craftsman_id} label={craftmen.craftsman_id}>
-											<b>
-												{craftmen.action} {craftmen.action_param}
-											</b>
-										</DescriptionsItem>
-									))}
-								</Descriptions>
-							</div>
-						}
-					></Alert>
-				))}
+			<div className={styles.wrapper}>
+				<Timeline
+					items={actions.map((action) => {
+						return {
+							children: (
+								<Alert
+									type={action.turn % 2 ? 'error' : 'info'}
+									message={`Turn ${action.turn}`}
+									description={
+										<Descriptions column={1} size='small' bordered>
+											{action.actions.map((craftmen) => (
+												<DescriptionsItem
+													key={craftmen.craftsman_id}
+													label={craftmen.craftsman_id}
+												>
+													<b>
+														{craftmen.action}{' '}
+														{craftmen.action !== 'STAY' && craftmen.action_param}
+													</b>
+												</DescriptionsItem>
+											))}
+										</Descriptions>
+									}
+								></Alert>
+							),
+							color: action.turn % 2 ? 'red' : 'blue',
+						};
+					})}
+				/>
 			</div>
 		</>
 	);

@@ -1,0 +1,13 @@
+.wrapper {
+	height: 400px;
+	overflow: auto;
+	margin-top: 10px;
+	padding: 10px 0;
+	scroll-behavior: smooth;
+}
+
+.title {
+	font-weight: 700;
+	padding: 10px 0;
+	border-bottom: 1px solid #ddd;
+}

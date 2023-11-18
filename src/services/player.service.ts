@@ -6,13 +6,15 @@ import Position, { CraftsmenPosition } from '@/models/Position';
 import createClient from '@/utils/createClient';
 import { AxiosInstance } from 'axios';
 
+export interface ActionDto {
+	action: EAction;
+	action_param?: EActionParam;
+	craftsman_id: string;
+}
+
 export interface CreateActionDto {
 	turn: number;
-	actions: {
-		action: EAction;
-		action_param?: EActionParam;
-		craftsman_id: string;
-	}[];
+	actions: ActionDto[];
 }
 
 export interface CreateActionResponse {

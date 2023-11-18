@@ -1,6 +1,9 @@
-import endpointService from '@/services/endpoint.service';
-import tokenService from '@/services/token.service';
-import { Input, Modal, Space } from 'antd';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import useDebouce from '@/hooks/useDebouce';
+import playerService from '@/services/player.service';
+import settingService from '@/services/setting.service';
+import { ApiOutlined } from '@ant-design/icons';
+import { Input, Modal, Space, message } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import { useEffect, useState } from 'react';
 
@@ -10,19 +13,35 @@ export interface GameSettingsProps {
 }
 
 export default function GameSettings({ open, onCancel }: GameSettingsProps) {
-	const [token, setToken] = useState<string>(() => tokenService.token);
-	const [apiEndpoint, setApiEndpoint] = useState<string>(() => endpointService.endpoint);
+	const [token, setToken] = useState<string>(() => settingService.token);
+	const [apiEndpoint, setApiEndpoint] = useState<string>(() => settingService.endpoint);
+
+	const deboucedToken = useDebouce(token);
+	const deboucedApiEndpoint = useDebouce(apiEndpoint);
 
 	useEffect(() => {
-		tokenService.token = token;
-	}, [token]);
+		settingService.token = deboucedToken;
+	}, [deboucedToken]);
 
 	useEffect(() => {
-		endpointService.endpoint = apiEndpoint;
-	}, [apiEndpoint]);
+		settingService.endpoint = deboucedApiEndpoint;
+	}, [deboucedApiEndpoint]);
+
+	const check = async () => {
+		try {
+			const res = await playerService.getTime();
+
+			const serverTime = new Date(res.time).getTime();
+			const clientTime = new Date().getTime();
+
+			message.success(`${Math.abs(clientTime - serverTime)}ms`);
+		} catch (error: any) {
+			message.error(error.message);
+		}
+	};
 
 	return (
-		<Modal title='Setting' open={open} onCancel={onCancel} onOk={onCancel}>
+		<Modal title='Setting' open={open} okText='Check' onCancel={onCancel} onOk={check}>
 			<Space direction='vertical' style={{ width: '100%' }}>
 				<TextArea
 					placeholder='Token'
@@ -34,6 +53,7 @@ export default function GameSettings({ open, onCancel }: GameSettingsProps) {
 				<Input
 					placeholder='Api endpoint'
 					value={apiEndpoint}
+					prefix={<ApiOutlined />}
 					onChange={(event) => setApiEndpoint(event.target.value)}
 				/>
 			</Space>

@@ -1,14 +1,13 @@
 .wrapper {
-	border: 2px solid #ff2347;
 	position: relative;
 }
 
 .id {
-	background: #ff2347;
 	color: #fff;
-	padding: 2px;
+	padding: 2px 4px;
 	position: absolute;
 	top: 0;
 	left: 100%;
 	border-radius: 2px;
+	font-size: 10px;
 }

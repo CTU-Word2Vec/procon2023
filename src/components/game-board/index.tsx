@@ -1,4 +1,5 @@
-import { GameStateData } from '@/states/GameState';
+import { CraftsmenPosition } from '@/game/CraftsmenPosition';
+import { GameStateData } from '@/game/GameManager';
 import clsx from 'clsx';
 import React, { useMemo } from 'react';
 import Castle from '../castle';
@@ -10,6 +11,12 @@ export interface GameBoardProps {
 	state: GameStateData;
 }
 
+function renderCraftsmen(craftmen: CraftsmenPosition) {
+	if (craftmen.side === 'A') return <CraftsmenA id={craftmen.id} />;
+
+	return <CraftsmenB id={craftmen.id} />;
+}
+
 export default function GameBoard({ state }: GameBoardProps) {
 	const rows = useMemo(() => {
 		const rows = [];
@@ -18,38 +25,11 @@ export default function GameBoard({ state }: GameBoardProps) {
 			const cols = [];
 
 			for (let x = 0; x < state.width; x++) {
-				const className = clsx({
-					[styles.pond]: state.hashedPonds[x]?.[y],
-					[styles.wallA]: state.hashedWalls[x]?.[y] == 'A',
-					[styles.wallB]: state.hashedWalls[x]?.[y] == 'B',
-				});
-
-				if (state.hashedCastles[x]?.[y]) {
-					cols.push(
-						<td className={className}>
-							<Castle />
-						</td>,
-					);
-					continue;
-				}
-
-				if (state.hashedCraftmen[x]?.[y]) {
-					const craftsmen = state.hashedCraftmen[x]![y]!;
-
-					cols.push(
-						<td className={className}>
-							{craftsmen.side === 'A' ? (
-								<CraftsmenA id={craftsmen.id} />
-							) : (
-								<CraftsmenB id={craftsmen.id} />
-							)}
-						</td>,
-					);
-
-					continue;
-				}
-
-				cols.push(<td className={className} />);
+				cols.push(
+					<td>
+						<div className={styles.placeholder}></div>
+					</td>,
+				);
 			}
 
 			rows.push(
@@ -62,15 +42,63 @@ export default function GameBoard({ state }: GameBoardProps) {
 		}
 
 		return rows;
-	}, [state]);
+	}, [state.width, state.height]);
 
 	return (
-		<table className={styles.wrapper}>
-			<tbody>
-				{rows.map((row, index) => (
-					<React.Fragment key={index}>{row}</React.Fragment>
+		<div className={styles.wrapper}>
+			<div className={styles.inner}>
+				<table>
+					<tbody>
+						{rows.map((row, index) => (
+							<React.Fragment key={index}>{row}</React.Fragment>
+						))}
+					</tbody>
+				</table>
+
+				{state.walls.map((wall, index) => (
+					<div
+						key={index}
+						className={clsx(styles.position, styles.wall, styles[wall.side])}
+						style={{
+							transform: `translate(${wall.x * 33 + 1}px, ${wall.y * 33 + 1}px)`,
+						}}
+					></div>
 				))}
-			</tbody>
-		</table>
+
+				{state.castles.map((castle, index) => (
+					<div
+						key={index}
+						className={styles.position}
+						style={{
+							transform: `translate(${castle.x * 33 + 1}px, ${castle.y * 33 + 1}px)`,
+						}}
+					>
+						<Castle />
+					</div>
+				))}
+
+				{state.ponds.map((pond, index) => (
+					<div
+						key={index}
+						className={clsx(styles.position, styles.pond)}
+						style={{
+							transform: `translate(${pond.x * 33 + 1}px, ${pond.y * 33 + 1}px)`,
+						}}
+					></div>
+				))}
+
+				{state.craftsmen.map((craftsmen) => (
+					<div
+						key={craftsmen.id}
+						className={styles.flyingCraftsmen}
+						style={{
+							transform: `translate(${craftsmen.x * 33 + 1}px, ${craftsmen.y * 33 + 1}px)`,
+						}}
+					>
+						{renderCraftsmen(craftsmen)}
+					</div>
+				))}
+			</div>
+		</div>
 	);
 }
