@@ -16,7 +16,7 @@ export default class CaroGameManager extends GameManager {
 		for (const craftmen of this.craftsmen) {
 			if (craftmen.side !== side) continue;
 
-			const action = this.getNextAction(craftmen);
+			const action = this.getNextCraftsmenAction(craftmen);
 
 			if (action) {
 				actions.push(action);
@@ -35,7 +35,7 @@ export default class CaroGameManager extends GameManager {
 		return actions;
 	}
 
-	private getNextAction(craftmen: CraftsmenPosition): ActionDto | null {
+	private getNextCraftsmenAction(craftmen: CraftsmenPosition): ActionDto | null {
 		const destroyAction = this.getDestroyAction(craftmen);
 
 		if (destroyAction) {
@@ -85,7 +85,7 @@ export default class CaroGameManager extends GameManager {
 			if (!pos.isValid(this.width, this.height)) continue;
 			if (this.goingTo.exist(pos)) continue;
 
-			const canBuild = !!this.getBuildActionFromPosition(pos);
+			const canBuild = !!this.getBuildActionFromPosition(pos, craftmen.side);
 
 			if (canBuild) {
 				return pos;
@@ -98,7 +98,7 @@ export default class CaroGameManager extends GameManager {
 	}
 
 	private getBuildAction(craftmen: CraftsmenPosition): ActionDto {
-		const action = this.getBuildActionFromPosition(craftmen);
+		const action = this.getBuildActionFromPosition(craftmen, craftmen.side);
 
 		if (!action) {
 			return {
@@ -114,26 +114,31 @@ export default class CaroGameManager extends GameManager {
 		};
 	}
 
-	private getBuildActionFromPosition(pos: Position): EBuildDestryParam | null {
-		const [above, right, below, left] = pos.topRightBottomLeft();
+	private getBuildActionFromPosition(pos: Position, side: EWallSide): EBuildDestryParam | null {
+		const positions = pos.topRightBottomLeft();
+		const actionParams: EBuildDestryParam[] = ['ABOVE', 'RIGHT', 'BELOW', 'LEFT'];
 
-		if (this.canBuildWall(above)) {
-			return 'ABOVE';
-		}
+		for (let i = 0; i < positions.length; i++) {
+			const position = positions[i];
+			const param = actionParams[i];
 
-		if (this.canBuildWall(below)) {
-			return 'BELOW';
-		}
+			if (!this.willBeBuild(position, side)) continue;
 
-		if (this.canBuildWall(left)) {
-			return 'LEFT';
-		}
-
-		if (this.canBuildWall(right)) {
-			return 'RIGHT';
+			return param;
 		}
 
 		return null;
+	}
+
+	private willBeBuild(pos: Position, side: EWallSide): boolean {
+		if (!this.canBuildWall(pos)) return false;
+		const positions = pos.topRightBottomLeft();
+
+		for (const position of positions) {
+			if (this.hashedWalls.read(position)?.side === side) return false;
+		}
+
+		return true;
 	}
 
 	private findClosestCastle(craftsmen: CraftsmenPosition) {
@@ -164,37 +169,20 @@ export default class CaroGameManager extends GameManager {
 	}
 
 	private getDestroyAction(craftsmen: CraftsmenPosition): ActionDto | null {
-		const [above, right, below, left] = craftsmen.topRightBottomLeft();
+		const positions = craftsmen.topRightBottomLeft();
+		const actionParams: EBuildDestryParam[] = ['ABOVE', 'RIGHT', 'BELOW', 'LEFT'];
 
-		if (this.hashedWalls.exist(above) && this.hashedWalls.read(above)?.side !== craftsmen.side) {
-			return {
-				action: 'DESTROY',
-				action_param: 'ABOVE',
-				craftsman_id: craftsmen.id,
-			};
-		}
+		for (let i = 0; i < positions.length; i++) {
+			const pos = positions[i];
+			const param = actionParams[i];
 
-		if (this.hashedWalls.exist(right) && this.hashedWalls.read(right)?.side !== craftsmen.side) {
-			return {
-				action: 'DESTROY',
-				action_param: 'RIGHT',
-				craftsman_id: craftsmen.id,
-			};
-		}
+			if (!this.hashedWalls.exist(pos)) continue;
+			if (this.hashedWalls.read(pos)!.side === craftsmen.side) continue;
 
-		if (this.hashedWalls.exist(below) && this.hashedWalls.read(below)?.side !== craftsmen.side) {
 			return {
-				action: 'DESTROY',
-				action_param: 'BELOW',
 				craftsman_id: craftsmen.id,
-			};
-		}
-
-		if (this.hashedWalls.exist(left) && this.hashedWalls.read(left)?.side !== craftsmen.side) {
-			return {
 				action: 'DESTROY',
-				action_param: 'LEFT',
-				craftsman_id: craftsmen.id,
+				action_param: param,
 			};
 		}
 

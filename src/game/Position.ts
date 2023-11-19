@@ -124,4 +124,11 @@ export class Position implements IPosition {
 	public equals(pos: Position): boolean {
 		return this.x === pos.x && this.y === pos.y;
 	}
+
+	public static random(width: number, height: number) {
+		const x = Math.floor(Math.random() * width);
+		const y = Math.floor(Math.random() * height);
+
+		return new Position(x, y);
+	}
 }

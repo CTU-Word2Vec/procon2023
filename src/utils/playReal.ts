@@ -49,7 +49,7 @@ export default async function playReal({ game, side, onGameStateChange, onGameAc
 
 			gameManager.addActions(actions);
 			onGameStateChange(gameManager.getData());
-			onGameActionsChange(actions.reverse());
+			onGameActionsChange(actions);
 
 			if ((side === 'A' && cur_turn % 2 !== 0) || (side === 'B' && cur_turn % 2 === 0)) {
 				playerService
