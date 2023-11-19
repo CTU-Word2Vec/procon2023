@@ -1,5 +1,12 @@
 .wrapper {
 	position: relative;
+	width: 32px;
+	aspect-ratio: 1;
+	border-radius: 32px;
+
+	img {
+		filter: drop-shadow(0 0 2px #fff);
+	}
 }
 
 .id {

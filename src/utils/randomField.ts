@@ -76,7 +76,7 @@ export default function randomField({
 		}
 
 		usedPosition.write(pos, pos);
-		craftsmen.push(new CraftsmenPosition(pos.x, pos.y, Math.random().toString(36), 'A'));
+		craftsmen.push(new CraftsmenPosition(pos.x, pos.y, craftsmen.length.toString(), 'A'));
 	}
 
 	while (craftsmen.length < numOfCraftsmens * 2) {
@@ -87,7 +87,7 @@ export default function randomField({
 		}
 
 		usedPosition.write(pos, pos);
-		craftsmen.push(new CraftsmenPosition(pos.x, pos.y, Math.random().toString(36), 'B'));
+		craftsmen.push(new CraftsmenPosition(pos.x, pos.y, craftsmen.length.toString(), 'B'));
 	}
 
 	return {

@@ -9,11 +9,12 @@ $cell-height: 32px;
 	align-items: center;
 	table {
 		border-collapse: collapse;
+		background: #6ec5ff;
 	}
 	td {
-		border: 1px solid #aaa;
+		border: 1px solid #ffffff50;
 		width: $cell-width;
-		height: var$cell-height;
+		height: $cell-height;
 		padding: 0;
 	}
 }
@@ -27,7 +28,7 @@ $cell-height: 32px;
 	position: relative;
 }
 
-.flyingCraftsmen {
+.craftsmen {
 	position: absolute;
 	left: 0;
 	top: 0;
@@ -43,15 +44,19 @@ $cell-height: 32px;
 }
 
 .pond {
-	background: #1f9bee;
-	box-shadow: inset 0 0 5px #000000;
+	background: #f1bb6a;
+	box-shadow:
+		inset 0 0 5px #ffdca7,
+		0px 2px 5px #070044;
+	border-radius: 5px;
+	border: 2px solid #704900;
 }
 
 .wall {
 	&.A {
-		background: #c7e4ff;
+		background: #001f3b90;
 	}
 	&.B {
-		background: #ffcaca;
+		background: #00a00d90;
 	}
 }

@@ -5,9 +5,8 @@ import GameAction from '@/models/GameAction';
 import playTest from '@/utils/playTest';
 import randomField, { RandomFieldOptions } from '@/utils/randomField';
 import { BugOutlined, ThunderboltOutlined } from '@ant-design/icons';
-import { Button, Col, InputNumber, Row, Space, message } from 'antd';
+import { Button, Divider, Form, InputNumber, Space, message } from 'antd';
 import FormItem from 'antd/es/form/FormItem';
-import { Formik } from 'formik';
 import { useState } from 'react';
 import ActionList from '../action-list';
 
@@ -57,83 +56,45 @@ export default function PlayTestTab({ gameState, onGameStateChange }: PlayRealTa
 
 	return (
 		<Space style={{ width: '100%' }} direction='vertical'>
-			<Formik initialValues={initialRandomFieldOptions} onSubmit={handleRandomField}>
-				{({ values, handleSubmit, setFieldValue }) => (
-					<form onSubmit={handleSubmit}>
-						<Space direction='vertical' style={{ width: '100%' }}>
-							<Row>
-								<Col xs={12}>
-									<FormItem label='Height'>
-										<InputNumber
-											placeholder='Width'
-											name='width'
-											value={values.width}
-											onChange={(value) => setFieldValue('width', value)}
-										/>
-									</FormItem>
-								</Col>
+			<Form
+				initialValues={initialRandomFieldOptions}
+				labelAlign='left'
+				labelCol={{ xs: 12 }}
+				onFinish={handleRandomField}
+				size='middle'
+			>
+				<FormItem label='Width' name='width'>
+					<InputNumber placeholder='Width' name='width' />
+				</FormItem>
 
-								<Col xs={12}>
-									<FormItem label='Height'>
-										<InputNumber
-											placeholder='Height'
-											name='height'
-											value={values.height}
-											onChange={(value) => setFieldValue('height', value)}
-										/>
-									</FormItem>
-								</Col>
+				<FormItem label='Height' name='height'>
+					<InputNumber placeholder='Height' name='height' />
+				</FormItem>
 
-								<Col xs={24}>
-									<FormItem label='Number of castles'>
-										<InputNumber
-											placeholder='Number of castles'
-											name='numOfCastles'
-											value={values.numOfCastles}
-											onChange={(value) => setFieldValue('numOfCastles', value)}
-										/>
-									</FormItem>
-								</Col>
-
-								<Col xs={24}>
-									<FormItem label='Number of craftsments'>
-										<InputNumber
-											placeholder='Number of craftsments'
-											name='numOfCraftsmens'
-											value={values.numOfCraftsmens}
-											onChange={(value) => setFieldValue('numOfCraftsmens', value)}
-										/>
-									</FormItem>
-								</Col>
-
-								<Col xs={24}>
-									<FormItem label='Number of ponds'>
-										<InputNumber
-											placeholder='Number of ponds'
-											name='numOfPonds'
-											value={values.numOfPonds}
-											onChange={(value) => setFieldValue('numOfPonds', value)}
-										/>
-									</FormItem>
-								</Col>
-							</Row>
-							<Button
-								icon={<ThunderboltOutlined />}
-								type='primary'
-								danger
-								style={{ width: '100%' }}
-								htmlType='submit'
-								disabled={isPlayingTest}
-							>
-								Random field
-							</Button>
-						</Space>
-					</form>
-				)}
-			</Formik>
+				<FormItem label='Number of castles' name='numOfCastles'>
+					<InputNumber placeholder='Number of castles' name='numOfCastles' />
+				</FormItem>
+				<FormItem label='Number of craftsments' name='numOfCraftsmens'>
+					<InputNumber placeholder='Number of craftsments' name='numOfCraftsmens' />
+				</FormItem>
+				<FormItem label='Number of ponds' name='numOfPonds'>
+					<InputNumber placeholder='Number of ponds' />
+				</FormItem>
+				<Button
+					icon={<ThunderboltOutlined />}
+					type='primary'
+					danger
+					style={{ width: '100%' }}
+					htmlType='submit'
+					disabled={isPlayingTest}
+				>
+					Random field
+				</Button>
+			</Form>
 
 			{gameState && (
 				<>
+					<Divider />
 					<Space style={{ width: '100%' }}>
 						<InputNumber
 							placeholder='Number of turns'

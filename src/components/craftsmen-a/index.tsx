@@ -1,6 +1,6 @@
-import craftsmenA from '@/assets/icons/craftsman-a.svg';
+import luffy from '@/assets/images/luffy.png';
 import Craftsmen from '../craftsmen';
 
 export default class CraftsmenA extends Craftsmen {
-	public imgSource = craftsmenA;
+	public imgSource = luffy;
 }

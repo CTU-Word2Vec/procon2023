@@ -52,7 +52,7 @@ export default function PlayRealTab({ onGameStateChange: onGameStateChange, game
 			game: game!,
 			actions: baseGameActions,
 			onGameStateChange,
-		}).finally(() => setIsPlaying(false));
+		}).finally(() => setIsReplaying(false));
 	};
 
 	const handleGetGameData = async () => {

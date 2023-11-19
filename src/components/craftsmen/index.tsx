@@ -18,10 +18,7 @@ export default class Craftsmen extends React.Component<CraftmenProps> {
 			<div
 				className={styles.wrapper}
 				style={{
-					width: 32,
-					height: 32,
-					border: `2px solid ${this.color}`,
-					borderRadius: '50%',
+					background: this.color,
 				}}
 			>
 				<img src={this.imgSource} alt='Craftmen' style={{ width: '100%' }} />

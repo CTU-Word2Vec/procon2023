@@ -1,10 +1,10 @@
-import castle from '@/assets/icons/castle-icon.png';
+import sunny from '@/assets/images/sunny.png';
 import styles from './index.module.scss';
 
 export default function Castle() {
 	return (
 		<div className={styles.wrapper}>
-			<img src={castle} alt='Castle' />
+			<img src={sunny} alt='Castle' />
 		</div>
 	);
 }

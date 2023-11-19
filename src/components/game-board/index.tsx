@@ -90,7 +90,7 @@ export default function GameBoard({ state }: GameBoardProps) {
 				{state.craftsmen.map((craftsmen) => (
 					<div
 						key={craftsmen.id}
-						className={styles.flyingCraftsmen}
+						className={styles.craftsmen}
 						style={{
 							transform: `translate(${craftsmen.x * 33 + 1}px, ${craftsmen.y * 33 + 1}px)`,
 						}}
