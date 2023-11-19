@@ -2,11 +2,10 @@ $cell-width: 32px;
 $cell-height: 32px;
 
 .wrapper {
-	overflow: auto;
-	width: 100%;
 	display: flex;
 	justify-content: center;
 	align-items: center;
+
 	table {
 		border-collapse: collapse;
 		background: #6ec5ff;

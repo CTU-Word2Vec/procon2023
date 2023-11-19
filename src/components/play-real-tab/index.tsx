@@ -6,12 +6,11 @@ import GameAction from '@/models/GameAction';
 import playerService from '@/services/player.service';
 import playReal from '@/utils/playReal';
 import replay from '@/utils/replay';
-import { AppstoreOutlined, PlayCircleOutlined, ReloadOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
+import { AppstoreOutlined, PlayCircleOutlined, ReloadOutlined, UserOutlined } from '@ant-design/icons';
 import { Button, Divider, Input, Select, Space, message } from 'antd';
 import { useState } from 'react';
 import ActionList from '../action-list';
 import GameInfo from '../game-info';
-import GameSettings from '../game-settings';
 
 export interface PlayRealTabProps {
 	gameState?: GameStateData;
@@ -31,8 +30,6 @@ export default function PlayRealTab({ onGameStateChange: onGameStateChange, game
 	const [isPlaying, setIsPlaying] = useState(false);
 	const [isReplaying, setIsReplaying] = useState(false);
 	const [isLoadingGame, setIsLoadingGame] = useState(false);
-
-	const [isOpenSettingModal, setIsOpenSettingModal] = useState(false);
 
 	const handlePlayReal = () => {
 		setIsPlaying(true);
@@ -87,10 +84,6 @@ export default function PlayRealTab({ onGameStateChange: onGameStateChange, game
 				}}
 			>
 				<Space.Compact style={{ width: '100%' }}>
-					<Button onClick={() => setIsOpenSettingModal(true)}>
-						<SettingOutlined />
-					</Button>
-
 					<Input
 						placeholder='Game Id'
 						value={gameId}
@@ -157,8 +150,6 @@ export default function PlayRealTab({ onGameStateChange: onGameStateChange, game
 					<ActionList actions={currentGameActions} />
 				</Space>
 			)}
-
-			<GameSettings open={isOpenSettingModal} onCancel={() => setIsOpenSettingModal(false)} />
 		</>
 	);
 }

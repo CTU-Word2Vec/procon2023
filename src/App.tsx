@@ -1,5 +1,6 @@
-import { BugOutlined, PlayCircleOutlined } from '@ant-design/icons';
-import { App as AntdApp, Col, Row, Spin, Tabs } from 'antd';
+import { BugOutlined, PlayCircleOutlined, ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons';
+import { App as AntdApp, Button, Col, Row, Spin, Tabs } from 'antd';
+import ButtonGroup from 'antd/es/button/button-group';
 import { Suspense, lazy, useState } from 'react';
 import styles from './App.module.scss';
 import AppHeader from './components/app-header';
@@ -11,6 +12,15 @@ const PlayRealTab = lazy(() => import('./components/play-real-tab'));
 
 function App() {
 	const [gameState, setGameState] = useState<GameStateData>();
+	const [zoom, setZoom] = useState(100);
+
+	const zoomIn = () => {
+		setZoom(zoom + 10);
+	};
+
+	const zoomOut = () => {
+		setZoom(zoom - 10);
+	};
 
 	return (
 		<AntdApp>
@@ -18,7 +28,21 @@ function App() {
 			<Row>
 				<Col xs={24} md={12} lg={18}>
 					<div className={styles.gameBoard}>
-						{gameState && <GameBoard state={gameState as GameStateData} />}
+						{gameState && (
+							<>
+								<div style={{ transform: `scale(${zoom / 100})` }} className={styles.inner}>
+									<GameBoard state={gameState as GameStateData} />
+								</div>
+
+								<div className={styles.zoomActions}>
+									<ButtonGroup>
+										<Button icon={<ZoomOutOutlined />} onClick={zoomOut}></Button>
+										<Button>{zoom}%</Button>
+										<Button icon={<ZoomInOutlined />} onClick={zoomIn}></Button>
+									</ButtonGroup>
+								</div>
+							</>
+						)}
 					</div>
 				</Col>
 

@@ -6,9 +6,21 @@
 	flex-direction: column;
 	border: 1px solid #ddd;
 	margin: 16px;
-	min-height: 50vh;
+	min-height: 80vh;
 	background: #fafafa;
 	position: sticky;
 	top: 80px;
 	border-radius: 10px;
+	overflow: hidden;
+}
+
+.inner {
+	transition: 0.4s ease;
+}
+
+.zoomActions {
+	position: absolute;
+	left: 0;
+	top: 0;
+	padding: 10px;
 }
