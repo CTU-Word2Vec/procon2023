@@ -175,8 +175,11 @@ class GameManager implements GameStateData {
 
 		const positions = pos.topRightBottomLeft();
 
+		const visited = new HashedType<boolean>();
+		const filled = new HashedType<boolean>();
+
 		for (const position of positions) {
-			this.updateSideFromPosition(position, side);
+			this.updateSideFromPosition(position, side, visited, filled);
 		}
 	}
 
@@ -223,8 +226,8 @@ class GameManager implements GameStateData {
 
 	protected sideOf(
 		pos: Position,
-		visited: HashedType<boolean> = new HashedType<boolean>(),
 		currentSide: EWallSide | null = null,
+		visited: HashedType<boolean> = new HashedType<boolean>(),
 	): EWallSide | null {
 		if (!pos.isValid(this.width, this.height)) return null;
 		if (this.hashedWalls.exist(pos)) {
@@ -239,7 +242,7 @@ class GameManager implements GameStateData {
 		for (const position of positions) {
 			if (visited.exist(position)) continue;
 
-			const newSide = this.sideOf(position, visited, currentSide);
+			const newSide = this.sideOf(position, currentSide, visited);
 
 			if (!newSide) return null;
 
@@ -270,9 +273,14 @@ class GameManager implements GameStateData {
 		}
 	}
 
-	protected updateSideFromPosition(pos: Position, initSide: EWallSide | null = null) {
-		const updateSide = this.sideOf(pos, new HashedType<boolean>(), initSide);
-		this.fillSide(pos, updateSide);
+	protected updateSideFromPosition(
+		pos: Position,
+		initSide: EWallSide | null = null,
+		visited: HashedType<boolean> = new HashedType<boolean>(),
+		filled: HashedType<boolean> = new HashedType<boolean>(),
+	) {
+		const updateSide = this.sideOf(pos, initSide, visited);
+		this.fillSide(pos, updateSide, filled);
 
 		this.sides = this.hashedSide.toList();
 	}
