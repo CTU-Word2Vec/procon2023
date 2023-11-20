@@ -3,7 +3,7 @@ import Field from '@/models/Field';
 import GameAction from '@/models/GameAction';
 import { ActionDto } from '@/services/player.service';
 import { CraftsmenPosition } from './CraftsmenPosition';
-import { HashedType } from './HashedType';
+import { HashedType, PositionData } from './HashedType';
 import { Position } from './Position';
 import { EWallSide, WallPosition } from './WallPosition';
 
@@ -22,10 +22,15 @@ export interface GameStateData {
 	walls: WallPosition[];
 
 	lastTurn: number;
+
 	hashedCraftmen: HashedType<CraftsmenPosition>;
 	hashedWalls: HashedType<WallPosition>;
 	hashedPonds: HashedType<Position>;
 	hashedCastles: HashedType<Position>;
+
+	goingTo: HashedType<Position>;
+	hashedSide: HashedType<EWallSide>;
+	sides: PositionData<EWallSide>[];
 }
 
 class GameManager implements GameStateData {
@@ -46,6 +51,8 @@ class GameManager implements GameStateData {
 	public hashedCastles: HashedType<Position>;
 
 	public goingTo: HashedType<Position>;
+	public hashedSide: HashedType<EWallSide>;
+	public sides: PositionData<EWallSide>[];
 
 	constructor(field: Field) {
 		this.castle_coeff = field.castle_coeff;
@@ -58,12 +65,15 @@ class GameManager implements GameStateData {
 		this.craftsmen = field.craftsmen.map((e) => new CraftsmenPosition(e.x, e.y, e.id, e.side));
 
 		this.walls = [];
+
 		this.hashedCraftmen = new HashedType<CraftsmenPosition>();
 		this.hashedWalls = new HashedType<WallPosition>();
 		this.hashedPonds = new HashedType<Position>();
 		this.hashedCastles = new HashedType<Position>();
 
 		this.goingTo = new HashedType<Position>();
+		this.hashedSide = new HashedType<EWallSide>();
+		this.sides = [];
 
 		this.firstBuild();
 	}
@@ -142,8 +152,11 @@ class GameManager implements GameStateData {
 	}
 
 	protected destroyWall(pos: Position) {
+		if (!this.hashedWalls.exist(pos)) return;
 		this.hashedWalls.remove(pos);
 		this.walls = this.walls.filter((e) => !e.equals(pos));
+
+		this.updateSideFromPosition(pos);
 	}
 
 	protected craftsmenMove(craftsmen: CraftsmenPosition, pos: Position) {
@@ -159,6 +172,8 @@ class GameManager implements GameStateData {
 		const wall = new WallPosition(pos.x, pos.y, side);
 		this.walls.push(wall);
 		this.hashedWalls.write(wall, wall);
+
+		this.updateSideFromPosition(pos, wall.side);
 	}
 
 	protected canCraftsmenDestroy(pos: Position) {
@@ -200,6 +215,63 @@ class GameManager implements GameStateData {
 				return this.canCraftsmenDestroy(nextPos);
 			}
 		}
+	}
+
+	protected sideOf(
+		pos: Position,
+		visited: HashedType<Position> = new HashedType<Position>(),
+		currentSide: EWallSide | null = null,
+	): EWallSide | null {
+		if (!pos.isValid(this.width, this.height)) return null;
+
+		this.hashedSide.remove(pos);
+
+		if (this.hashedWalls.exist(pos)) {
+			if (currentSide && currentSide !== this.hashedWalls.read(pos)!.side) return null;
+			return currentSide;
+		}
+
+		visited.write(pos, pos);
+
+		const positions = pos.topRightBottomLeft();
+
+		for (const position of positions) {
+			if (visited.exist(position)) continue;
+
+			const newSide = this.sideOf(position, visited, currentSide);
+
+			if (!newSide) return null;
+
+			if (!currentSide) currentSide = newSide;
+			else if (currentSide !== newSide) return null;
+		}
+
+		return currentSide;
+	}
+
+	protected fillSide(pos: Position, side: EWallSide | null) {
+		if (!pos.isValid(this.width, this.height)) return;
+		if (this.hashedWalls.exist(pos)) return;
+
+		if (side) {
+			this.hashedSide.write(pos, side);
+		} else {
+			this.hashedSide.remove(pos);
+		}
+	}
+
+	protected updateSideFromPosition(pos: Position, initSide: EWallSide | null = null) {
+		const positions = pos.topRightBottomLeft();
+
+		for (const position of positions) {
+			const upateSide = this.sideOf(position, new HashedType<Position>(), initSide);
+			this.fillSide(position, upateSide);
+		}
+
+		const updateSide = this.sideOf(pos, new HashedType<Position>(), initSide);
+		this.fillSide(pos, updateSide);
+
+		this.sides = this.hashedSide.toList();
 	}
 }
 

@@ -65,6 +65,16 @@ export default function GameBoard({ state }: GameBoardProps) {
 					></div>
 				))}
 
+				{state.sides.map((side, index) => (
+					<div
+						className={clsx(styles.position, styles.side, styles[side.data])}
+						key={index}
+						style={{
+							transform: `translate(${side.x * 33 + 1}px, ${side.y * 33 + 1}px)`,
+						}}
+					></div>
+				))}
+
 				{state.castles.map((castle, index) => (
 					<div
 						key={index}

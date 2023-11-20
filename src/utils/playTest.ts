@@ -21,11 +21,10 @@ export default async function playTest({
 	onGameStateChange,
 	onGameActionsChange,
 }: playTestOptions) {
+	const actions: GameAction[] = [];
+	const gameManager = new CaroGameManager(field);
+
 	try {
-		const actions: GameAction[] = [];
-
-		const gameManager = new CaroGameManager(field);
-
 		for (let i = 1; i <= numberOfTurns; i++) {
 			const turnOf: EWallSide = i % 2 !== 0 ? 'A' : 'B';
 

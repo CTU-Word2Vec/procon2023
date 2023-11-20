@@ -59,3 +59,12 @@ $cell-height: 32px;
 		background: #00a00d90;
 	}
 }
+
+.side {
+	&.A {
+		background: #07004440;
+	}
+	&.B {
+		background: #00a00d40;
+	}
+}

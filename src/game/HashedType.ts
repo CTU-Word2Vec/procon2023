@@ -6,6 +6,12 @@ export type BaseHashedType<T> = {
 	} | null;
 };
 
+export interface PositionData<T> {
+	x: number;
+	y: number;
+	data: T;
+}
+
 export class HashedType<T> {
 	private data: BaseHashedType<T>;
 
@@ -39,5 +45,29 @@ export class HashedType<T> {
 
 	public getBaseHashedType(): BaseHashedType<T> {
 		return this.data;
+	}
+
+	public toList(): PositionData<T>[] {
+		const result: PositionData<T>[] = [];
+
+		const xKeys = Object.keys(this.data) as unknown as number[];
+
+		for (const x of xKeys) {
+			if (!this.data[x]) continue;
+
+			const yKeys = Object.keys(this.data[x]!) as unknown as number[];
+
+			for (const y of yKeys) {
+				if (!this.data[x]![y]) continue;
+
+				result.push({
+					x,
+					y,
+					data: this.data[x]![y]!,
+				});
+			}
+		}
+
+		return result;
 	}
 }
