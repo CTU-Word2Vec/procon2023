@@ -126,8 +126,11 @@ export class Position implements IPosition {
 	}
 
 	public static random(width: number, height: number) {
-		const x = Math.floor(Math.random() * width);
-		const y = Math.floor(Math.random() * height);
+		width -= 2;
+		height -= 2;
+
+		const x = Math.floor(Math.random() * width) + 1;
+		const y = Math.floor(Math.random() * height) + 1;
 
 		return new Position(x, y);
 	}

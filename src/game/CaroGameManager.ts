@@ -71,6 +71,7 @@ export default class CaroGameManager extends GameManager {
 		const closestCastle = this.findClosestCastle(craftmen);
 
 		if (closestCastle) {
+			this.goingTo.write(closestCastle, closestCastle);
 			return closestCastle;
 		}
 
