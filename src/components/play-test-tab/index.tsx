@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import GameManager, { GameStateData } from '@/game/GameManager';
+import GameManager, { GameMode, GameStateData, gameModes } from '@/game/GameManager';
 import Field from '@/models/Field';
 import GameAction from '@/models/GameAction';
 import playTest from '@/utils/playTest';
 import randomField, { RandomFieldOptions } from '@/utils/randomField';
 import { BugOutlined, ThunderboltOutlined } from '@ant-design/icons';
-import { Button, Divider, Form, InputNumber, Space, message } from 'antd';
+import { Button, Card, Divider, Form, InputNumber, Select, Space, message } from 'antd';
 import FormItem from 'antd/es/form/FormItem';
 import { useState } from 'react';
 import ActionList from '../action-list';
@@ -31,6 +31,8 @@ export default function PlayTestTab({ gameState, onGameStateChange }: PlayRealTa
 	const [isPlayingTest, setIsPlayingTest] = useState(false);
 	const [randomedField, setRandomedField] = useState<Field>();
 	const [numberOfTurns, setNumberOfTurns] = useState(100);
+	const [sideAMode, setSideAMode] = useState<GameMode>('Caro');
+	const [sideBMode, setSideBMode] = useState<GameMode>('Caro');
 
 	const handleRandomField = (values: RandomFieldOptions) => {
 		try {
@@ -95,6 +97,29 @@ export default function PlayTestTab({ gameState, onGameStateChange }: PlayRealTa
 			{gameState && (
 				<>
 					<Divider />
+
+					<Card title='Side A' size='small'>
+						<Select
+							placeholder='Select game mode'
+							size='middle'
+							style={{ width: '100%' }}
+							options={gameModes.map((mode) => ({ label: mode, value: mode }))}
+							value={sideAMode}
+							onChange={setSideAMode}
+						/>
+					</Card>
+
+					<Card title='Side B' size='small'>
+						<Select
+							placeholder='Select game mode'
+							size='middle'
+							style={{ width: '100%' }}
+							options={gameModes.map((mode) => ({ label: mode, value: mode }))}
+							value={sideBMode}
+							onChange={setSideBMode}
+						/>
+					</Card>
+
 					<Space style={{ width: '100%' }}>
 						<InputNumber
 							placeholder='Number of turns'
