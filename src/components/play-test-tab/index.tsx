@@ -5,7 +5,8 @@ import GameAction from '@/models/GameAction';
 import playTest from '@/utils/playTest';
 import randomField, { RandomFieldOptions } from '@/utils/randomField';
 import { BugOutlined, ThunderboltOutlined } from '@ant-design/icons';
-import { Button, Card, Divider, Form, InputNumber, Select, Space, message } from 'antd';
+import { Button, Card, Descriptions, Form, InputNumber, Progress, Select, Space, message } from 'antd';
+import DescriptionsItem from 'antd/es/descriptions/Item';
 import FormItem from 'antd/es/form/FormItem';
 import { useState } from 'react';
 import ActionList from '../action-list';
@@ -58,46 +59,46 @@ export default function PlayTestTab({ gameState, onGameStateChange }: PlayRealTa
 
 	return (
 		<Space style={{ width: '100%' }} direction='vertical'>
-			<Form
-				initialValues={initialRandomFieldOptions}
-				labelAlign='left'
-				labelCol={{ xs: 12 }}
-				onFinish={handleRandomField}
-				size='middle'
-			>
-				<FormItem label='Width' name='width'>
-					<InputNumber placeholder='Width' name='width' />
-				</FormItem>
-
-				<FormItem label='Height' name='height'>
-					<InputNumber placeholder='Height' name='height' />
-				</FormItem>
-
-				<FormItem label='Number of castles' name='numOfCastles'>
-					<InputNumber placeholder='Number of castles' name='numOfCastles' />
-				</FormItem>
-				<FormItem label='Number of craftsments' name='numOfCraftsmens'>
-					<InputNumber placeholder='Number of craftsments' name='numOfCraftsmens' />
-				</FormItem>
-				<FormItem label='Number of ponds' name='numOfPonds'>
-					<InputNumber placeholder='Number of ponds' />
-				</FormItem>
-				<Button
-					icon={<ThunderboltOutlined />}
-					type='primary'
-					danger
-					style={{ width: '100%' }}
-					htmlType='submit'
-					disabled={isPlayingTest}
+			{!isPlayingTest && (
+				<Form
+					initialValues={initialRandomFieldOptions}
+					labelAlign='left'
+					labelCol={{ xs: 12 }}
+					onFinish={handleRandomField}
+					size='middle'
 				>
-					Random field
-				</Button>
-			</Form>
+					<FormItem label='Width' name='width'>
+						<InputNumber placeholder='Width' name='width' />
+					</FormItem>
+
+					<FormItem label='Height' name='height'>
+						<InputNumber placeholder='Height' name='height' />
+					</FormItem>
+
+					<FormItem label='Number of castles' name='numOfCastles'>
+						<InputNumber placeholder='Number of castles' name='numOfCastles' />
+					</FormItem>
+					<FormItem label='Number of craftsments' name='numOfCraftsmens'>
+						<InputNumber placeholder='Number of craftsments' name='numOfCraftsmens' />
+					</FormItem>
+					<FormItem label='Number of ponds' name='numOfPonds'>
+						<InputNumber placeholder='Number of ponds' />
+					</FormItem>
+					<Button
+						icon={<ThunderboltOutlined />}
+						type='primary'
+						danger
+						style={{ width: '100%' }}
+						htmlType='submit'
+						disabled={isPlayingTest}
+					>
+						Random field
+					</Button>
+				</Form>
+			)}
 
 			{gameState && (
 				<>
-					<Divider />
-
 					<Card title='Side A' size='small'>
 						<Select
 							placeholder='Select game mode'
@@ -127,9 +128,19 @@ export default function PlayTestTab({ gameState, onGameStateChange }: PlayRealTa
 							onChange={(value) => setNumberOfTurns(value!)}
 						/>
 						<Button icon={<BugOutlined />} type='primary' loading={isPlayingTest} onClick={handlePlayTest}>
-							Play test
+							{isPlayingTest ? 'Playing test...' : 'Play test'}
 						</Button>
 					</Space>
+
+					<Descriptions>
+						<DescriptionsItem label='Turn'>
+							<Progress
+								percent={(gameState.lastTurn / numberOfTurns) * 100}
+								showInfo
+								format={(number) => ((number! * numberOfTurns) / 100).toFixed(0)}
+							/>
+						</DescriptionsItem>
+					</Descriptions>
 
 					<ActionList actions={actions} />
 				</>

@@ -13,6 +13,10 @@
 	top: 80px;
 	border-radius: 10px;
 	overflow: hidden;
+
+	&.isFullScreen {
+		height: calc(100vh - 104px);
+	}
 }
 
 .inner {
@@ -26,7 +30,7 @@
 	padding: 10px;
 }
 
-.countDown {
+.fullScreenButton {
 	position: absolute;
 	top: 0;
 	right: 0;

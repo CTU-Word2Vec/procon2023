@@ -33,6 +33,8 @@ export default function PlayRealTab({ onGameStateChange: onGameStateChange, game
 	const [isReplaying, setIsReplaying] = useState(false);
 	const [isLoadingGame, setIsLoadingGame] = useState(false);
 
+	const [messageApi, contextHolder] = message.useMessage();
+
 	const handlePlayReal = () => {
 		setIsPlaying(true);
 		playReal({
@@ -56,8 +58,17 @@ export default function PlayRealTab({ onGameStateChange: onGameStateChange, game
 
 	const handleGetGameData = async () => {
 		if (!gameId) return;
+
+		const key = 'loadGameData';
 		try {
 			setIsLoadingGame(true);
+			messageApi.open({
+				key,
+				content: 'Loading game data',
+				type: 'loading',
+				duration: 0,
+			});
+
 			const game = await playerService.getGameById(+gameId);
 			const currentActions = await playerService.getGameActions(game.id);
 			const baseActions = await playerService.getGameActions(game.id);
@@ -70,8 +81,20 @@ export default function PlayRealTab({ onGameStateChange: onGameStateChange, game
 			setBaseGameActions(baseActions);
 
 			setGame(game);
+
+			messageApi.open({
+				key,
+				content: `Loaded game data: ${game.name}`,
+				duration: 2,
+				type: 'success',
+			});
 		} catch (error: any) {
-			message.error(error.message);
+			messageApi.open({
+				key,
+				content: error.message,
+				type: 'error',
+				duration: 2,
+			});
 		} finally {
 			setIsLoadingGame(false);
 		}
@@ -79,6 +102,8 @@ export default function PlayRealTab({ onGameStateChange: onGameStateChange, game
 
 	return (
 		<>
+			{contextHolder}
+
 			<form
 				onSubmit={(event) => {
 					event.preventDefault();

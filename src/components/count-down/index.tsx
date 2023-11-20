@@ -1,11 +1,10 @@
+import conicColors from '@/constants/conicColors';
 import { Progress } from 'antd';
 import { useEffect, useState } from 'react';
 
 export interface CountDownProps {
 	seconds?: number;
 }
-
-const conicColors = { '0%': '#87d068', '50%': '#ffe58f', '100%': '#87d068' };
 
 export default function CountDown({ seconds = 5 }: CountDownProps) {
 	const [count, setCount] = useState(0);
