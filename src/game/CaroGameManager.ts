@@ -131,7 +131,7 @@ export default class CaroGameManager extends GameManager {
 	}
 
 	private willBeBuild(pos: Position, side: EWallSide): boolean {
-		if (!this.canBuildWall(pos)) return false;
+		if (!this.canCraftsmenBuildWall(pos)) return false;
 		const positions = pos.topRightBottomLeft();
 
 		for (const position of positions) {

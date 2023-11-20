@@ -122,7 +122,7 @@ class GameManager implements GameStateData {
 
 		switch (action.action) {
 			case 'MOVE':
-				this.moveCraftsmen(craftsman, craftsman.getPositionByActionParam(action.action_param!));
+				this.craftsmenMove(craftsman, craftsman.getPositionByActionParam(action.action_param!));
 				break;
 
 			case 'BUILD':
@@ -146,17 +146,23 @@ class GameManager implements GameStateData {
 		this.walls = this.walls.filter((e) => !e.equals(pos));
 	}
 
-	protected canDestroy(pos: Position) {
-		return this.hashedWalls.exist(pos);
-	}
-
-	protected moveCraftsmen(craftsmen: CraftsmenPosition, pos: Position) {
+	protected craftsmenMove(craftsmen: CraftsmenPosition, pos: Position) {
 		this.hashedCraftmen.remove(craftsmen);
 
 		craftsmen.x = pos.x;
 		craftsmen.y = pos.y;
 
 		this.hashedCraftmen.write(craftsmen, craftsmen);
+	}
+
+	protected buildWall(pos: Position, side: EWallSide) {
+		const wall = new WallPosition(pos.x, pos.y, side);
+		this.walls.push(wall);
+		this.hashedWalls.write(wall, wall);
+	}
+
+	protected canCraftsmenDestroy(pos: Position) {
+		return this.hashedWalls.exist(pos);
 	}
 
 	protected canCraftsmenMove(craftsmen: CraftsmenPosition, pos: Position) {
@@ -168,13 +174,7 @@ class GameManager implements GameStateData {
 		return true;
 	}
 
-	protected buildWall(pos: Position, side: EWallSide) {
-		const wall = new WallPosition(pos.x, pos.y, side);
-		this.walls.push(wall);
-		this.hashedWalls.write(wall, wall);
-	}
-
-	protected canBuildWall(pos: Position) {
+	protected canCraftsmenBuildWall(pos: Position) {
 		if (!pos.isValid(this.width, this.height)) return false;
 		if (this.hashedCraftmen.exist(pos)) return false;
 		if (this.hashedWalls.exist(pos)) return false;
@@ -194,10 +194,10 @@ class GameManager implements GameStateData {
 				return this.canCraftsmenMove(craftmen, nextPos);
 			}
 			case 'BUILD': {
-				return this.canBuildWall(nextPos);
+				return this.canCraftsmenBuildWall(nextPos);
 			}
 			case 'DESTROY': {
-				return this.canDestroy(nextPos);
+				return this.canCraftsmenDestroy(nextPos);
 			}
 		}
 	}

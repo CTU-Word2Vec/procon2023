@@ -7,9 +7,11 @@ import playerService from '@/services/player.service';
 import playReal from '@/utils/playReal';
 import replay from '@/utils/replay';
 import { AppstoreOutlined, PlayCircleOutlined, ReloadOutlined, UserOutlined } from '@ant-design/icons';
-import { Button, Divider, Input, Select, Space, message } from 'antd';
+import { Button, Descriptions, Divider, Input, Select, Space, message } from 'antd';
+import DescriptionsItem from 'antd/es/descriptions/Item';
 import { useState } from 'react';
 import ActionList from '../action-list';
+import CountDown from '../count-down';
 import GameInfo from '../game-info';
 
 export interface PlayRealTabProps {
@@ -64,7 +66,7 @@ export default function PlayRealTab({ onGameStateChange: onGameStateChange, game
 			gameManager.addActions(currentActions);
 
 			onGameStateChange(gameManager.getData());
-			setCurrentGameActions(currentActions.reverse());
+			setCurrentGameActions(currentActions);
 			setBaseGameActions(baseActions);
 
 			setGame(game);
@@ -144,6 +146,14 @@ export default function PlayRealTab({ onGameStateChange: onGameStateChange, game
 							{isPlaying ? 'Playing...' : 'Play'}
 						</Button>
 					</Space>
+
+					{isPlaying && (
+						<Descriptions bordered column={1}>
+							<DescriptionsItem label='Count down'>
+								<CountDown seconds={game.time_per_turn} />
+							</DescriptionsItem>
+						</Descriptions>
+					)}
 
 					<GameInfo game={game} currentTurn={gameState?.lastTurn} />
 
