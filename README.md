@@ -1,14 +1,21 @@
 # CTU.Word2Vec Procon 2023
 
-<img 
-   src="./src/assets/logo-ctu.png"
-   width="200" 
-   style="position: relative; transform: translate(-50%); left: 50%"
-/>
+<p style="text-align: center">
+    <img 
+    src="./src/assets/logo-ctu.png"
+    width="200" 
+    />
+</p>
 
 Procon 2023: Castle game [Details](https://drive.google.com/file/d/1GjMPgYpT2FNNmtSztPiTp1mWqT46vZLC/view)
 
-![Demo](./public/demo.png)
+## Real mode
+
+![Demo play real](./public/demo-play-real.png)
+
+## Test mode
+
+![Demo play test](./public/demo-play-test.png)
 
 ## How to run?
 
