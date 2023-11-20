@@ -6,8 +6,8 @@ export interface CraftmenProps {
 }
 
 export default class Craftsmen extends React.Component<CraftmenProps> {
-	public imgSource = '';
-	public color = '#0000b6';
+	protected imgSource: string = '';
+	protected color: string = '#0000b6';
 
 	constructor(props: CraftmenProps) {
 		super(props);

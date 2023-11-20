@@ -5,7 +5,8 @@
 	border-radius: 32px;
 
 	img {
-		filter: drop-shadow(0 0 2px #fff);
+		filter: drop-shadow(0 0 1px #fff);
+		animation: animate 3s ease alternate infinite;
 	}
 }
 
@@ -18,4 +19,14 @@
 	border-radius: 2px;
 	font-size: 10px;
 	border: 1px solid #fff;
+}
+
+@keyframes animate {
+	0%,
+	100% {
+		transform: translateY(-40%) scale(1.5);
+	}
+	50% {
+		transform: translateY(-20%) scale(1.2);
+	}
 }

@@ -43,15 +43,25 @@ $cell-height: 32px;
 }
 
 .pond {
-	background: #f1bb6a;
+	background: #9e1d14;
 	box-shadow:
-		inset 0 0 5px #ffdca7,
-		0px 2px 5px #070044;
+		inset 0 5px 2px #350b00,
+		0px 0 2px #fff;
 	border-radius: 5px;
-	border: 2px solid #704900;
+	border: 2px solid #ffffff90;
+
+	animation: pond-animate 2s infinite alternate;
 }
 
 .wall {
+	border: 1px solid #fff;
+	width: 100%;
+	height: 100%;
+	border-radius: 5px;
+	box-shadow: 0 2px 5px #070707;
+	transform: translateY(-2px);
+	position: relative;
+
 	&.A {
 		background: #001f3b90;
 	}

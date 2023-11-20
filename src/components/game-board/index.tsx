@@ -58,11 +58,13 @@ export default function GameBoard({ state }: GameBoardProps) {
 				{state.walls.map((wall, index) => (
 					<div
 						key={index}
-						className={clsx(styles.position, styles.wall, styles[wall.side])}
+						className={clsx(styles.position)}
 						style={{
 							transform: `translate(${wall.x * 33 + 1}px, ${wall.y * 33 + 1}px)`,
 						}}
-					></div>
+					>
+						<div className={clsx(styles.wall, styles[wall.side])}></div>
+					</div>
 				))}
 
 				{state.sides.map((side, index) => (
