@@ -173,7 +173,11 @@ class GameManager implements GameStateData {
 		this.walls.push(wall);
 		this.hashedWalls.write(wall, wall);
 
-		this.updateSideFromPosition(pos, wall.side);
+		const positions = pos.topRightBottomLeft();
+
+		for (const position of positions) {
+			this.updateSideFromPosition(position, side);
+		}
 	}
 
 	protected canCraftsmenDestroy(pos: Position) {
@@ -219,19 +223,16 @@ class GameManager implements GameStateData {
 
 	protected sideOf(
 		pos: Position,
-		visited: HashedType<Position> = new HashedType<Position>(),
+		visited: HashedType<boolean> = new HashedType<boolean>(),
 		currentSide: EWallSide | null = null,
 	): EWallSide | null {
 		if (!pos.isValid(this.width, this.height)) return null;
-
-		this.hashedSide.remove(pos);
-
 		if (this.hashedWalls.exist(pos)) {
 			if (currentSide && currentSide !== this.hashedWalls.read(pos)!.side) return null;
 			return currentSide;
 		}
 
-		visited.write(pos, pos);
+		visited.write(pos, true);
 
 		const positions = pos.topRightBottomLeft();
 
@@ -249,26 +250,28 @@ class GameManager implements GameStateData {
 		return currentSide;
 	}
 
-	protected fillSide(pos: Position, side: EWallSide | null) {
+	protected fillSide(pos: Position, side: EWallSide | null, filled: HashedType<boolean> = new HashedType<boolean>()) {
 		if (!pos.isValid(this.width, this.height)) return;
+		if (filled.exist(pos)) return;
 		if (this.hashedWalls.exist(pos)) return;
+
+		filled.write(pos, true);
 
 		if (side) {
 			this.hashedSide.write(pos, side);
 		} else {
 			this.hashedSide.remove(pos);
 		}
+
+		const positions = pos.topRightBottomLeft();
+
+		for (const pos of positions) {
+			this.fillSide(pos, side, filled);
+		}
 	}
 
 	protected updateSideFromPosition(pos: Position, initSide: EWallSide | null = null) {
-		const positions = pos.topRightBottomLeft();
-
-		for (const position of positions) {
-			const upateSide = this.sideOf(position, new HashedType<Position>(), initSide);
-			this.fillSide(position, upateSide);
-		}
-
-		const updateSide = this.sideOf(pos, new HashedType<Position>(), initSide);
+		const updateSide = this.sideOf(pos, new HashedType<boolean>(), initSide);
 		this.fillSide(pos, updateSide);
 
 		this.sides = this.hashedSide.toList();
