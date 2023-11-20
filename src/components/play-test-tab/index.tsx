@@ -5,7 +5,7 @@ import GameAction from '@/models/GameAction';
 import playTest from '@/utils/playTest';
 import randomField, { RandomFieldOptions } from '@/utils/randomField';
 import { BugOutlined, ThunderboltOutlined } from '@ant-design/icons';
-import { Button, Card, Descriptions, Form, InputNumber, Progress, Select, Space, message } from 'antd';
+import { Button, Card, Collapse, Descriptions, Form, InputNumber, Progress, Select, Space, message } from 'antd';
 import DescriptionsItem from 'antd/es/descriptions/Item';
 import FormItem from 'antd/es/form/FormItem';
 import { useState } from 'react';
@@ -59,43 +59,53 @@ export default function PlayTestTab({ gameState, onGameStateChange }: PlayRealTa
 
 	return (
 		<Space style={{ width: '100%' }} direction='vertical'>
-			{!isPlayingTest && (
-				<Form
-					initialValues={initialRandomFieldOptions}
-					labelAlign='left'
-					labelCol={{ xs: 12 }}
-					onFinish={handleRandomField}
-					size='middle'
-				>
-					<FormItem label='Width' name='width'>
-						<InputNumber placeholder='Width' name='width' />
-					</FormItem>
+			<Collapse
+				activeKey={isPlayingTest ? [] : ['random-field']}
+				collapsible='disabled'
+				items={[
+					{
+						label: 'Random field',
+						key: 'random-field',
+						children: (
+							<Form
+								initialValues={initialRandomFieldOptions}
+								labelAlign='left'
+								labelCol={{ xs: 12 }}
+								onFinish={handleRandomField}
+								size='middle'
+							>
+								<FormItem label='Width' name='width'>
+									<InputNumber placeholder='Width' name='width' />
+								</FormItem>
 
-					<FormItem label='Height' name='height'>
-						<InputNumber placeholder='Height' name='height' />
-					</FormItem>
+								<FormItem label='Height' name='height'>
+									<InputNumber placeholder='Height' name='height' />
+								</FormItem>
 
-					<FormItem label='Number of castles' name='numOfCastles'>
-						<InputNumber placeholder='Number of castles' name='numOfCastles' />
-					</FormItem>
-					<FormItem label='Number of craftsments' name='numOfCraftsmens'>
-						<InputNumber placeholder='Number of craftsments' name='numOfCraftsmens' />
-					</FormItem>
-					<FormItem label='Number of ponds' name='numOfPonds'>
-						<InputNumber placeholder='Number of ponds' />
-					</FormItem>
-					<Button
-						icon={<ThunderboltOutlined />}
-						type='primary'
-						danger
-						style={{ width: '100%' }}
-						htmlType='submit'
-						disabled={isPlayingTest}
-					>
-						Random field
-					</Button>
-				</Form>
-			)}
+								<FormItem label='Number of castles' name='numOfCastles'>
+									<InputNumber placeholder='Number of castles' name='numOfCastles' />
+								</FormItem>
+								<FormItem label='Number of craftsments' name='numOfCraftsmens'>
+									<InputNumber placeholder='Number of craftsments' name='numOfCraftsmens' />
+								</FormItem>
+								<FormItem label='Number of ponds' name='numOfPonds'>
+									<InputNumber placeholder='Number of ponds' />
+								</FormItem>
+								<Button
+									icon={<ThunderboltOutlined />}
+									type='primary'
+									danger
+									style={{ width: '100%' }}
+									htmlType='submit'
+									disabled={isPlayingTest}
+								>
+									Random field
+								</Button>
+							</Form>
+						),
+					},
+				]}
+			></Collapse>
 
 			{gameState && (
 				<>
