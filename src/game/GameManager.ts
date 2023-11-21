@@ -75,14 +75,14 @@ class GameManager implements GameStateData {
 		this.hashedSide = new HashedType<EWallSide>();
 		this.sides = [];
 
-		this.firstBuild();
+		this.firstHashing();
 	}
 
-	public getData() {
+	public getData(): GameStateData {
 		return { ...this };
 	}
 
-	private firstBuild() {
+	private firstHashing(): void {
 		for (const craftsman of this.craftsmen) {
 			this.hashedCraftmen.write(craftsman, craftsman);
 		}
@@ -96,7 +96,7 @@ class GameManager implements GameStateData {
 		}
 	}
 
-	public addActions(actions: GameAction[]) {
+	public addActions(actions: GameAction[]): void {
 		if (!actions.length) return;
 
 		const startTime = Date.now();
@@ -124,7 +124,7 @@ class GameManager implements GameStateData {
 		console.log(`Time to add actions: ${endTime - startTime}ms`);
 	}
 
-	protected craftsmanDoAction(craftsman: CraftsmenPosition, action: Action) {
+	protected craftsmanDoAction(craftsman: CraftsmenPosition, action: Action): void {
 		if (!this.canCrafsmenDoAction(craftsman, action)) {
 			action.action = 'STAY';
 			return;
@@ -151,7 +151,7 @@ class GameManager implements GameStateData {
 		}
 	}
 
-	protected destroyWall(pos: Position) {
+	protected destroyWall(pos: Position): void {
 		if (!this.hashedWalls.exist(pos)) return;
 		this.hashedWalls.remove(pos);
 		this.walls = this.walls.filter((e) => !e.equals(pos));
@@ -159,7 +159,7 @@ class GameManager implements GameStateData {
 		this.updateSideFromPosition(pos);
 	}
 
-	protected craftsmenMove(craftsmen: CraftsmenPosition, pos: Position) {
+	protected craftsmenMove(craftsmen: CraftsmenPosition, pos: Position): void {
 		this.hashedCraftmen.remove(craftsmen);
 
 		craftsmen.x = pos.x;
@@ -168,7 +168,7 @@ class GameManager implements GameStateData {
 		this.hashedCraftmen.write(craftsmen, craftsmen);
 	}
 
-	protected buildWall(pos: Position, side: EWallSide) {
+	protected buildWall(pos: Position, side: EWallSide): void {
 		const wall = new WallPosition(pos.x, pos.y, side);
 		this.walls.push(wall);
 		this.hashedWalls.write(wall, wall);
@@ -185,11 +185,11 @@ class GameManager implements GameStateData {
 		this.hashedSide.remove(pos);
 	}
 
-	protected canCraftsmenDestroy(pos: Position) {
+	protected canCraftsmenDestroy(pos: Position): boolean {
 		return this.hashedWalls.exist(pos);
 	}
 
-	protected canCraftsmenMove(craftsmen: CraftsmenPosition, pos: Position) {
+	protected canCraftsmenMove(craftsmen: CraftsmenPosition, pos: Position): boolean {
 		if (!pos.isValid(this.width, this.height)) return false;
 		if (this.hashedCraftmen.exist(pos)) return false;
 		if (this.hashedPonds.exist(pos)) return false;
@@ -198,7 +198,7 @@ class GameManager implements GameStateData {
 		return true;
 	}
 
-	protected canCraftsmenBuildWall(pos: Position) {
+	protected canCraftsmenBuildWall(pos: Position): boolean {
 		if (!pos.isValid(this.width, this.height)) return false;
 		if (this.hashedCraftmen.exist(pos)) return false;
 		if (this.hashedWalls.exist(pos)) return false;
@@ -208,7 +208,7 @@ class GameManager implements GameStateData {
 		return true;
 	}
 
-	protected canCrafsmenDoAction(craftmen: CraftsmenPosition, action: ActionDto) {
+	protected canCrafsmenDoAction(craftmen: CraftsmenPosition, action: ActionDto): boolean {
 		const nextPos = craftmen.getPositionByActionParam(action.action_param || 'ABOVE');
 
 		switch (action.action) {
@@ -255,7 +255,11 @@ class GameManager implements GameStateData {
 		return currentSide;
 	}
 
-	protected fillSide(pos: Position, side: EWallSide | null, filled: HashedType<boolean> = new HashedType<boolean>()) {
+	protected fillSide(
+		pos: Position,
+		side: EWallSide | null,
+		filled: HashedType<boolean> = new HashedType<boolean>(),
+	): void {
 		if (!pos.isValid(this.width, this.height)) return;
 		if (filled.exist(pos)) return;
 		if (this.hashedWalls.exist(pos)) return;
@@ -280,11 +284,23 @@ class GameManager implements GameStateData {
 		initSide: EWallSide | null = null,
 		visited: HashedType<boolean> = new HashedType<boolean>(),
 		filled: HashedType<boolean> = new HashedType<boolean>(),
-	) {
+	): void {
 		const updateSide = this.sideOf(pos, initSide, visited);
 		this.fillSide(pos, updateSide, filled);
 
 		this.sides = this.hashedSide.toList();
+	}
+
+	protected getActionToGoToPosition(craftmen: CraftsmenPosition, pos: Position): ActionDto | null {
+		const nextActions = craftmen.getNextActionsToGoToPosition(pos);
+
+		for (const action of nextActions) {
+			if (this.canCrafsmenDoAction(craftmen, action)) {
+				return action;
+			}
+		}
+
+		return null;
 	}
 }
 

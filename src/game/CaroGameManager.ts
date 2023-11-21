@@ -17,13 +17,7 @@ export default class CaroGameManager extends GameManager {
 			if (craftmen.side !== side) continue;
 
 			const action = this.getNextCraftsmenAction(craftmen);
-
-			if (action) {
-				actions.push(action);
-				continue;
-			}
-
-			actions.push(this.getBuildAction(craftmen));
+			actions.push(action);
 		}
 
 		this.goingTo = new HashedType<Position>();
@@ -35,46 +29,45 @@ export default class CaroGameManager extends GameManager {
 		return actions;
 	}
 
-	private getNextCraftsmenAction(craftmen: CraftsmenPosition): ActionDto | null {
+	private getNextCraftsmenAction(craftmen: CraftsmenPosition): ActionDto {
 		const destroyAction = this.getDestroyAction(craftmen);
 
-		if (destroyAction) {
-			return destroyAction;
-		}
+		if (destroyAction) return destroyAction;
+
+		const gotoClosestCastleAction = this.gotoClosestCastleAction(craftmen);
+
+		if (gotoClosestCastleAction) return gotoClosestCastleAction;
 
 		const pos = this.getNextPosition(craftmen);
 
-		if (!pos) {
+		if (!pos)
 			return {
 				action: 'STAY',
 				craftsman_id: craftmen.id,
 			};
-		}
 
-		if (!pos.equals(craftmen)) {
-			const nextActions = craftmen.getActionsToGoToPosition(pos);
+		const nextActions = this.getActionToGoToPosition(craftmen, pos);
 
-			for (const action of nextActions) {
-				if (this.canCrafsmenDoAction(craftmen, action)) {
-					const nextPos = craftmen.getPositionByActionParam(action.action_param!);
+		if (nextActions) return nextActions;
 
-					this.goingTo.write(nextPos, nextPos);
-					return action;
-				}
-			}
-		}
+		return this.getBuildAction(craftmen);
 
-		return null;
+		return {
+			action: 'STAY',
+			craftsman_id: craftmen.id,
+		};
+	}
+
+	private gotoClosestCastleAction(craftmen: CraftsmenPosition): ActionDto | null {
+		const closestCastle = this.findClosestCastle(craftmen);
+		if (!closestCastle) return null;
+
+		this.goingTo.write(closestCastle, closestCastle);
+
+		return this.getActionToGoToPosition(craftmen, closestCastle);
 	}
 
 	private getNextPosition(craftmen: CraftsmenPosition): Position | null {
-		const closestCastle = this.findClosestCastle(craftmen);
-
-		if (closestCastle) {
-			this.goingTo.write(closestCastle, closestCastle);
-			return closestCastle;
-		}
-
 		const position = new Position(craftmen.x, craftmen.y);
 
 		const positions: Position[] = [];
@@ -149,10 +142,10 @@ export default class CaroGameManager extends GameManager {
 		for (const castle of this.castles) {
 			if (this.goingTo.exist(castle)) continue;
 			if (this.hashedCraftmen.exist(castle) && !craftsmen.equals(castle)) continue;
+			if (this.hashedSide.read(castle) === craftsmen.side) continue;
+			if (!this.canBuildOrDestroy(castle, craftsmen.side)) continue;
 
 			const distance = craftsmen.distance(castle);
-
-			if (this.isOurCastle(new CraftsmenPosition(castle.x, castle.y, craftsmen.id, craftsmen.side))) continue;
 
 			if (distance < min) {
 				min = distance;
@@ -163,12 +156,17 @@ export default class CaroGameManager extends GameManager {
 		return closestCastle;
 	}
 
-	private isOurCastle(craftmen: CraftsmenPosition) {
-		const positions = craftmen.topRightBottomLeft();
+	private canBuildOrDestroy(pos: Position, side: EWallSide): boolean {
+		const positions = pos.topRightBottomLeft();
 
-		return positions.every((pos) => {
-			if (!pos.isValid(this.width, this.height)) return true;
-			return this.hashedWalls.read(pos)?.side === craftmen.side;
+		return positions.some((pos) => {
+			if (!pos.isValid(this.width, this.height)) return false;
+			if (this.hashedCraftmen.exist(pos)) return false;
+			if (this.hashedPonds.exist(pos)) return false;
+			if (this.hashedCastles.exist(pos)) return false;
+			if (this.hashedWalls.read(pos)?.side === side) return false;
+
+			return true;
 		});
 	}
 
@@ -182,6 +180,8 @@ export default class CaroGameManager extends GameManager {
 
 			if (!this.hashedWalls.exist(pos)) continue;
 			if (this.hashedWalls.read(pos)!.side === craftsmen.side) continue;
+
+			this.goingTo.write(pos, pos);
 
 			return {
 				craftsman_id: craftsmen.id,

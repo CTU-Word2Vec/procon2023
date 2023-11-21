@@ -70,7 +70,7 @@ export class CraftsmenPosition extends Position implements ICraftsmenPosition {
 		];
 	}
 
-	public getActionsToGoToPosition(pos: Position): ActionDto[] {
+	public getNextActionsToGoToPosition(pos: Position): ActionDto[] {
 		const [up, down, left, right, upperLeft, upperRight, lowerLeft, lowerRight] = this.allMoveActions();
 
 		if (pos.x === this.x) {
