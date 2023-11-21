@@ -181,6 +181,8 @@ class GameManager implements GameStateData {
 		for (const position of positions) {
 			this.updateSideFromPosition(position, side, visited, filled);
 		}
+
+		this.hashedSide.remove(pos);
 	}
 
 	protected canCraftsmenDestroy(pos: Position) {
