@@ -17,14 +17,19 @@ function renderCraftsmen(craftmen: CraftsmenPosition) {
 	return <CraftsmenB id={craftmen.id} />;
 }
 
-export default function GameBoard({ state }: GameBoardProps) {
+interface MapProps {
+	width: number;
+	height: number;
+}
+
+function Map({ width, height }: MapProps) {
 	const rows = useMemo(() => {
 		const rows = [];
 
-		for (let y = 0; y < state.height; y++) {
+		for (let y = 0; y < height; y++) {
 			const cols = [];
 
-			for (let x = 0; x < state.width; x++) {
+			for (let x = 0; x < width; x++) {
 				cols.push(
 					<td>
 						<div className={styles.placeholder}></div>
@@ -42,18 +47,24 @@ export default function GameBoard({ state }: GameBoardProps) {
 		}
 
 		return rows;
-	}, [state.width, state.height]);
+	}, [width, height]);
 
+	return (
+		<table>
+			<tbody>
+				{rows.map((row, index) => (
+					<React.Fragment key={index}>{row}</React.Fragment>
+				))}
+			</tbody>
+		</table>
+	);
+}
+
+export default function GameBoard({ state }: GameBoardProps) {
 	return (
 		<div className={styles.wrapper}>
 			<div className={styles.inner}>
-				<table>
-					<tbody>
-						{rows.map((row, index) => (
-							<React.Fragment key={index}>{row}</React.Fragment>
-						))}
-					</tbody>
-				</table>
+				<Map width={state.width} height={state.height} />
 
 				{state.walls.map((wall, index) => (
 					<div
