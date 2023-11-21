@@ -30,7 +30,7 @@ export interface GetTimeResponse {
 	time: Date | string;
 }
 
-class PlayerService {
+export class PlayerService {
 	constructor(private client: AxiosInstance = createClient('player')) {}
 
 	async getGames() {

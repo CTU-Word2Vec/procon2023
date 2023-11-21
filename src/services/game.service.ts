@@ -3,7 +3,7 @@ import Position, { CraftsmenPosition } from '@/models/Position';
 import createClient from '@/utils/createClient';
 import { AxiosInstance } from 'axios';
 
-class GameService {
+export class GameService {
 	constructor(private readonly client: AxiosInstance = createClient('games')) {}
 
 	async getGameStatus(gameId: number) {

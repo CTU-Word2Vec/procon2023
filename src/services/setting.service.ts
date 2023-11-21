@@ -1,4 +1,4 @@
-class SettingService {
+export class SettingService {
 	private readonly tokenName = 'token';
 	private _token = '';
 

@@ -1,0 +1,8 @@
+{
+	"entryPoints": ["./src/typedoc.ts"],
+	"out": "./docs",
+	"plugin": ["typedoc-theme-hierarchy"],
+	"theme": "hierarchy",
+	"tsconfig": "./tsconfig.json",
+	"name": "Procon 2023"
+}
