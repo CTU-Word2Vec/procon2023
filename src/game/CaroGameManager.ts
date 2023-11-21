@@ -31,12 +31,13 @@ export default class CaroGameManager extends GameManager {
 
 	private getNextCraftsmenAction(craftmen: CraftsmenPosition): ActionDto {
 		const destroyAction = this.getDestroyAction(craftmen);
-
 		if (destroyAction) return destroyAction;
 
 		const gotoClosestCastleAction = this.gotoClosestCastleAction(craftmen);
-
 		if (gotoClosestCastleAction) return gotoClosestCastleAction;
+
+		const buildAction = this.getBuildAction(craftmen);
+		if (buildAction) return buildAction;
 
 		const pos = this.getNextPosition(craftmen);
 
@@ -49,8 +50,6 @@ export default class CaroGameManager extends GameManager {
 		const nextActions = this.getActionToGoToPosition(craftmen, pos);
 
 		if (nextActions) return nextActions;
-
-		return this.getBuildAction(craftmen);
 
 		return {
 			action: 'STAY',
@@ -91,15 +90,10 @@ export default class CaroGameManager extends GameManager {
 		return null;
 	}
 
-	private getBuildAction(craftmen: CraftsmenPosition): ActionDto {
+	private getBuildAction(craftmen: CraftsmenPosition): ActionDto | null {
 		const action = this.getBuildActionFromPosition(craftmen, craftmen.side);
 
-		if (!action) {
-			return {
-				craftsman_id: craftmen.id,
-				action: 'STAY',
-			};
-		}
+		if (!action) return null;
 
 		return {
 			craftsman_id: craftmen.id,
@@ -135,7 +129,7 @@ export default class CaroGameManager extends GameManager {
 		return true;
 	}
 
-	private findClosestCastle(craftsmen: CraftsmenPosition) {
+	private findClosestCastle(craftsmen: CraftsmenPosition): Position | null {
 		let min = Infinity;
 		let closestCastle: Position | null = null;
 
@@ -146,6 +140,8 @@ export default class CaroGameManager extends GameManager {
 			if (!this.canBuildOrDestroy(castle, craftsmen.side)) continue;
 
 			const distance = craftsmen.distance(castle);
+
+			if (distance === 0) return null;
 
 			if (distance < min) {
 				min = distance;

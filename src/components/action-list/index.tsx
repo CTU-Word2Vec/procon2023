@@ -13,11 +13,12 @@ export default function ActionList({ actions }: ActionListProps) {
 
 			<div className={styles.wrapper}>
 				<Timeline
+					reverse
 					items={actions.map((action) => {
 						return {
 							children: (
 								<Alert
-									type={action.turn % 2 ? 'error' : 'info'}
+									type={action.turn % 2 ? 'success' : 'info'}
 									message={`Turn ${action.turn}`}
 									description={
 										<Descriptions column={1} size='small' bordered>
@@ -36,7 +37,7 @@ export default function ActionList({ actions }: ActionListProps) {
 									}
 								></Alert>
 							),
-							color: action.turn % 2 ? 'red' : 'blue',
+							color: action.turn % 2 ? 'green' : 'blue',
 						};
 					})}
 				/>
