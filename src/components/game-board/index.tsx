@@ -61,6 +61,7 @@ export default function GameBoard({ state }: GameBoardProps) {
 						className={clsx(styles.position)}
 						style={{
 							transform: `translate(${wall.x * 33 + 1}px, ${wall.y * 33 + 1}px)`,
+							zIndex: wall.y,
 						}}
 					>
 						<div className={clsx(styles.wall, styles[wall.side])}></div>
@@ -73,6 +74,7 @@ export default function GameBoard({ state }: GameBoardProps) {
 						key={index}
 						style={{
 							transform: `translate(${side.x * 33 + 1}px, ${side.y * 33 + 1}px)`,
+							zIndex: state.height,
 						}}
 					></div>
 				))}
@@ -83,6 +85,7 @@ export default function GameBoard({ state }: GameBoardProps) {
 						className={styles.position}
 						style={{
 							transform: `translate(${castle.x * 33 + 1}px, ${castle.y * 33 + 1}px)`,
+							zIndex: state.height,
 						}}
 					>
 						<Castle />
@@ -95,6 +98,7 @@ export default function GameBoard({ state }: GameBoardProps) {
 						className={clsx(styles.position, styles.pond)}
 						style={{
 							transform: `translate(${pond.x * 33 + 1}px, ${pond.y * 33 + 1}px)`,
+							zIndex: state.height,
 						}}
 					></div>
 				))}
@@ -105,6 +109,7 @@ export default function GameBoard({ state }: GameBoardProps) {
 						className={styles.craftsmen}
 						style={{
 							transform: `translate(${craftsmen.x * 33 + 1}px, ${craftsmen.y * 33 + 1}px)`,
+							zIndex: state.height,
 						}}
 					>
 						{renderCraftsmen(craftsmen)}
