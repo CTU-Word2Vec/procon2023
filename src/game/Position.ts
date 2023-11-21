@@ -16,6 +16,7 @@ export interface IPosition {
 
 /**
  * @description Position class
+ * @implements IPosition
  */
 export class Position implements IPosition {
 	public x: number;

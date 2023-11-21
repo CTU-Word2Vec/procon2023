@@ -7,32 +7,109 @@ import { HashedType, PositionData } from './HashedType';
 import { Position } from './Position';
 import { EWallSide, WallPosition } from './WallPosition';
 
+/**
+ * @description Game mode
+ */
 export type GameMode = 'Caro' | 'A*';
+/**
+ * @description List of game modes
+ */
 export const gameModes: GameMode[] = ['Caro', 'A*'];
 
+/**
+ * @description Game state data
+ */
 export interface GameStateData {
+	/**
+	 * @description Castle coefficient
+	 */
 	castle_coeff: number;
+
+	/**
+	 * @description Wall coefficient
+	 */
 	wall_coeff: number;
+
+	/**
+	 * @description Territory coefficient
+	 */
 	territory_coeff: number;
+
+	/**
+	 * @description Width of field
+	 */
 	width: number;
+
+	/**
+	 * @description Height of field
+	 */
 	height: number;
+
+	/**
+	 * @description Position of ponds
+	 */
 	ponds: Position[];
+
+	/**
+	 * @description Position of castles
+	 */
 	castles: Position[];
+
+	/**
+	 * @description Position of craftsmen
+	 */
 	craftsmen: CraftsmenPosition[];
+
+	/**
+	 * @description Position of walls
+	 */
 	walls: WallPosition[];
 
+	/**
+	 * @description Turn of lastest action has been added
+	 */
 	lastTurn: number;
 
-	hashedCraftmen: HashedType<CraftsmenPosition>;
+	/**
+	 * @description Hashed position of craftsmens
+	 */
+	hashedCraftmens: HashedType<CraftsmenPosition>;
+
+	/**
+	 * @description Hashed position of walls
+	 */
 	hashedWalls: HashedType<WallPosition>;
+
+	/**
+	 * @description Hashed position of ponds
+	 */
 	hashedPonds: HashedType<Position>;
+
+	/**
+	 * @description Hashed position of castles
+	 */
 	hashedCastles: HashedType<Position>;
 
+	/**
+	 * @description Hashed position of going to
+	 */
 	goingTo: HashedType<Position>;
+
+	/**
+	 * @description Hashed side of walls
+	 */
 	hashedSide: HashedType<EWallSide>;
+
+	/**
+	 * @description List of sides
+	 */
 	sides: PositionData<EWallSide>[];
 }
 
+/**
+ * @description Game manager
+ * @implements GameStateData
+ */
 class GameManager implements GameStateData {
 	public castle_coeff: number;
 	public wall_coeff: number;
@@ -45,7 +122,7 @@ class GameManager implements GameStateData {
 	public walls: WallPosition[];
 
 	public lastTurn = 0;
-	public hashedCraftmen: HashedType<CraftsmenPosition>;
+	public hashedCraftmens: HashedType<CraftsmenPosition>;
 	public hashedWalls: HashedType<WallPosition>;
 	public hashedPonds: HashedType<Position>;
 	public hashedCastles: HashedType<Position>;
@@ -54,6 +131,11 @@ class GameManager implements GameStateData {
 	public hashedSide: HashedType<EWallSide>;
 	public sides: PositionData<EWallSide>[];
 
+	/**
+	 * @description Game manager
+	 * @param field - Field of game
+	 * @constructor
+	 */
 	constructor(field: Field) {
 		this.castle_coeff = field.castle_coeff;
 		this.wall_coeff = field.wall_coeff;
@@ -66,7 +148,7 @@ class GameManager implements GameStateData {
 
 		this.walls = [];
 
-		this.hashedCraftmen = new HashedType<CraftsmenPosition>();
+		this.hashedCraftmens = new HashedType<CraftsmenPosition>();
 		this.hashedWalls = new HashedType<WallPosition>();
 		this.hashedPonds = new HashedType<Position>();
 		this.hashedCastles = new HashedType<Position>();
@@ -78,13 +160,20 @@ class GameManager implements GameStateData {
 		this.firstHashing();
 	}
 
+	/**
+	 *
+	 * @returns Game state data
+	 */
 	public getData(): GameStateData {
 		return { ...this };
 	}
 
+	/**
+	 * @description First hashing
+	 */
 	private firstHashing(): void {
 		for (const craftsman of this.craftsmen) {
-			this.hashedCraftmen.write(craftsman, craftsman);
+			this.hashedCraftmens.write(craftsman, craftsman);
 		}
 
 		for (const pond of this.ponds) {
@@ -96,36 +185,55 @@ class GameManager implements GameStateData {
 		}
 	}
 
+	/**
+	 * @description Get position of craftsmen
+	 * @param actions - List of actions
+	 */
 	public addActions(actions: GameAction[]): void {
+		// If there is no action, do nothing
 		if (!actions.length) return;
 
+		// Timestamp of start time
 		const startTime = Date.now();
 
 		for (let i = 0; i < actions.length; i++) {
 			if (actions[i].turn <= this.lastTurn) {
+				// If the turn is less than or equal to the last turn, then do nothing
 				continue;
 			}
 
 			if (actions[i].turn === actions[i + 1]?.turn) {
+				// If current turn is equal to next turn, then do nothing
 				continue;
 			}
 
+			// Find craftsmen by id and do action
 			for (const action of actions[i].actions) {
 				for (const craftsman of this.craftsmen) {
 					if (craftsman.id === action.craftsman_id) this.craftsmanDoAction(craftsman, action);
 				}
 			}
 
+			// Update last turn
 			this.lastTurn = actions[i].turn;
 		}
 
+		// Timestamp of end time
 		const endTime = Date.now();
 
+		// Log time to add actions
 		console.log(`Time to add actions: ${endTime - startTime}ms`);
 	}
 
+	/**
+	 * @description Get position of craftsmen
+	 * @param craftsman - Craftsman
+	 * @param action - Action
+	 * @returns Whether the craftsman can do action
+	 */
 	protected craftsmanDoAction(craftsman: CraftsmenPosition, action: Action): void {
 		if (!this.canCrafsmenDoAction(craftsman, action)) {
+			// If the craftsman cannot do action, then do nothing and update action to "STAY"
 			action.action = 'STAY';
 			return;
 		}
@@ -151,28 +259,54 @@ class GameManager implements GameStateData {
 		}
 	}
 
+	/**
+	 * @description Destroy wall
+	 * @param pos - Position
+	 * @returns Whether the position is a pond
+	 */
 	protected destroyWall(pos: Position): void {
+		// If the position is not a wall, then do nothing
 		if (!this.hashedWalls.exist(pos)) return;
+
+		// Start removing wall
 		this.hashedWalls.remove(pos);
 		this.walls = this.walls.filter((e) => !e.equals(pos));
 
+		// Update side after removing wall
 		this.updateSideFromPosition(pos);
 	}
 
+	/**
+	 * @description Move craftsmen to position
+	 * @param craftsmen - Craftsman
+	 * @param pos - Position
+	 */
 	protected craftsmenMove(craftsmen: CraftsmenPosition, pos: Position): void {
-		this.hashedCraftmen.remove(craftsmen);
+		// Remove old position
+		this.hashedCraftmens.remove(craftsmen);
 
+		// Update side after removing old position
 		craftsmen.x = pos.x;
 		craftsmen.y = pos.y;
 
-		this.hashedCraftmen.write(craftsmen, craftsmen);
+		// Add new position
+		this.hashedCraftmens.write(craftsmen, craftsmen);
 	}
 
+	/**
+	 * @description Build wall at position
+	 * @param pos - Position
+	 * @param side - Side
+	 */
 	protected buildWall(pos: Position, side: EWallSide): void {
+		// Create new wall
 		const wall = new WallPosition(pos.x, pos.y, side);
+		// Add new wall to list of walls
 		this.walls.push(wall);
+		// Hash new wall to hashed walls
 		this.hashedWalls.write(wall, wall);
 
+		// Get nearby positions of new wall and update side
 		const positions = pos.topRightBottomLeft();
 
 		const visited = new HashedType<boolean>();
@@ -185,22 +319,41 @@ class GameManager implements GameStateData {
 		this.hashedSide.remove(pos);
 	}
 
+	/**
+	 * @description Check if the position is a pond
+	 * @param pos - Position
+	 * @returns Whether the position is a pond
+	 */
 	protected canCraftsmenDestroy(pos: Position): boolean {
+		// Craftsmen can destroy wall if the position is a wall
 		return this.hashedWalls.exist(pos);
 	}
 
+	/**
+	 * @description Check if the craftsmen can move to position
+	 * @param craftsmen - Craftsman
+	 * @param pos - Position
+	 * @returns Whether the craftsmen can move to position
+	 */
 	protected canCraftsmenMove(craftsmen: CraftsmenPosition, pos: Position): boolean {
+		// Craftsmen can move if the position is valid and not a wall, a pond or a craftsmen
 		if (!pos.isValid(this.width, this.height)) return false;
-		if (this.hashedCraftmen.exist(pos)) return false;
+		if (this.hashedCraftmens.exist(pos)) return false;
 		if (this.hashedPonds.exist(pos)) return false;
 		if (this.hashedWalls.exist(pos) && craftsmen.side !== this.hashedWalls.read(pos)!.side) return false;
 
 		return true;
 	}
 
+	/**
+	 * @description Check if the craftsmen can build wall at position
+	 * @param pos - Position
+	 * @returns Whether the craftsmen can build wall at position
+	 */
 	protected canCraftsmenBuildWall(pos: Position): boolean {
+		// Craftsmen can build wall if the position is valid and not a wall, a pond or a craftsmen
 		if (!pos.isValid(this.width, this.height)) return false;
-		if (this.hashedCraftmen.exist(pos)) return false;
+		if (this.hashedCraftmens.exist(pos)) return false;
 		if (this.hashedWalls.exist(pos)) return false;
 		if (this.hashedPonds.exist(pos)) return false;
 		if (this.hashedCastles.exist(pos)) return false;
@@ -208,7 +361,14 @@ class GameManager implements GameStateData {
 		return true;
 	}
 
+	/**
+	 * @description Check if the craftsmen can do action
+	 * @param craftmen - Craftsmen
+	 * @param action - Action
+	 * @returns Whether the craftsmen can do action
+	 */
 	protected canCrafsmenDoAction(craftmen: CraftsmenPosition, action: ActionDto): boolean {
+		// Get position to do action
 		const nextPos = craftmen.getPositionByActionParam(action.action_param || 'ABOVE');
 
 		switch (action.action) {
@@ -226,80 +386,127 @@ class GameManager implements GameStateData {
 		}
 	}
 
+	/**
+	 * @description Get side of position
+	 * @param pos - Position
+	 * @param currentSide - Current side
+	 * @param visited - Visited positions
+	 * @returns Side of position
+	 */
 	protected sideOf(
 		pos: Position,
 		currentSide: EWallSide | null = null,
 		visited: HashedType<boolean> = new HashedType<boolean>(),
 	): EWallSide | null {
+		// If the position is not valid, then return null
 		if (!pos.isValid(this.width, this.height)) return null;
 		if (this.hashedWalls.exist(pos)) {
+			// If the position is a wall and the side of the wall is not equal to current side, then return null
 			if (currentSide && currentSide !== this.hashedWalls.read(pos)!.side) return null;
+			// Else return the side of the wall
 			return currentSide;
 		}
 
+		// Mark the position as visited
 		visited.write(pos, true);
 
+		// Get nearby positions
 		const positions = pos.topRightBottomLeft();
 
 		for (const position of positions) {
+			// If the position is visited, then do nothing
 			if (visited.exist(position)) continue;
 
+			// Get side of position
 			const newSide = this.sideOf(position, currentSide, visited);
 
+			// If the side of position is null, then return null
 			if (!newSide) return null;
 
+			// If the current side is null, then set current side to new side
 			if (!currentSide) currentSide = newSide;
+			// If the current side is not equal to new side, then return null
 			else if (currentSide !== newSide) return null;
 		}
 
+		// Return final side
 		return currentSide;
 	}
 
+	/**
+	 * @description Fill side of position and nearby positions
+	 * @param pos - Position
+	 * @param side - Side to fill
+	 * @param filled - Filled positions
+	 */
 	protected fillSide(
 		pos: Position,
 		side: EWallSide | null,
 		filled: HashedType<boolean> = new HashedType<boolean>(),
 	): void {
+		// If the position is not valid, then do nothing
 		if (!pos.isValid(this.width, this.height)) return;
+		// If the position is filled, then do nothing
 		if (filled.exist(pos)) return;
+		// If the position is a wall, then do nothing
 		if (this.hashedWalls.exist(pos)) return;
 
+		// Mark the position as filled
 		filled.write(pos, true);
 
-		if (side) {
-			this.hashedSide.write(pos, side);
-		} else {
-			this.hashedSide.remove(pos);
-		}
+		// If the side is not null, then hash the side to hashed side
+		if (side) this.hashedSide.write(pos, side);
+		// Else remove the position from hashed side
+		else this.hashedSide.remove(pos);
 
+		// Get nearby positions and fill side of them
 		const positions = pos.topRightBottomLeft();
-
 		for (const pos of positions) {
 			this.fillSide(pos, side, filled);
 		}
 	}
 
+	/**
+	 * @description Update side from position
+	 * @param pos - Position
+	 * @param initSide - Initial side
+	 * @param visited - Visited positions
+	 * @param filled - Filled positions
+	 */
 	protected updateSideFromPosition(
 		pos: Position,
 		initSide: EWallSide | null = null,
 		visited: HashedType<boolean> = new HashedType<boolean>(),
 		filled: HashedType<boolean> = new HashedType<boolean>(),
 	): void {
+		// Get side of position
 		const updateSide = this.sideOf(pos, initSide, visited);
+
+		// Fill side of position and nearby positions
 		this.fillSide(pos, updateSide, filled);
 
+		// Update sides from hashed side
 		this.sides = this.hashedSide.toList();
 	}
 
+	/**
+	 * @description Get action to go to position
+	 * @param craftmen - Craftsmen
+	 * @param pos - Position
+	 * @returns Action to go to position or null
+	 */
 	protected getActionToGoToPosition(craftmen: CraftsmenPosition, pos: Position): ActionDto | null {
+		// Get next actions to go to position
 		const nextActions = craftmen.getNextActionsToGoToPosition(pos);
 
+		// Check if the craftsmen can do action
 		for (const action of nextActions) {
 			if (this.canCrafsmenDoAction(craftmen, action)) {
 				return action;
 			}
 		}
 
+		// If the craftsmen cannot do action, then return null
 		return null;
 	}
 }
