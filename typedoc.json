@@ -1,8 +1,13 @@
 {
+	"name": "Procon 2023",
 	"entryPoints": ["./src/typedoc.ts"],
 	"out": "./docs",
-	"plugin": ["typedoc-theme-hierarchy"],
-	"theme": "hierarchy",
+	"plugin": ["@droppedcode/typedoc-plugin-copy-assets", "typedoc-material-theme"],
 	"tsconfig": "./tsconfig.json",
-	"name": "Procon 2023"
+	"copyAssets": {
+		"onlyImages": false,
+		"include": [".(png|md)\\)$"],
+		"exclude": ["\\(.*?exclude/.*?\\)$"]
+	},
+	"themeColor": "rgb(26, 144, 223)"
 }

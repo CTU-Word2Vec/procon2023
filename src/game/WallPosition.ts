@@ -2,6 +2,7 @@ import { IPosition, Position } from './Position';
 
 /**
  * @description Wall side
+ * @enum
  */
 export type EWallSide = 'A' | 'B';
 
