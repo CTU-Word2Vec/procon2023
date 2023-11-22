@@ -2,7 +2,7 @@
 
 <p style="text-align: center">
     <img 
-    src="./src/assets/logo-ctu.png"
+    src="./public/logo-ctu.png"
     width="200" 
     />
 </p>
