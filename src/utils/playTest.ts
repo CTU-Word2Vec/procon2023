@@ -8,7 +8,7 @@ import GameAction from '@/models/GameAction';
 import { message } from 'antd';
 import wait from './wait';
 
-export interface playTestOptions {
+export interface PlayTestOptions {
 	numberOfTurns: number;
 	field: Field;
 	onGameStateChange: (gameState: GameStateData) => void;
@@ -20,7 +20,7 @@ export default async function playTest({
 	field,
 	onGameStateChange,
 	onGameActionsChange,
-}: playTestOptions) {
+}: PlayTestOptions) {
 	const actions: GameAction[] = [];
 	const gameManager = new CaroGameManager(field);
 

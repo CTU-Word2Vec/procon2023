@@ -8,14 +8,14 @@ import playerService from '@/services/player.service';
 import { message } from 'antd';
 import wait from './wait';
 
-export interface playRealOptions {
+export interface PlayRealOptions {
 	game: Game;
 	side: EWallSide;
 	onGameStateChange: (gameState: GameStateData) => void;
 	onGameActionsChange: (gameActions: GameAction[]) => void;
 }
 
-export default async function playReal({ game, side, onGameStateChange, onGameActionsChange }: playRealOptions) {
+export default async function playReal({ game, side, onGameStateChange, onGameActionsChange }: PlayRealOptions) {
 	try {
 		const now = new Date();
 		const startTime = new Date(game.start_time);
