@@ -6,7 +6,7 @@ import {
 	ZoomInOutlined,
 	ZoomOutOutlined,
 } from '@ant-design/icons';
-import { App as AntdApp, Button, Col, Row, Spin, Tabs } from 'antd';
+import { App as AntdApp, Button, Col, Descriptions, Row, Spin, Tabs } from 'antd';
 import ButtonGroup from 'antd/es/button/button-group';
 import clsx from 'clsx';
 import { Suspense, lazy, useState } from 'react';
@@ -86,6 +86,48 @@ function App() {
 												})
 											}
 										></Button>
+									</div>
+
+									<div className={styles.scores}>
+										<div className={clsx(styles.side, styles.A)}>
+											<div className={styles.heading}>Team A</div>
+											<div className={styles.content}>
+												<div className={styles.total}>{gameState.scores['A'].total}</div>
+												<Descriptions
+													size='small'
+													column={1}
+													bordered
+													items={[
+														{ label: 'Walls', children: gameState.scores['A'].walls },
+														{
+															label: 'Territories',
+															children: gameState.scores['A'].territories,
+														},
+														{ label: 'Castles', children: gameState.scores['A'].castles },
+													]}
+												></Descriptions>
+											</div>
+										</div>
+
+										<div className={clsx(styles.side, styles.B)}>
+											<div className={styles.heading}>Team B</div>
+											<div className={styles.content}>
+												<div className={styles.total}>{gameState.scores['B'].total}</div>
+												<Descriptions
+													size='small'
+													column={1}
+													bordered
+													items={[
+														{ label: 'Walls', children: gameState.scores['B'].walls },
+														{
+															label: 'Territories',
+															children: gameState.scores['B'].territories,
+														},
+														{ label: 'Castles', children: gameState.scores['B'].castles },
+													]}
+												></Descriptions>
+											</div>
+										</div>
 									</div>
 								</>
 							)}

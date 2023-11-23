@@ -17,6 +17,31 @@ export type GameMode = 'Caro' | 'A*';
 export const gameModes: GameMode[] = ['Caro', 'A*'];
 
 /**
+ * @description Scores of a side
+ */
+export interface Scores {
+	/**
+	 * @description Walls score
+	 */
+	walls: number;
+
+	/**
+	 * @description Territories score
+	 */
+	territories: number;
+
+	/**
+	 * @description Castles score
+	 */
+	castles: number;
+
+	/**
+	 * @description Total scores (walls + territories + castles)
+	 */
+	total: number;
+}
+
+/**
  * @description Game state data
  */
 export interface GameStateData {
@@ -104,6 +129,13 @@ export interface GameStateData {
 	 * @description List of sides
 	 */
 	sides: PositionData<EWallSide>[];
+
+	/**
+	 * @description Scores
+	 */
+	scores: {
+		[side: string]: Scores;
+	};
 }
 
 /**
@@ -131,6 +163,10 @@ class GameManager implements GameStateData {
 	public hashedSide: HashedType<EWallSide>;
 	public sides: PositionData<EWallSide>[];
 
+	public scores: {
+		[side: string]: Scores;
+	};
+
 	/**
 	 * @description Game manager
 	 * @param field - Field of game
@@ -156,6 +192,16 @@ class GameManager implements GameStateData {
 		this.goingTo = new HashedType<Position>();
 		this.hashedSide = new HashedType<EWallSide>();
 		this.sides = [];
+
+		this.scores = {};
+		for (const side of ['A', 'B']) {
+			this.scores[side] = {
+				castles: 0,
+				territories: 0,
+				total: 0,
+				walls: 0,
+			};
+		}
 
 		this.firstHashing();
 	}
@@ -217,6 +263,9 @@ class GameManager implements GameStateData {
 			// Update last turn
 			this.lastTurn = actions[i].turn;
 		}
+
+		// Update scores after add actions
+		this.updateScores();
 
 		// Timestamp of end time
 		const endTime = Date.now();
@@ -508,6 +557,38 @@ class GameManager implements GameStateData {
 
 		// If the craftsmen cannot do action, then return null
 		return null;
+	}
+
+	/**
+	 * @description Update scores of teams
+	 */
+	protected updateScores() {
+		const sides = Object.keys(this.scores) as EWallSide[];
+
+		for (const side of sides) {
+			// Calculate score of walls
+			this.scores[side].walls = this.walls.reduce((prev, wall) => {
+				if (wall.side !== side) return prev;
+				return prev + this.wall_coeff;
+			}, 0);
+
+			// Calculate score of castles
+			this.scores[side].castles = this.castles.reduce((prev, castle) => {
+				if (this.hashedSide.read(castle) !== side) return prev;
+				return prev + this.castle_coeff;
+			}, 0);
+
+			// Calculate score of territories
+			this.scores[side].territories = this.sides.reduce((prev, currentSide) => {
+				if (currentSide.data !== side) return prev;
+
+				return prev + this.territory_coeff;
+			}, 0);
+
+			// Calculate total score
+			this.scores[side].total =
+				this.scores[side].castles + this.scores[side].territories + this.scores[side].walls;
+		}
 	}
 }
 

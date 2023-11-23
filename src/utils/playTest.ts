@@ -28,7 +28,7 @@ export default async function playTest({
 		for (let i = 1; i <= numberOfTurns; i++) {
 			const turnOf: EWallSide = i % 2 !== 0 ? 'A' : 'B';
 
-			const action = gameManager.getNextActions(turnOf) as unknown as Action[];
+			const action = (await gameManager.getNextActionsAsync(turnOf)) as unknown as Action[];
 
 			actions.push({
 				actions: action,

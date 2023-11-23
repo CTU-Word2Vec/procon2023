@@ -17,10 +17,6 @@ export default class CaroGameManager extends GameManager {
 	 * @returns Next actions
 	 */
 	public getNextActions(side: EWallSide): ActionDto[] {
-		// TODO: Get start time
-		const startTime = Date.now();
-
-		// Reset going to
 		this.goingTo = new HashedType<Position>();
 		// Initialize actions
 		const actions: ActionDto[] = [];
@@ -36,13 +32,32 @@ export default class CaroGameManager extends GameManager {
 
 		this.goingTo = new HashedType<Position>();
 
-		// TODO: Get end time
-		const endTime = Date.now();
-
-		// TODO: Log get next actions time
-		console.log(`Time to get next actions: ${endTime - startTime}ms`);
-
 		return actions;
+	}
+
+	/**
+	 * @description Get list of next actions
+	 * @param side - Side of the player
+	 * @returns Next actions
+	 */
+	public async getNextActionsAsync(side: EWallSide): Promise<ActionDto[]> {
+		this.goingTo = new HashedType<Position>();
+		// Initialize actions
+		const actions: Promise<ActionDto>[] = [];
+
+		for (const craftmen of this.craftsmen) {
+			// If the craftsman is not on the side of the player, skip
+			if (craftmen.side !== side) continue;
+
+			// Get next action for the craftsman and push it to the actions array
+			const action = this.getNextCraftsmenActionAsync(craftmen);
+
+			actions.push(action);
+		}
+
+		this.goingTo = new HashedType<Position>();
+
+		return await Promise.all(actions);
 	}
 
 	/**
@@ -77,6 +92,10 @@ export default class CaroGameManager extends GameManager {
 			action: 'STAY',
 			craftsman_id: craftmen.id,
 		};
+	}
+
+	private async getNextCraftsmenActionAsync(craftmen: CraftsmenPosition): Promise<ActionDto> {
+		return this.getNextCraftsmenAction(craftmen);
 	}
 
 	/**
@@ -179,11 +198,38 @@ export default class CaroGameManager extends GameManager {
 		// If the position is not valid, return false
 		if (!this.canCraftsmenBuildWall(pos)) return false;
 
-		// Get the positions around the position
-		const positions = pos.topRightBottomLeft();
+		// If position is at the end of the map, return true
+		if (pos.x === 0 || pos.y === 0) return true;
+		if (pos.x === this.width - 1 || pos.y === this.height - 1) return true;
 
-		for (const position of positions) {
-			if (this.hashedWalls.read(position)?.side === side) return false;
+		if (pos.x === 1 || pos.y === 1) return false;
+		if (pos.x === this.width - 2 || pos.y === this.height - 2) return false;
+
+		if (this.hashedSide.read(pos) === side) return false;
+
+		// Get the positions around the position
+		const [top, right, bottom, left, upperLeft, upperRight, lowerLeft, lowerRight] = pos.allNears();
+
+		const buildPairs = [
+			[upperLeft, upperRight],
+			[lowerLeft, lowerRight],
+			[upperLeft, lowerLeft],
+			[upperRight, lowerRight],
+		];
+
+		const noBuildPairs = [
+			[top, left],
+			[left, bottom],
+			[bottom, right],
+			[right, top],
+		];
+
+		for (const positions of buildPairs) {
+			if (positions.every((pos) => this.hashedWalls.read(pos)?.side === side)) return true;
+		}
+
+		for (const positions of noBuildPairs) {
+			if (positions.every((pos) => this.hashedWalls.read(pos)?.side === side)) return false;
 		}
 
 		return true;
