@@ -249,6 +249,12 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 		// Get the positions around the position
 		const [top, right, bottom, left, upperLeft, upperRight, lowerRight, lowerLeft] = pos.allNears();
 
+		// If near castle, build
+		const topRightBottomLeft = [top, right, bottom, left];
+		for (const near of topRightBottomLeft) {
+			if (this.hashedCastles.exist(near)) return true;
+		}
+
 		// If the craftsman can not build a wall at the position, return false
 		const noBuildPairs = [
 			[top, right, bottom, left],

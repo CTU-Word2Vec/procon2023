@@ -5,6 +5,7 @@ import AppHeader from './components/app-header';
 
 import GameBoardWrapper from './components/game-board-wrapper';
 import IGameStateData from './game/IGameStateData';
+import GameAction from './models/GameAction';
 
 const GameScore = lazy(() => import('./components/game-score'));
 const GameBoard = lazy(() => import('./components/game-board'));
@@ -14,6 +15,7 @@ const PlayRealTab = lazy(() => import('./components/play-real-tab'));
 function App() {
 	const [gameState, setGameState] = useState<IGameStateData>();
 	const [activeKey, setActiveKey] = useState('play-real');
+	const [currentAction, setCurrentAction] = useState<GameAction | null>();
 
 	return (
 		<AntdApp>
@@ -23,9 +25,9 @@ function App() {
 					<GameBoardWrapper>
 						<Suspense fallback={<Spin />} key={activeKey}>
 							{gameState ? (
-								<GameBoard state={gameState as IGameStateData} />
+								<GameBoard state={gameState} action={currentAction} />
 							) : (
-								<Empty description='There are no game selected' />
+								<Empty description='There are no games selected' />
 							)}
 						</Suspense>
 					</GameBoardWrapper>
@@ -36,7 +38,7 @@ function App() {
 						{gameState ? (
 							<GameScore state={gameState} />
 						) : (
-							<Empty description='There are no game selected' style={{ marginTop: 10 }} />
+							<Empty description='Get game data to play' style={{ margin: '20px 0' }} />
 						)}
 					</Suspense>
 				</Col>
@@ -57,7 +59,11 @@ function App() {
 								key: 'play-real',
 								children: (
 									<Suspense fallback={<Spin />}>
-										<PlayRealTab gameState={gameState} onGameStateChange={setGameState} />
+										<PlayRealTab
+											gameState={gameState}
+											onGameStateChange={setGameState}
+											onAddAction={setCurrentAction}
+										/>
 									</Suspense>
 								),
 							},
@@ -71,7 +77,11 @@ function App() {
 								key: 'real-test',
 								children: (
 									<Suspense fallback={<Spin />}>
-										<PlayTestTab gameState={gameState} onGameStateChange={setGameState} />
+										<PlayTestTab
+											gameState={gameState}
+											onGameStateChange={setGameState}
+											onAddAction={setCurrentAction}
+										/>
 									</Suspense>
 								),
 							},

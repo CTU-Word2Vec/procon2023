@@ -48,6 +48,11 @@ $inner-border-color: #001eb3;
 	top: 0;
 	width: $cell-width;
 	height: $cell-height;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #fff;
+	font-weight: bold;
 }
 
 .pond {
@@ -66,8 +71,8 @@ $inner-border-color: #001eb3;
 	width: 100%;
 	height: 100%;
 	border-radius: 5px;
-	box-shadow: 0 2px 5px #070707;
-	transform: translateY(-2px);
+	box-shadow: 0 5px #001b6d;
+	transform: translateY(-5px);
 	position: relative;
 
 	&.A {
@@ -75,6 +80,7 @@ $inner-border-color: #001eb3;
 	}
 	&.B {
 		background: #00a00d90;
+		box-shadow: 0 5px #015e1b;
 	}
 }
 

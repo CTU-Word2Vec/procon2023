@@ -1,5 +1,8 @@
 import CraftsmenPosition from '@/game/CraftsmenPosition';
 import IGameStateData from '@/game/IGameStateData';
+import Action from '@/models/Action';
+import GameAction from '@/models/GameAction';
+import { Tooltip } from 'antd';
 import clsx from 'clsx';
 import React, { useMemo, useState } from 'react';
 import Castle from '../castle';
@@ -9,6 +12,7 @@ import styles from './index.module.scss';
 
 export interface GameBoardProps {
 	state: IGameStateData;
+	action?: GameAction | null;
 }
 
 function renderCraftsmen(craftmen: CraftsmenPosition) {
@@ -60,11 +64,26 @@ function Map({ width, height }: MapProps) {
 	);
 }
 
-export default function GameBoard({ state }: GameBoardProps) {
+export default function GameBoard({ state, action }: GameBoardProps) {
 	const [startX, setStartX] = useState(0);
 	const [startY, setStartY] = useState(0);
 	const [translateX, setTranslateX] = useState(0);
 	const [translateY, setTranslateY] = useState(0);
+
+	// Hashed actions
+	const hashedActions = useMemo(() => {
+		// If action is empty, return a empty object
+		if (!action) return {};
+
+		const hashed: {
+			[id: string]: Action | null;
+		} = {};
+		for (const act of action.actions) {
+			hashed[act.craftsman_id] = act;
+		}
+
+		return hashed;
+	}, [action]);
 
 	return (
 		<div className={styles.wrapper}>
@@ -75,6 +94,17 @@ export default function GameBoard({ state }: GameBoardProps) {
 				}}
 			>
 				<Map width={state.width} height={state.height} />
+
+				{state.ponds.map((pond, index) => (
+					<div
+						key={index}
+						className={clsx(styles.position, styles.pond)}
+						style={{
+							transform: `translate(${pond.x * 33 + 1}px, ${pond.y * 33 + 1}px)`,
+							zIndex: pond.y,
+						}}
+					></div>
+				))}
 
 				{state.walls.map((wall, index) => (
 					<div
@@ -97,7 +127,9 @@ export default function GameBoard({ state }: GameBoardProps) {
 							transform: `translate(${side.x * 33 + 1}px, ${side.y * 33 + 1}px)`,
 							zIndex: state.height,
 						}}
-					></div>
+					>
+						{state.territory_coeff}
+					</div>
 				))}
 
 				{state.castles.map((castle, index) => (
@@ -113,29 +145,39 @@ export default function GameBoard({ state }: GameBoardProps) {
 					</div>
 				))}
 
-				{state.ponds.map((pond, index) => (
-					<div
-						key={index}
-						className={clsx(styles.position, styles.pond)}
-						style={{
-							transform: `translate(${pond.x * 33 + 1}px, ${pond.y * 33 + 1}px)`,
-							zIndex: state.height,
-						}}
-					></div>
-				))}
+				{state.craftsmen.map((craftsmen) => {
+					const action = hashedActions[craftsmen.id];
 
-				{state.craftsmen.map((craftsmen) => (
-					<div
-						key={craftsmen.id}
-						className={styles.craftsmen}
-						style={{
-							transform: `translate(${craftsmen.x * 33 + 1}px, ${craftsmen.y * 33 + 1}px)`,
-							zIndex: state.height,
-						}}
-					>
-						{renderCraftsmen(craftsmen)}
-					</div>
-				))}
+					return (
+						<Tooltip
+							key={craftsmen.id}
+							title={
+								<div style={{ fontSize: 12 }}>
+									<strong>{action?.action}</strong> {action?.action_param}
+								</div>
+							}
+							open={!!action}
+							zIndex={99}
+							overlayInnerStyle={{
+								boxShadow: '5px 5px 5px #00000050',
+								border: '2px dashed #000',
+								background: '#fff',
+								color: 'black',
+							}}
+							placement='right'
+						>
+							<div
+								className={styles.craftsmen}
+								style={{
+									transform: `translate(${craftsmen.x * 33 + 1}px, ${craftsmen.y * 33 + 1}px)`,
+									zIndex: state.height,
+								}}
+							>
+								{renderCraftsmen(craftsmen)}
+							</div>
+						</Tooltip>
+					);
+				})}
 				<div
 					className={styles.mask}
 					style={{ zIndex: state.height }}

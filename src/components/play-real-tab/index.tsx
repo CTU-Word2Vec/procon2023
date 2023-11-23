@@ -18,10 +18,11 @@ import GameInfo from '../game-info';
 
 export interface PlayRealTabProps {
 	gameState?: IGameStateData;
-	onGameStateChange: (gameState: IGameStateData) => void;
+	onGameStateChange(gameState: IGameStateData): void;
+	onAddAction?(action?: GameAction): void;
 }
 
-export default function PlayRealTab({ onGameStateChange: onGameStateChange, gameState }: PlayRealTabProps) {
+export default function PlayRealTab({ gameState, onGameStateChange, onAddAction }: PlayRealTabProps) {
 	const [gameId, setGameId] = useState('');
 	const [game, setGame] = useState<Game>();
 
@@ -43,9 +44,13 @@ export default function PlayRealTab({ onGameStateChange: onGameStateChange, game
 			game: game!,
 			side,
 			onGameStateChange,
-			onGameActionsChange: setCurrentGameActions,
+			onGameActionsChange(actions) {
+				setCurrentGameActions(actions);
+				onAddAction?.(actions[actions.length - 1]);
+			},
 		}).finally(() => {
 			setIsPlaying(false);
+			onAddAction?.();
 		});
 	};
 
@@ -55,8 +60,14 @@ export default function PlayRealTab({ onGameStateChange: onGameStateChange, game
 			game: game!,
 			actions: baseGameActions,
 			onGameStateChange,
-			onActionsChange: setCurrentGameActions,
-		}).finally(() => setIsReplaying(false));
+			onActionsChange(actions) {
+				setCurrentGameActions(actions);
+				onAddAction?.(actions[actions.length - 1]);
+			},
+		}).finally(() => {
+			setIsReplaying(false);
+			onAddAction?.();
+		});
 	};
 
 	const handleGetGameData = async () => {
@@ -66,6 +77,8 @@ export default function PlayRealTab({ onGameStateChange: onGameStateChange, game
 			if (!gameId) {
 				throw new Error('Please provide the id of game');
 			}
+
+			onAddAction?.();
 
 			setIsLoadingGame(true);
 			messageApi.open({
@@ -182,7 +195,7 @@ export default function PlayRealTab({ onGameStateChange: onGameStateChange, game
 					<ActionList actions={currentGameActions} />
 				</Space>
 			) : (
-				<Empty description='Get game data to play' />
+				<Empty description='Get game data to play' style={{ margin: '20px 0' }} />
 			)}
 		</>
 	);

@@ -15,7 +15,8 @@ import ActionList from '../action-list';
 
 export interface PlayRealTabProps {
 	gameState?: IGameStateData;
-	onGameStateChange: (gameState: IGameStateData) => void;
+	onGameStateChange(gameState: IGameStateData): void;
+	onAddAction?(action?: GameAction): void;
 }
 
 const initialRandomFieldOptions: RandomFieldOptions = {
@@ -29,7 +30,7 @@ const initialRandomFieldOptions: RandomFieldOptions = {
 	numOfPonds: 5,
 };
 
-export default function PlayTestTab({ gameState, onGameStateChange }: PlayRealTabProps) {
+export default function PlayTestTab({ gameState, onGameStateChange, onAddAction }: PlayRealTabProps) {
 	const [actions, setActions] = useState<GameAction[]>([]);
 	const [isPlayingTest, setIsPlayingTest] = useState(false);
 	const [randomedField, setRandomedField] = useState<Field>();
@@ -45,6 +46,7 @@ export default function PlayTestTab({ gameState, onGameStateChange }: PlayRealTa
 			setRandomedField(gameManager.getData());
 
 			onGameStateChange(gameManager.getData());
+			onAddAction?.();
 		} catch (error: any) {
 			message.error(error.message);
 		} finally {
@@ -58,8 +60,14 @@ export default function PlayTestTab({ gameState, onGameStateChange }: PlayRealTa
 			numberOfTurns,
 			field: randomedField!,
 			onGameStateChange,
-			onGameActionsChange: setActions,
-		}).then(() => setIsPlayingTest(false));
+			onGameActionsChange: (actions) => {
+				setActions(actions);
+				onAddAction?.(actions[actions.length - 1]);
+			},
+		}).then(() => {
+			setIsPlayingTest(false);
+			onAddAction?.();
+		});
 	};
 
 	return (
@@ -180,7 +188,7 @@ export default function PlayTestTab({ gameState, onGameStateChange }: PlayRealTa
 					<ActionList actions={actions} />
 				</>
 			) : (
-				<Empty description='Please random field to play game' />
+				<Empty description='Get game data to play' style={{ margin: '20px 0' }} />
 			)}
 		</Space>
 	);

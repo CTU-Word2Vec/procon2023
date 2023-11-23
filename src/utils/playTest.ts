@@ -1,11 +1,10 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import CaroGameManager from '@/game/CaroGameManager';
 import { EWallSide } from '@/game/EWallSide';
 import IGameStateData from '@/game/IGameStateData';
 import Action from '@/models/Action';
 import Field from '@/models/Field';
 import GameAction from '@/models/GameAction';
-import { message } from 'antd';
+import settingService from '@/services/setting.service';
 import wait from './wait';
 
 export interface PlayTestOptions {
@@ -21,30 +20,28 @@ export default async function playTest({
 	onGameStateChange,
 	onGameActionsChange,
 }: PlayTestOptions) {
+	const delayTime = settingService.replayDelay;
+
 	const actions: GameAction[] = [];
 	const gameManager = new CaroGameManager(field);
 
-	try {
-		for (let i = 1; i <= numberOfTurns; i++) {
-			const turnOf: EWallSide = i % 2 !== 0 ? 'A' : 'B';
+	for (let i = 1; i <= numberOfTurns; i++) {
+		const turnOf: EWallSide = i % 2 !== 0 ? 'A' : 'B';
 
-			const action = (await gameManager.getNextActionsAsync(turnOf)) as unknown as Action[];
+		const action = (await gameManager.getNextActionsAsync(turnOf)) as unknown as Action[];
 
-			actions.push({
-				actions: action,
-				turn: i + 1,
-				created_time: new Date().toISOString(),
-				game_id: 0,
-				id: i,
-				team_id: i % 2,
-			});
+		actions.push({
+			actions: action,
+			turn: i + 1,
+			created_time: new Date().toISOString(),
+			game_id: 0,
+			id: i,
+			team_id: i % 2,
+		});
 
-			gameManager.addActions(actions);
-			onGameStateChange(gameManager.getData());
-			onGameActionsChange(actions);
-			await wait(10);
-		}
-	} catch (error: any) {
-		message.error(error.message);
+		onGameActionsChange(actions);
+		gameManager.addActions(actions);
+		onGameStateChange(gameManager.getData());
+		await wait(delayTime);
 	}
 }

@@ -2,7 +2,7 @@
 import GameManager from '@/game/GameManager';
 import Game from '@/models/Game';
 import GameAction from '@/models/GameAction';
-import { message } from 'antd';
+import settingService from '@/services/setting.service';
 import wait from './wait';
 
 export interface ReplayOptions {
@@ -13,26 +13,24 @@ export interface ReplayOptions {
 }
 
 export default async function replay({ game, actions, onGameStateChange, onActionsChange }: ReplayOptions) {
-	try {
-		const gameState = new GameManager(game.field!);
-		const currentActions: GameAction[] = [];
+	const delayTime = settingService.replayDelay;
 
-		for (let i = 0; i < actions.length; i++) {
-			const action = actions[i];
+	const gameState = new GameManager(game.field!);
+	const currentActions: GameAction[] = [];
 
-			if (action.turn === actions[i + 1]?.turn) {
-				continue;
-			}
+	for (let i = 0; i < actions.length; i++) {
+		const action = actions[i];
 
-			currentActions.push(action);
-			gameState.addActions(currentActions);
-
-			onGameStateChange?.(gameState.getData());
-			onActionsChange?.(currentActions);
-
-			await wait(100);
+		if (action.turn === actions[i + 1]?.turn) {
+			continue;
 		}
-	} catch (error: any) {
-		message.error(error.message);
+
+		currentActions.push(action);
+		gameState.addActions(currentActions);
+
+		onGameStateChange?.(gameState.getData());
+		onActionsChange?.(currentActions);
+
+		await wait(delayTime);
 	}
 }

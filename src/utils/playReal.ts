@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import CaroGameManager from '@/game/CaroGameManager';
 import { EWallSide } from '@/game/EWallSide';
 import IGameStateData from '@/game/IGameStateData';
@@ -16,55 +15,51 @@ export interface PlayRealOptions {
 }
 
 export default async function playReal({ game, side, onGameStateChange, onGameActionsChange }: PlayRealOptions) {
-	try {
-		const now = new Date();
-		const startTime = new Date(game.start_time);
+	const now = new Date();
+	const startTime = new Date(game.start_time);
 
-		let nextTurn = side === 'A' ? 2 : 1;
+	let nextTurn = side === 'A' ? 2 : 1;
 
-		if (now.getTime() >= startTime.getTime()) {
-			const { cur_turn } = await playerService.getGameStatus(game.id);
+	if (now.getTime() >= startTime.getTime()) {
+		const { cur_turn } = await playerService.getGameStatus(game.id);
 
-			nextTurn = cur_turn;
+		nextTurn = cur_turn;
 
-			if (side === 'A' && nextTurn % 2 !== 0) {
-				nextTurn++;
-			}
-		} else {
-			await wait(Math.max(0, startTime.getTime() - now.getTime()));
+		if (side === 'A' && nextTurn % 2 !== 0) {
+			nextTurn++;
 		}
+	} else {
+		await wait(Math.max(0, startTime.getTime() - now.getTime()));
+	}
 
-		const gameManager = new CaroGameManager(game.field);
+	const gameManager = new CaroGameManager(game.field);
 
+	const actions = await playerService.getGameActions(game.id);
+
+	gameManager.addActions(actions);
+
+	onGameStateChange(gameManager.getData());
+
+	for (let i = 0; i <= game.num_of_turns; i++) {
 		const actions = await playerService.getGameActions(game.id);
 
-		gameManager.addActions(actions);
+		const { cur_turn } = await playerService.getGameStatus(game.id);
 
+		onGameActionsChange(actions);
+		gameManager.addActions(actions);
 		onGameStateChange(gameManager.getData());
 
-		for (let i = 0; i <= game.num_of_turns; i++) {
-			const actions = await playerService.getGameActions(game.id);
-
-			const { cur_turn } = await playerService.getGameStatus(game.id);
-
-			gameManager.addActions(actions);
-			onGameStateChange(gameManager.getData());
-			onGameActionsChange(actions);
-
-			if ((side === 'A' && cur_turn % 2 !== 0) || (side === 'B' && cur_turn % 2 === 0)) {
-				playerService
-					.createAction(game.id, {
-						turn: cur_turn + 1,
-						actions: gameManager.getNextActions(side),
-					})
-					.catch((error) => message.error(error.message));
-			}
-
-			const { remaining } = await playerService.getGameStatus(game.id);
-
-			await wait(remaining * 1000);
+		if ((side === 'A' && cur_turn % 2 !== 0) || (side === 'B' && cur_turn % 2 === 0)) {
+			playerService
+				.createAction(game.id, {
+					turn: cur_turn + 1,
+					actions: gameManager.getNextActions(side),
+				})
+				.catch((error) => message.error(error.message));
 		}
-	} catch (error: any) {
-		message.error(error.message);
+
+		const { remaining } = await playerService.getGameStatus(game.id);
+
+		await wait(remaining * 1000);
 	}
 }

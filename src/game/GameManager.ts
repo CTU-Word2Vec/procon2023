@@ -73,6 +73,7 @@ export default class GameManager extends BaseGameManager implements IGameManager
 		if (!this.canCrafsmenDoAction(craftsman, action)) {
 			// If the craftsman cannot do action, then do nothing and update action to "STAY"
 			action.action = 'STAY';
+			delete action.action_param;
 			return;
 		}
 
