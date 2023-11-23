@@ -113,8 +113,8 @@ export default function PlayTestTab({ gameState, onGameStateChange }: PlayRealTa
 
 								<Button
 									icon={<ThunderboltOutlined />}
-									danger
-									style={{ width: '100%' }}
+									type='primary'
+									style={{ width: '100%', background: 'green' }}
 									htmlType='submit'
 									disabled={isPlayingTest}
 									size='large'

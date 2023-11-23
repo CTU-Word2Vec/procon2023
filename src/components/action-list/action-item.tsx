@@ -9,7 +9,11 @@ export interface ActionItemProps {
 
 export default function ActionItem({ action }: ActionItemProps) {
 	return (
-		<div className={clsx(styles.item, styles[action.turn % 2 ? 'B' : 'A'])}>
+		<div
+			className={clsx(styles.item, styles[action.turn % 2 ? 'B' : 'A'], {
+				[styles.disabled]: action.disabled,
+			})}
+		>
 			<span className={styles.turn}>{action.turn}</span>
 			<div className={styles.content}>
 				<Descriptions

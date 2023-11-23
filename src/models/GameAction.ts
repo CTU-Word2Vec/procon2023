@@ -7,4 +7,5 @@ export default interface GameAction extends BaseModel {
 	game_id: number;
 	created_time: Date | string;
 	actions: Action[];
+	disabled?: boolean;
 }

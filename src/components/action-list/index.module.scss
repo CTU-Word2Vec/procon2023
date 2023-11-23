@@ -1,7 +1,6 @@
 .wrapper {
 	display: flex;
 	flex-direction: column-reverse;
-	gap: 20px;
 }
 
 .title {
@@ -25,6 +24,14 @@ $color-a: #06619e;
 $color-b: #009c15;
 
 .item {
+	display: flex;
+	align-items: start;
+	position: relative;
+
+	& + & {
+		margin-top: 20px;
+	}
+
 	&.A {
 		color: $color-a;
 		.turn {
@@ -35,6 +42,18 @@ $color-b: #009c15;
 		color: $color-b;
 		.turn {
 			background: $color-b;
+		}
+	}
+	&.disabled {
+		opacity: 0.2;
+		margin-top: 0;
+
+		.turn {
+			visibility: hidden;
+		}
+
+		.content {
+			border-top: none;
 		}
 	}
 
@@ -53,8 +72,4 @@ $color-b: #009c15;
 		flex: 1;
 		border: 2px solid currentColor;
 	}
-
-	display: flex;
-	align-items: start;
-	position: relative;
 }

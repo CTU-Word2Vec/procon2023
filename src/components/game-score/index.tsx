@@ -1,4 +1,4 @@
-import { GameStateData } from '@/game';
+import { GameStateData } from '@/game/GameManager';
 import { Descriptions, Space } from 'antd';
 import clsx from 'clsx';
 import Chart from 'react-apexcharts';

@@ -7,7 +7,14 @@ import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
 	<React.StrictMode>
-		<ConfigProvider componentSize='large'>
+		<ConfigProvider
+			componentSize='large'
+			theme={{
+				token: {
+					colorPrimary: '#06619e',
+				},
+			}}
+		>
 			<App />
 		</ConfigProvider>
 	</React.StrictMode>,

@@ -266,6 +266,7 @@ class GameManager implements GameStateData {
 
 			if (actions[i].turn === actions[i + 1]?.turn) {
 				// If current turn is equal to next turn, then do nothing
+				actions[i].disabled = true;
 				continue;
 			}
 
@@ -467,11 +468,9 @@ class GameManager implements GameStateData {
 	): EWallSide | null {
 		// If the position is not valid, then return null
 		if (!pos.isValid(this.width, this.height)) return null;
-		if (this.hashedWalls.read(pos)?.side === currentSide) {
+		if (this.hashedWalls.exist(pos)) {
 			// If the position is a wall and the side of the wall is not equal to current side, then return null
-			if (currentSide && currentSide !== this.hashedWalls.read(pos)!.side) return null;
-			// Else return the side of the wall
-			return currentSide;
+			if (currentSide && currentSide === this.hashedWalls.read(pos)!.side) return currentSide;
 		}
 
 		// Mark the position as visited
