@@ -18,9 +18,6 @@ export default defineConfig({
 				clientsClaim: true,
 				skipWaiting: true,
 			},
-			devOptions: {
-				enabled: true,
-			},
 			includeAssets: ['favicon.ico', 'robots.txt'],
 			manifest: {
 				background_color: '#ffffff',

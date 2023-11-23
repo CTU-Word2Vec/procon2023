@@ -31,14 +31,14 @@ function Map({ width, height }: MapProps) {
 
 			for (let x = 0; x < width; x++) {
 				cols.push(
-					<td>
+					<td key={x}>
 						<div className={styles.placeholder}></div>
 					</td>,
 				);
 			}
 
 			rows.push(
-				<tr>
+				<tr key={y}>
 					{cols.map((col, index) => (
 						<React.Fragment key={index}>{col}</React.Fragment>
 					))}

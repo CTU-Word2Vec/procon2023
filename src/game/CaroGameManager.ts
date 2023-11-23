@@ -1,4 +1,4 @@
-import { EBuildDestryParam } from '@/constants/action-params';
+import { EBuildDestryParam, buildDestroyActionParams } from '@/constants/action-params';
 import { ActionDto } from '@/services/player.service';
 import { CraftsmenPosition } from './CraftsmenPosition';
 import GameManager from './GameManager';
@@ -94,6 +94,11 @@ export default class CaroGameManager extends GameManager {
 		};
 	}
 
+	/**
+	 * @description Get next action of the craftsmen
+	 * @param craftmen - Craftsmen
+	 * @returns Next action of the craftsmen
+	 */
 	private async getNextCraftsmenActionAsync(craftmen: CraftsmenPosition): Promise<ActionDto> {
 		return this.getNextCraftsmenAction(craftmen);
 	}
@@ -146,6 +151,52 @@ export default class CaroGameManager extends GameManager {
 	}
 
 	/**
+	 * @description Get craftsmen self-destroy action
+	 * @param craftsmen - Craftsmen
+	 * @returns Destroy action (can be null)
+	 */
+	private getSeflDestroyAction(craftsmen: CraftsmenPosition): ActionDto | null {
+		// Get all nears of the position
+		const nears = craftsmen.topRightBottomLeft();
+
+		for (const index in nears) {
+			const near = nears[index];
+			const actionParam = buildDestroyActionParams[index];
+
+			if (this.willSelfDestroy(near, craftsmen.side))
+				return {
+					action: 'DESTROY',
+					craftsman_id: craftsmen.id,
+					action_param: actionParam,
+				};
+		}
+
+		return null;
+	}
+
+	/**
+	 * @description Check if can destroy
+	 * @param pos - Position to destroy
+	 * @param side - Side of current team
+	 * @returns - Destroy action (can be null)
+	 */
+	private willSelfDestroy(pos: Position, side: EWallSide) {
+		if (!this.hashedWalls.exist(pos)) return false;
+
+		const [top, right, bottom, left] = pos.topRightBottomLeft();
+
+		const willDestroyGroups = [[top, bottom, left, right]];
+
+		for (const group of willDestroyGroups) {
+			if (group.every((pos) => this.hashedSide.read(pos) === side || this.hashedWalls.read(pos)?.side === side)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * @description Get build action
 	 * @param craftmen - Craftsmen position
 	 * @returns Build action
@@ -172,11 +223,10 @@ export default class CaroGameManager extends GameManager {
 	private getBuildActionParamFromPosition(pos: Position, side: EWallSide): EBuildDestryParam | null {
 		// Get the positions around the position
 		const positions = pos.topRightBottomLeft();
-		const actionParams: EBuildDestryParam[] = ['ABOVE', 'RIGHT', 'BELOW', 'LEFT'];
 
 		for (let i = 0; i < positions.length; i++) {
 			const position = positions[i];
-			const param = actionParams[i];
+			const param = buildDestroyActionParams[i];
 
 			// If the craftsman can not build a wall at the position, continue
 			if (!this.willBeBuild(position, side)) continue;
@@ -291,13 +341,16 @@ export default class CaroGameManager extends GameManager {
 	 * @returns Action to go to the position
 	 */
 	private getDestroyAction(craftsmen: CraftsmenPosition): ActionDto | null {
+		// If have self destroy action, return it
+		const selfDestroyAction = this.getSeflDestroyAction(craftsmen);
+		if (selfDestroyAction) return selfDestroyAction;
+
 		// Get the destroy action from the position, if it does not exist, return null
 		const positions = craftsmen.topRightBottomLeft();
-		const actionParams: EBuildDestryParam[] = ['ABOVE', 'RIGHT', 'BELOW', 'LEFT'];
 
 		for (let i = 0; i < positions.length; i++) {
 			const pos = positions[i];
-			const param = actionParams[i];
+			const param = buildDestroyActionParams[i];
 
 			// If the craftsman can not destroy a wall at the position, continue
 			if (!this.hashedWalls.exist(pos)) continue;

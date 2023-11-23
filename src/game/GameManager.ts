@@ -184,7 +184,7 @@ export default class GameManager implements IGameStateData {
 				break;
 
 			case 'BUILD':
-				this.buildWall(craftsman.getPositionByActionParam(action.action_param!), craftsman.side);
+				this.craftsmenBuildWall(craftsman.getPositionByActionParam(action.action_param!), craftsman.side);
 				break;
 
 			case 'DESTROY':
@@ -208,12 +208,14 @@ export default class GameManager implements IGameStateData {
 		// If the position is not a wall, then do nothing
 		if (!this.hashedWalls.exist(pos)) return;
 
+		const prevSide = this.hashedWalls.read(pos)?.side;
+
 		// Start removing wall
 		this.hashedWalls.remove(pos);
 		this.walls = this.walls.filter((e) => !e.equals(pos));
 
 		// Update side after removing wall
-		this.updateSideFromPosition(pos);
+		this.updateSideFromPosition(pos, prevSide);
 	}
 
 	/**
@@ -238,7 +240,7 @@ export default class GameManager implements IGameStateData {
 	 * @param pos - Position
 	 * @param side - Side
 	 */
-	protected buildWall(pos: Position, side: EWallSide): void {
+	protected craftsmenBuildWall(pos: Position, side: EWallSide): void {
 		// Create new wall
 		const wall = new WallPosition(pos.x, pos.y, side);
 		// Add new wall to list of walls
@@ -253,7 +255,7 @@ export default class GameManager implements IGameStateData {
 		const filled = new HashedType<boolean>();
 
 		for (const position of positions) {
-			this.updateSideFromPosition(position, side, visited, filled);
+			this.updateSideFromPosition(position, this.hashedSide.read(position) || side, visited, filled);
 		}
 
 		this.hashedSide.remove(pos);
