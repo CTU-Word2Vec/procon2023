@@ -1,15 +1,14 @@
 import Action from '@/models/Action';
-import Field from '@/models/Field';
 import GameAction from '@/models/GameAction';
 import { ActionDto } from '@/services/player.service';
 import randomField, { RandomFieldOptions } from '@/utils/randomField';
 import sortActions from '@/utils/sortActions';
+import BaseGameManager from './BaseGameManager';
 import CraftsmenPosition from './CraftsmenPosition';
 import { EWallSide } from './EWallSide';
 import { HashedType } from './HashedType';
+import IGameManager from './IGameManager';
 import IGameStateData from './IGameStateData';
-import IPositionData from './IPositionData';
-import IScores from './IScores';
 import Position from './Position';
 import WallPosition from './WallPosition';
 
@@ -17,114 +16,11 @@ import WallPosition from './WallPosition';
  * @description Game manager
  * @implements GameStateData
  */
-export default class GameManager implements IGameStateData {
-	public id: number;
-	public match_id: number;
-	public name: string;
-
-	public castle_coeff: number;
-	public wall_coeff: number;
-	public territory_coeff: number;
-	public width: number;
-	public height: number;
-	public ponds: Position[];
-	public castles: Position[];
-	public craftsmen: CraftsmenPosition[];
-	public walls: WallPosition[];
-
-	public lastTurn = 0;
-	public hashedCraftmens: HashedType<CraftsmenPosition>;
-	public hashedWalls: HashedType<WallPosition>;
-	public hashedPonds: HashedType<Position>;
-	public hashedCastles: HashedType<Position>;
-
-	public goingTo: HashedType<Position>;
-	public hashedSide: HashedType<EWallSide>;
-	public sides: IPositionData<EWallSide>[];
-
-	public scores: {
-		[side: string]: IScores;
-	};
-
-	public scoresHistory: {
-		[side: string]: IScores[];
-	};
-
-	/**
-	 * @description Game manager
-	 * @param field - Field of game
-	 * @constructor
-	 */
-	constructor(field: Field) {
-		this.id = field.id;
-		this.match_id = field.match_id;
-		this.name = field.name;
-		this.castle_coeff = field.castle_coeff;
-		this.wall_coeff = field.wall_coeff;
-		this.territory_coeff = field.territory_coeff;
-		this.width = field.width;
-		this.height = field.height;
-		this.ponds = field.ponds.map((e) => new Position(e.x, e.y));
-		this.castles = field.castles.map((e) => new Position(e.x, e.y));
-		this.craftsmen = field.craftsmen.map((e) => new CraftsmenPosition(e.x, e.y, e.id, e.side));
-
-		this.walls = [];
-
-		this.hashedCraftmens = new HashedType<CraftsmenPosition>();
-		this.hashedWalls = new HashedType<WallPosition>();
-		this.hashedPonds = new HashedType<Position>();
-		this.hashedCastles = new HashedType<Position>();
-
-		this.goingTo = new HashedType<Position>();
-		this.hashedSide = new HashedType<EWallSide>();
-		this.sides = [];
-
-		this.scores = {};
-		this.scoresHistory = {};
-
-		for (const side of ['A', 'B']) {
-			this.scores[side] = {
-				castles: 0,
-				territories: 0,
-				total: 0,
-				walls: 0,
-			};
-
-			this.scoresHistory[side] = [this.scores[side]];
-		}
-
-		this.firstHashing();
-	}
-
-	/**
-	 *
-	 * @returns Game state data
-	 */
+export default class GameManager extends BaseGameManager implements IGameManager {
 	public getData(): IGameStateData {
 		return { ...this };
 	}
 
-	/**
-	 * @description First hashing
-	 */
-	private firstHashing(): void {
-		for (const craftsman of this.craftsmen) {
-			this.hashedCraftmens.write(craftsman, craftsman);
-		}
-
-		for (const pond of this.ponds) {
-			this.hashedPonds.write(pond, pond);
-		}
-
-		for (const castle of this.castles) {
-			this.hashedCastles.write(castle, castle);
-		}
-	}
-
-	/**
-	 * @description Get position of craftsmen
-	 * @param actions - List of actions
-	 */
 	public addActions(actions: GameAction[]): void {
 		// If there is no action, do nothing
 		if (!actions.length) return;
@@ -331,13 +227,34 @@ export default class GameManager implements IGameStateData {
 	}
 
 	/**
+	 * @description Get action to go to position
+	 * @param craftmen - Craftsmen
+	 * @param pos - Position
+	 * @returns Action to go to position or null
+	 */
+	protected getActionToGoToPosition(craftmen: CraftsmenPosition, pos: Position): ActionDto | null {
+		// Get next actions to go to position
+		const nextActions = craftmen.getNextActionsToGoToPosition(pos);
+
+		// Check if the craftsmen can do action
+		for (const action of nextActions) {
+			if (this.canCrafsmenDoAction(craftmen, action)) {
+				return action;
+			}
+		}
+
+		// If the craftsmen cannot do action, then return null
+		return null;
+	}
+
+	/**
 	 * @description Get side of position
 	 * @param pos - Position
 	 * @param currentSide - Current side
 	 * @param visited - Visited positions
 	 * @returns Side of position
 	 */
-	protected sideOf(
+	private sideOf(
 		pos: Position,
 		currentSide: EWallSide | null = null,
 		visited: HashedType<boolean> = new HashedType<boolean>(),
@@ -381,7 +298,7 @@ export default class GameManager implements IGameStateData {
 	 * @param side - Side to fill
 	 * @param filled - Filled positions
 	 */
-	protected fillSide(
+	private fillSide(
 		pos: Position,
 		side: EWallSide | null,
 		filled: HashedType<boolean> = new HashedType<boolean>(),
@@ -415,7 +332,7 @@ export default class GameManager implements IGameStateData {
 	 * @param visited - Visited positions
 	 * @param filled - Filled positions
 	 */
-	protected updateSideFromPosition(
+	private updateSideFromPosition(
 		pos: Position,
 		initSide: EWallSide | null = null,
 		visited: HashedType<boolean> = new HashedType<boolean>(),
@@ -432,30 +349,9 @@ export default class GameManager implements IGameStateData {
 	}
 
 	/**
-	 * @description Get action to go to position
-	 * @param craftmen - Craftsmen
-	 * @param pos - Position
-	 * @returns Action to go to position or null
-	 */
-	protected getActionToGoToPosition(craftmen: CraftsmenPosition, pos: Position): ActionDto | null {
-		// Get next actions to go to position
-		const nextActions = craftmen.getNextActionsToGoToPosition(pos);
-
-		// Check if the craftsmen can do action
-		for (const action of nextActions) {
-			if (this.canCrafsmenDoAction(craftmen, action)) {
-				return action;
-			}
-		}
-
-		// If the craftsmen cannot do action, then return null
-		return null;
-	}
-
-	/**
 	 * @description Update scores of teams
 	 */
-	protected updateScores() {
+	private updateScores() {
 		const sides = Object.keys(this.scores) as EWallSide[];
 
 		for (const side of sides) {

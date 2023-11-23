@@ -4,18 +4,15 @@ import CraftsmenPosition from './CraftsmenPosition';
 import { EWallSide } from './EWallSide';
 import GameManager from './GameManager';
 import { HashedType } from './HashedType';
+import ICaroGameManager from './ICaroGameManager';
 import Position from './Position';
 
 /**
  * @description Caro game manager
  * @extends GameManager
+ * @implements {ICaroGameManager}
  */
-export default class CaroGameManager extends GameManager {
-	/**
-	 * @description Get list of next actions
-	 * @param side - Side of the player
-	 * @returns Next actions
-	 */
+export default class CaroGameManager extends GameManager implements ICaroGameManager {
 	public getNextActions(side: EWallSide): ActionDto[] {
 		this.goingTo = new HashedType<Position>();
 		// Initialize actions
@@ -35,11 +32,6 @@ export default class CaroGameManager extends GameManager {
 		return actions;
 	}
 
-	/**
-	 * @description Get list of next actions
-	 * @param side - Side of the player
-	 * @returns Next actions
-	 */
 	public async getNextActionsAsync(side: EWallSide): Promise<ActionDto[]> {
 		this.goingTo = new HashedType<Position>();
 		// Initialize actions
