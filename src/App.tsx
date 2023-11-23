@@ -6,7 +6,7 @@ import {
 	ZoomInOutlined,
 	ZoomOutOutlined,
 } from '@ant-design/icons';
-import { App as AntdApp, Button, Col, Row, Spin, Tabs } from 'antd';
+import { App as AntdApp, Button, Col, Empty, Row, Spin, Tabs } from 'antd';
 import ButtonGroup from 'antd/es/button/button-group';
 import clsx from 'clsx';
 import { Suspense, lazy, useState } from 'react';
@@ -24,6 +24,7 @@ function App() {
 	const [gameState, setGameState] = useState<GameStateData>();
 	const [zoom, setZoom] = useState(100);
 	const [isOpenFullScreen, setIsOpenFullscreen] = useState(false);
+	const [activeKey, setActiveKey] = useState('play-real');
 
 	const zoomIn = () => {
 		setZoom(zoom + 10);
@@ -43,8 +44,8 @@ function App() {
 							[styles.isFullScreen]: isOpenFullScreen,
 						})}
 					>
-						<Suspense fallback={<Spin />}>
-							{gameState && (
+						<Suspense fallback={<Spin />} key={activeKey}>
+							{gameState ? (
 								<>
 									<div style={{ transform: `scale(${zoom / 100})` }} className={styles.inner}>
 										<GameBoard state={gameState as GameStateData} />
@@ -90,19 +91,28 @@ function App() {
 										></Button>
 									</div>
 								</>
+							) : (
+								<Empty description='There are no game selected' />
 							)}
 						</Suspense>
 					</div>
 				</Col>
 
 				<Col xs={24} md={12} lg={6}>
-					<Suspense fallback={<Spin />}>{gameState && <GameScore state={gameState} />}</Suspense>
+					<Suspense key={activeKey} fallback={<Spin />}>
+						{gameState ? (
+							<GameScore state={gameState} />
+						) : (
+							<Empty description='There are no game selected' style={{ marginTop: 10 }} />
+						)}
+					</Suspense>
 				</Col>
 
 				<Col xs={24} md={12} lg={6} style={{ padding: 10 }}>
 					<Tabs
 						type='card'
-						defaultActiveKey='play-real'
+						activeKey={activeKey}
+						onChange={(key) => setActiveKey(key)}
 						items={[
 							{
 								label: (

@@ -5,7 +5,7 @@ import GameAction from '@/models/GameAction';
 import playTest from '@/utils/playTest';
 import randomField, { RandomFieldOptions } from '@/utils/randomField';
 import { BugOutlined, ThunderboltOutlined } from '@ant-design/icons';
-import { Button, Card, Collapse, Descriptions, Form, InputNumber, Progress, Select, Space, message } from 'antd';
+import { Button, Card, Collapse, Descriptions, Empty, Form, InputNumber, Progress, Select, Space, message } from 'antd';
 import DescriptionsItem from 'antd/es/descriptions/Item';
 import FormItem from 'antd/es/form/FormItem';
 import { useState } from 'react';
@@ -34,9 +34,11 @@ export default function PlayTestTab({ gameState, onGameStateChange }: PlayRealTa
 	const [numberOfTurns, setNumberOfTurns] = useState(100);
 	const [sideAMode, setSideAMode] = useState<GameMode>('Caro');
 	const [sideBMode, setSideBMode] = useState<GameMode>('Caro');
+	const [isRandoming, setIsRandoming] = useState(false);
 
 	const handleRandomField = (values: RandomFieldOptions) => {
 		try {
+			setIsRandoming(true);
 			const field = randomField(values);
 			setRandomedField(field);
 			const gameManager = new GameManager(field);
@@ -44,6 +46,8 @@ export default function PlayTestTab({ gameState, onGameStateChange }: PlayRealTa
 			onGameStateChange(gameManager.getData());
 		} catch (error: any) {
 			message.error(error.message);
+		} finally {
+			setIsRandoming(false);
 		}
 	};
 
@@ -60,8 +64,8 @@ export default function PlayTestTab({ gameState, onGameStateChange }: PlayRealTa
 	return (
 		<Space style={{ width: '100%' }} direction='vertical'>
 			<Collapse
-				activeKey={isPlayingTest ? [] : ['random-field']}
-				collapsible='disabled'
+				size='middle'
+				defaultActiveKey={['random-field']}
 				items={[
 					{
 						label: 'Random field',
@@ -73,6 +77,7 @@ export default function PlayTestTab({ gameState, onGameStateChange }: PlayRealTa
 								labelCol={{ xs: 12 }}
 								onFinish={handleRandomField}
 								size='middle'
+								disabled={isRandoming}
 							>
 								<FormItem label='Width' name='width'>
 									<InputNumber placeholder='Width' name='width' />
@@ -93,11 +98,11 @@ export default function PlayTestTab({ gameState, onGameStateChange }: PlayRealTa
 								</FormItem>
 								<Button
 									icon={<ThunderboltOutlined />}
-									type='primary'
 									danger
 									style={{ width: '100%' }}
 									htmlType='submit'
 									disabled={isPlayingTest}
+									size='large'
 								>
 									Random field
 								</Button>
@@ -107,40 +112,44 @@ export default function PlayTestTab({ gameState, onGameStateChange }: PlayRealTa
 				]}
 			></Collapse>
 
-			{gameState && (
+			{randomedField && gameState ? (
 				<>
-					<Card title='Side A' size='small'>
-						<Select
-							placeholder='Select game mode'
-							size='middle'
-							style={{ width: '100%' }}
-							options={gameModes.map((mode) => ({ label: mode, value: mode }))}
-							value={sideAMode}
-							onChange={setSideAMode}
-						/>
-					</Card>
+					<Form component={Card} title='Select algorithms' disabled={isPlayingTest}>
+						<Form.Item label='Side A'>
+							<Select
+								placeholder='Select game mode'
+								style={{ width: '100%' }}
+								options={gameModes.map((mode) => ({ label: mode, value: mode }))}
+								value={sideAMode}
+								onChange={setSideAMode}
+							/>
+						</Form.Item>
+						<Form.Item label='Side B'>
+							<Select
+								placeholder='Select game mode'
+								style={{ width: '100%' }}
+								options={gameModes.map((mode) => ({ label: mode, value: mode }))}
+								value={sideBMode}
+								onChange={setSideBMode}
+							/>
+						</Form.Item>
 
-					<Card title='Side B' size='small'>
-						<Select
-							placeholder='Select game mode'
-							size='middle'
-							style={{ width: '100%' }}
-							options={gameModes.map((mode) => ({ label: mode, value: mode }))}
-							value={sideBMode}
-							onChange={setSideBMode}
-						/>
-					</Card>
-
-					<Space style={{ width: '100%' }}>
-						<InputNumber
-							placeholder='Number of turns'
-							value={numberOfTurns}
-							onChange={(value) => setNumberOfTurns(value!)}
-						/>
-						<Button icon={<BugOutlined />} type='primary' loading={isPlayingTest} onClick={handlePlayTest}>
-							{isPlayingTest ? 'Playing test...' : 'Play test'}
-						</Button>
-					</Space>
+						<Space style={{ width: '100%' }}>
+							<InputNumber
+								placeholder='Number of turns'
+								value={numberOfTurns}
+								onChange={(value) => setNumberOfTurns(value!)}
+							/>
+							<Button
+								icon={<BugOutlined />}
+								type='primary'
+								loading={isPlayingTest}
+								onClick={handlePlayTest}
+							>
+								{isPlayingTest ? 'Playing test...' : 'Play test'}
+							</Button>
+						</Space>
+					</Form>
 
 					<Descriptions>
 						<DescriptionsItem label='Turn'>
@@ -154,6 +163,8 @@ export default function PlayTestTab({ gameState, onGameStateChange }: PlayRealTa
 
 					<ActionList actions={actions} />
 				</>
+			) : (
+				<Empty description='Please random field to play game' />
 			)}
 		</Space>
 	);

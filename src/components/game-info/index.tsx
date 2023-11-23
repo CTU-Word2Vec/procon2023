@@ -27,7 +27,6 @@ export default function GameInfo({ game, currentTurn }: GameInfoProps) {
 			<DescriptionsItem label='Start time'>
 				{dayjs(game.start_time).format('DD/MM/YYYY HH:mm:ss')}
 			</DescriptionsItem>
-			<DescriptionsItem label='Turn'>{currentTurn}</DescriptionsItem>
 
 			<DescriptionsItem label='Status'>{tag}</DescriptionsItem>
 		</Descriptions>

@@ -6,8 +6,8 @@ import GameAction from '@/models/GameAction';
 import playerService from '@/services/player.service';
 import playReal from '@/utils/playReal';
 import replay from '@/utils/replay';
-import { AppstoreOutlined, PlayCircleOutlined, ReloadOutlined, UserOutlined } from '@ant-design/icons';
-import { Button, Descriptions, Divider, Input, Select, Space, message } from 'antd';
+import { PlayCircleOutlined, ReloadOutlined, SearchOutlined, UserOutlined } from '@ant-design/icons';
+import { Button, Descriptions, Empty, Input, Select, Space, message } from 'antd';
 import DescriptionsItem from 'antd/es/descriptions/Item';
 import { useState } from 'react';
 import ActionList from '../action-list';
@@ -58,10 +58,13 @@ export default function PlayRealTab({ onGameStateChange: onGameStateChange, game
 	};
 
 	const handleGetGameData = async () => {
-		if (!gameId) return;
-
 		const key = 'loadGameData';
+
 		try {
+			if (!gameId) {
+				throw new Error('Please provide the id of game');
+			}
+
 			setIsLoadingGame(true);
 			messageApi.open({
 				key,
@@ -118,32 +121,23 @@ export default function PlayRealTab({ onGameStateChange: onGameStateChange, game
 						autoFocus
 						onChange={(event) => setGameId(event.target.value)}
 					/>
-				</Space.Compact>
-
-				<Space.Compact style={{ width: '100%', marginTop: 10 }}>
 					{game && (
 						<Button icon={<ReloadOutlined />} loading={isReplaying} onClick={handleReplay}>
 							Replay
 						</Button>
 					)}
-
 					<Button
-						icon={<AppstoreOutlined />}
+						icon={<SearchOutlined />}
 						type='primary'
-						disabled={!gameId}
 						loading={isLoadingGame}
 						htmlType='submit'
-						style={{ flex: 1 }}
-					>
-						Get game data
-					</Button>
+						disabled={!gameId}
+					></Button>
 				</Space.Compact>
 			</form>
 
-			<Divider />
-
-			{game && (
-				<Space direction='vertical' style={{ width: '100%' }}>
+			{game ? (
+				<Space direction='vertical' style={{ width: '100%', marginTop: 10 }}>
 					<Space>
 						<Select
 							placeholder='Side'
@@ -185,6 +179,8 @@ export default function PlayRealTab({ onGameStateChange: onGameStateChange, game
 
 					<ActionList actions={currentGameActions} />
 				</Space>
+			) : (
+				<Empty description='Get game data to play' />
 			)}
 		</>
 	);
