@@ -1,7 +1,7 @@
 import { CraftsmenPosition } from '@/game/CraftsmenPosition';
 import { GameStateData } from '@/game/GameManager';
 import clsx from 'clsx';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import Castle from '../castle';
 import CraftsmenA from '../craftsmen-a';
 import CraftsmenB from '../craftsmen-b';
@@ -61,9 +61,19 @@ function Map({ width, height }: MapProps) {
 }
 
 export default function GameBoard({ state }: GameBoardProps) {
+	const [startX, setStartX] = useState(0);
+	const [startY, setStartY] = useState(0);
+	const [translateX, setTranslateX] = useState(0);
+	const [translateY, setTranslateY] = useState(0);
+
 	return (
 		<div className={styles.wrapper}>
-			<div className={styles.inner}>
+			<div
+				className={styles.inner}
+				style={{
+					transform: `translate(${translateX}px, ${translateY}px)`,
+				}}
+			>
 				<Map width={state.width} height={state.height} />
 
 				{state.walls.map((wall, index) => (
@@ -126,6 +136,23 @@ export default function GameBoard({ state }: GameBoardProps) {
 						{renderCraftsmen(craftsmen)}
 					</div>
 				))}
+				<div
+					className={styles.mask}
+					style={{ zIndex: state.height }}
+					draggable
+					onDragStart={(event) => {
+						setStartX(event.clientX - translateX);
+						setStartY(event.clientY - translateY);
+					}}
+					onDrag={(event) => {
+						setTranslateX(event.clientX - startX);
+						setTranslateY(event.clientY - startY);
+					}}
+					onDragEnd={(event) => {
+						setTranslateX(event.clientX - startX);
+						setTranslateY(event.clientY - startY);
+					}}
+				></div>
 			</div>
 		</div>
 	);

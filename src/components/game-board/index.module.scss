@@ -8,6 +8,7 @@ $inner-border-color: #001eb3;
 	display: flex;
 	justify-content: center;
 	align-items: center;
+	user-select: none;
 
 	table {
 		border-collapse: collapse;
@@ -81,4 +82,12 @@ $inner-border-color: #001eb3;
 	&.B {
 		background: #00a00d40;
 	}
+}
+
+.mask {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
 }
