@@ -37,10 +37,7 @@ function App() {
 		<AntdApp>
 			<AppHeader />
 			<Row>
-				<Col xs={12} md={6} lg={6}>
-					<Suspense fallback={<Spin />}>{gameState && <GameScore state={gameState} />}</Suspense>
-				</Col>
-				<Col xs={24} md={12} lg={12}>
+				<Col md={24} lg={12}>
 					<div
 						className={clsx(styles.gameBoard, {
 							[styles.isFullScreen]: isOpenFullScreen,
@@ -96,6 +93,10 @@ function App() {
 							)}
 						</Suspense>
 					</div>
+				</Col>
+
+				<Col xs={24} md={12} lg={6}>
+					<Suspense fallback={<Spin />}>{gameState && <GameScore state={gameState} />}</Suspense>
 				</Col>
 
 				<Col xs={24} md={12} lg={6} style={{ padding: 10 }}>

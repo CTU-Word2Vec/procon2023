@@ -277,10 +277,10 @@ class GameManager implements GameStateData {
 
 			// Update last turn
 			this.lastTurn = actions[i].turn;
-		}
 
-		// Update scores after add actions
-		this.updateScores();
+			// Update scores after add action
+			this.updateScores();
+		}
 
 		// Timestamp of end time
 		const endTime = Date.now();

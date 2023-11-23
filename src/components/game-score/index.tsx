@@ -1,6 +1,7 @@
 import { GameStateData } from '@/game';
 import { Descriptions, Space } from 'antd';
 import clsx from 'clsx';
+import Chart from 'react-apexcharts';
 import styles from './index.module.scss';
 
 export interface GameScoreProps {
@@ -8,7 +9,7 @@ export interface GameScoreProps {
 }
 export default function GameScore({ state }: GameScoreProps) {
 	return (
-		<Space style={{ width: '100%' }} direction='vertical'>
+		<Space style={{ width: '100%', position: 'sticky', top: 64 }} direction='vertical'>
 			<div className={styles.scores}>
 				<div className={clsx(styles.side, styles.A)}>
 					<div className={styles.heading}>Team A</div>
@@ -50,6 +51,49 @@ export default function GameScore({ state }: GameScoreProps) {
 					</div>
 				</div>
 			</div>
+
+			<Chart
+				type='line'
+				series={[
+					{
+						name: 'Side A',
+						data: state.scoresHistory['A'].map((score) => score.total),
+					},
+					{
+						name: 'Side B',
+						data: state.scoresHistory['B'].map((score) => score.total),
+					},
+				]}
+				options={{
+					stroke: {
+						curve: 'smooth',
+						width: 2,
+						colors: ['#06619e', '#009c15'],
+					},
+					chart: {
+						toolbar: {
+							show: false,
+						},
+						height: 400,
+						zoom: { enabled: false },
+						animations: {
+							enabled: true,
+							easing: 'linear',
+							dynamicAnimation: {
+								speed: 1000,
+							},
+						},
+					},
+					xaxis: {
+						labels: {
+							show: false,
+						},
+					},
+					dataLabels: {
+						enabled: false,
+					},
+				}}
+			/>
 		</Space>
 	);
 }
