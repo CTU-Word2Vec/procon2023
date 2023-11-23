@@ -1,13 +1,13 @@
 import { EMoveParam } from '@/constants/action-params';
 import { ActionDto } from '@/services/player.service';
 import { EWallSide } from './EWallSide';
-import { ICraftsmenPosition } from './ICraftsmenPosition';
+import ICraftsmenPosition from './ICraftsmenPosition';
 import Position from './Position';
 
 /**
  * @description Craftsmen position
  * @extends Position
- * @implements {ICraftsmenPosition}
+ * @implements ICraftsmenPosition
  */
 export default class CraftsmenPosition extends Position implements ICraftsmenPosition {
 	public id: string;

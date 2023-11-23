@@ -2,7 +2,7 @@ import IBasePosition from './IBasePosition';
 
 /**
  * @description Base position class
- * @implements {IBasePosition}
+ * @implements IBasePosition
  */
 export default class BasePosition implements IBasePosition {
 	public x: number;
@@ -12,6 +12,8 @@ export default class BasePosition implements IBasePosition {
 	 * @description Base position constructor
 	 * @param x - The x position
 	 * @param y - The y position
+	 * @example
+	 * const pos = new BasePosition(1, 1);
 	 */
 	constructor(x: number, y: number) {
 		this.x = x;

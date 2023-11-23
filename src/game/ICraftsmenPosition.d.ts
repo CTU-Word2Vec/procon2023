@@ -5,7 +5,7 @@ import IPosition from './IPosition';
  * @description Craftsmen position
  * @extends IPosition
  */
-export interface ICraftsmenPosition extends IPosition {
+export default interface ICraftsmenPosition extends IPosition {
 	/**
 	 * @description Craftsmen Id
 	 */

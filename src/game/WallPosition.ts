@@ -5,7 +5,7 @@ import Position from './Position';
 /**
  * @description Wall position
  * @extends Position
- * @implements {IWallPosition}
+ * @implements IWallPosition
  */
 export default class WallPosition extends Position implements IWallPosition {
 	public side: EWallSide;

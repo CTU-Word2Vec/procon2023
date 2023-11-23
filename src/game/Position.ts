@@ -5,7 +5,9 @@ import IPosition from './IPosition';
 /**
  * @description Position class
  * @extends BasePosition
- * @implements {IPosition}
+ * @implements IPosition
+ * @example
+ * const pos = new Position(1, 1);
  */
 export default class Position extends BasePosition implements IPosition {
 	public above(): Position {
@@ -107,7 +109,7 @@ export default class Position extends BasePosition implements IPosition {
 		return this.distance(pos) === 1;
 	}
 
-	public equals(pos: Position): boolean {
+	public isEquals(pos: Position): boolean {
 		return this.x === pos.x && this.y === pos.y;
 	}
 

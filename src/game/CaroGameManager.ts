@@ -10,7 +10,7 @@ import Position from './Position';
 /**
  * @description Caro game manager
  * @extends GameManager
- * @implements {ICaroGameManager}
+ * @implements ICaroGameManager
  */
 export default class CaroGameManager extends GameManager implements ICaroGameManager {
 	public getNextActions(side: EWallSide): ActionDto[] {
@@ -283,7 +283,7 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 			// If have already gone to the castle, continue
 			if (this.goingTo.exist(castle)) continue;
 			// If the castle is the same side with the craftsman, continue
-			if (this.hashedCraftmens.exist(castle) && !craftsmen.equals(castle)) continue;
+			if (this.hashedCraftmens.exist(castle) && !craftsmen.isEquals(castle)) continue;
 			// If the castle is the same side with the craftsman, continue
 			if (this.hashedSide.read(castle) === craftsmen.side) continue;
 			// If the craftsman can not build or destroy at the castle, continue

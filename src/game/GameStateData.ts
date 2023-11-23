@@ -9,7 +9,7 @@ import WallPosition from './WallPosition';
 
 /**
  * @description Game state data
- * @implements {IGameStateData}
+ * @implements IGameStateData
  */
 export default class GameStateData implements IGameStateData {
 	/**

@@ -110,7 +110,7 @@ export default class GameManager extends BaseGameManager implements IGameManager
 
 		// Start removing wall
 		this.hashedWalls.remove(pos);
-		this.walls = this.walls.filter((e) => !e.equals(pos));
+		this.walls = this.walls.filter((e) => !e.isEquals(pos));
 
 		// Update side after removing wall
 		this.updateSideFromPosition(pos, prevSide);

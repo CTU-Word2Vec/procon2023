@@ -11,7 +11,7 @@ import WallPosition from './WallPosition';
 /**
  * @description Base game manager
  * @extends GameStateData
- * @implements {IBaseGameManager}
+ * @implements IBaseGameManager
  */
 export default class BaseGameManager extends GameStateData implements IBaseGameManager {
 	/**
