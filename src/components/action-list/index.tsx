@@ -1,46 +1,44 @@
 import GameAction from '@/models/GameAction';
-import { Alert, Descriptions, Timeline } from 'antd';
-import DescriptionsItem from 'antd/es/descriptions/Item';
+import { Select } from 'antd';
+import React, { useState } from 'react';
+import ActionItem from './action-item';
 import styles from './index.module.scss';
+
+type ShowType = 'all' | 'A' | 'B';
 
 export interface ActionListProps {
 	actions: GameAction[];
 }
+
 export default function ActionList({ actions }: ActionListProps) {
+	const [showType, setShowType] = useState<ShowType>('all');
+
 	return (
 		<>
-			<h3 className={styles.title}>Actions</h3>
+			<h3 className={styles.title}>
+				<span>Actions</span>
+
+				<Select
+					options={[
+						{ label: 'All', value: 'all' },
+						{ label: 'Side A', value: 'A' },
+						{ label: 'Side B', value: 'B' },
+					]}
+					defaultValue={'all'}
+					style={{ width: 128 }}
+					onChange={setShowType}
+				/>
+			</h3>
 
 			<div className={styles.wrapper}>
-				<Timeline
-					reverse
-					items={actions.map((action) => {
-						return {
-							children: (
-								<Alert
-									type={action.turn % 2 ? 'success' : 'info'}
-									message={`Turn ${action.turn}`}
-									description={
-										<Descriptions column={1} size='small' bordered>
-											{action.actions.map((craftmen) => (
-												<DescriptionsItem
-													key={craftmen.craftsman_id}
-													label={craftmen.craftsman_id}
-												>
-													<b>
-														{craftmen.action}{' '}
-														{craftmen.action !== 'STAY' && craftmen.action_param}
-													</b>
-												</DescriptionsItem>
-											))}
-										</Descriptions>
-									}
-								></Alert>
-							),
-							color: action.turn % 2 ? 'green' : 'blue',
-						};
-					})}
-				/>
+				{actions.map((action) => {
+					const side = action.turn % 2 ? 'B' : 'A';
+					if (showType !== 'all' && showType !== side) {
+						return <React.Fragment key={action.id} />;
+					}
+
+					return <ActionItem key={action.id} action={action} />;
+				})}
 			</div>
 		</>
 	);

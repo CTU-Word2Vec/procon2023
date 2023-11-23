@@ -2,11 +2,13 @@
 	position: relative;
 	width: 32px;
 	aspect-ratio: 1;
-	border-radius: 32px;
+	border-width: 2px;
+	border-style: dashed;
 
 	img {
 		filter: drop-shadow(0 0 1px #fff);
-		animation: animate 3s ease alternate infinite;
+		// animation: animate 3s ease alternate infinite;
+		scale: 1.2;
 	}
 }
 

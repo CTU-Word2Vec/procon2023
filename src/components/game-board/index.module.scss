@@ -1,5 +1,8 @@
 $cell-width: 32px;
 $cell-height: 32px;
+$background-color: #6ec5ff;
+$cell-border-color: #ffffff50;
+$inner-border-color: #001eb3;
 
 .wrapper {
 	display: flex;
@@ -8,10 +11,10 @@ $cell-height: 32px;
 
 	table {
 		border-collapse: collapse;
-		background: #6ec5ff;
+		background: $background-color;
 	}
 	td {
-		border: 1px solid #ffffff50;
+		border: 1px solid $cell-border-color;
 		width: $cell-width;
 		height: $cell-height;
 		padding: 0;
@@ -25,6 +28,7 @@ $cell-height: 32px;
 
 .inner {
 	position: relative;
+	border: 2px solid $inner-border-color;
 }
 
 .craftsmen {

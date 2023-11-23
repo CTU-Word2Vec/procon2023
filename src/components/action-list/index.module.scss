@@ -1,14 +1,56 @@
 .wrapper {
-	margin-top: 10px;
-	padding: 10px 0;
+	display: flex;
+	flex-direction: column-reverse;
+	gap: 20px;
 }
 
 .title {
 	font-weight: 700;
 	padding: 10px 0;
 	border-bottom: 1px solid #ddd;
-	position: sticky;
-	top: 64px;
 	background: #fff;
 	z-index: 100;
+	display: flex;
+
+	span {
+		flex: 1;
+	}
+}
+
+$color-a: #06619e;
+$color-b: #009c15;
+
+.item {
+	&.A {
+		color: $color-a;
+		.turn {
+			background: $color-a;
+		}
+	}
+	&.B {
+		color: $color-b;
+		.turn {
+			background: $color-b;
+		}
+	}
+
+	.turn {
+		display: flex;
+		width: 48px;
+		aspect-ratio: 1;
+		align-items: center;
+		justify-content: center;
+		font-weight: bold;
+		color: #fff;
+		position: sticky;
+		top: 64px;
+	}
+	.content {
+		flex: 1;
+		border: 2px solid currentColor;
+	}
+
+	display: flex;
+	align-items: start;
+	position: relative;
 }

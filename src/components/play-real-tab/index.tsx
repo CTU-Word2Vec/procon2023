@@ -53,6 +53,7 @@ export default function PlayRealTab({ onGameStateChange: onGameStateChange, game
 			game: game!,
 			actions: baseGameActions,
 			onGameStateChange,
+			onActionsChange: setCurrentGameActions,
 		}).finally(() => setIsReplaying(false));
 	};
 
