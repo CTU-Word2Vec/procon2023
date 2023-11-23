@@ -2,6 +2,7 @@ import CraftsmenPosition from '@/game/CraftsmenPosition';
 import IGameStateData from '@/game/IGameStateData';
 import Action from '@/models/Action';
 import GameAction from '@/models/GameAction';
+import { DoubleRightOutlined, FormatPainterFilled, StopOutlined, UserOutlined } from '@ant-design/icons';
 import { Tooltip } from 'antd';
 import clsx from 'clsx';
 import React, { useMemo, useState } from 'react';
@@ -9,6 +10,13 @@ import Castle from '../castle';
 import CraftsmenA from '../craftsmen-a';
 import CraftsmenB from '../craftsmen-b';
 import styles from './index.module.scss';
+
+const iconMap = {
+	STAY: <UserOutlined />,
+	DESTROY: <StopOutlined />,
+	BUILD: <FormatPainterFilled />,
+	MOVE: <DoubleRightOutlined />,
+};
 
 export interface GameBoardProps {
 	state: IGameStateData;
@@ -153,23 +161,20 @@ export default function GameBoard({ state, action }: GameBoardProps) {
 							key={craftsmen.id}
 							title={
 								<div style={{ fontSize: 12 }}>
-									<strong>{action?.action}</strong> {action?.action_param}
+									{iconMap[action?.action as keyof typeof iconMap]} {action?.action_param}
 								</div>
 							}
 							open={!!action}
 							zIndex={99}
+							placement='top'
 							overlayInnerStyle={{
-								boxShadow: '5px 5px 5px #00000050',
-								border: '2px dashed #000',
-								background: '#fff',
-								color: 'black',
+								border: '1px dashed #fff',
 							}}
-							placement='right'
 						>
 							<div
 								className={styles.craftsmen}
 								style={{
-									transform: `translate(${craftsmen.x * 33 + 1}px, ${craftsmen.y * 33 + 1}px)`,
+									transform: `translate(${craftsmen.x * 33 - 2}px, ${craftsmen.y * 33 - 2}px)`,
 									zIndex: state.height,
 								}}
 							>

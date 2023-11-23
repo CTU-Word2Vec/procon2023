@@ -78,7 +78,7 @@ export default function GameScore({ state }: GameScoreProps) {
 						zoom: { enabled: false },
 						animations: {
 							enabled: true,
-							easing: 'linear',
+							easing: 'easeinout',
 							dynamicAnimation: {
 								speed: 1000,
 							},
@@ -88,9 +88,6 @@ export default function GameScore({ state }: GameScoreProps) {
 						labels: {
 							show: false,
 						},
-					},
-					dataLabels: {
-						enabled: false,
 					},
 				}}
 			/>

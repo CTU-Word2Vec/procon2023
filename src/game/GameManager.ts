@@ -379,7 +379,7 @@ export default class GameManager extends BaseGameManager implements IGameManager
 			this.scores[side].total =
 				this.scores[side].castles + this.scores[side].territories + this.scores[side].walls;
 
-			this.scoresHistory[side].push({ ...this.scores[side] });
+			this.scoresHistory[side][this.lastTurn] = { ...this.scores[side] };
 		}
 	}
 
