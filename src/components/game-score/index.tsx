@@ -1,11 +1,11 @@
-import { GameStateData } from '@/game/GameManager';
+import IGameStateData from '@/game/IGameStateData';
 import { Descriptions, Space } from 'antd';
 import clsx from 'clsx';
 import Chart from 'react-apexcharts';
 import styles from './index.module.scss';
 
 export interface GameScoreProps {
-	state: GameStateData;
+	state: IGameStateData;
 }
 export default function GameScore({ state }: GameScoreProps) {
 	return (

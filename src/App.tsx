@@ -4,7 +4,7 @@ import { Suspense, lazy, useState } from 'react';
 import AppHeader from './components/app-header';
 
 import GameBoardWrapper from './components/game-board-wrapper';
-import { GameStateData } from './game/GameManager';
+import IGameStateData from './game/IGameStateData';
 
 const GameScore = lazy(() => import('./components/game-score'));
 const GameBoard = lazy(() => import('./components/game-board'));
@@ -12,7 +12,7 @@ const PlayTestTab = lazy(() => import('./components/play-test-tab'));
 const PlayRealTab = lazy(() => import('./components/play-real-tab'));
 
 function App() {
-	const [gameState, setGameState] = useState<GameStateData>();
+	const [gameState, setGameState] = useState<IGameStateData>();
 	const [activeKey, setActiveKey] = useState('play-real');
 
 	return (
@@ -23,7 +23,7 @@ function App() {
 					<GameBoardWrapper>
 						<Suspense fallback={<Spin />} key={activeKey}>
 							{gameState ? (
-								<GameBoard state={gameState as GameStateData} />
+								<GameBoard state={gameState as IGameStateData} />
 							) : (
 								<Empty description='There are no game selected' />
 							)}

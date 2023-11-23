@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import CaroGameManager from '@/game/CaroGameManager';
-import { GameStateData } from '@/game/GameManager';
+import IGameStateData from '@/game/IGameStateData';
 import { EWallSide } from '@/game/WallPosition';
 import Game from '@/models/Game';
 import GameAction from '@/models/GameAction';
@@ -11,7 +11,7 @@ import wait from './wait';
 export interface PlayRealOptions {
 	game: Game;
 	side: EWallSide;
-	onGameStateChange: (gameState: GameStateData) => void;
+	onGameStateChange: (gameState: IGameStateData) => void;
 	onGameActionsChange: (gameActions: GameAction[]) => void;
 }
 

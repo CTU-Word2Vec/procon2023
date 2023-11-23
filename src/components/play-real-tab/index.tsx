@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import GameManager, { GameMode, GameStateData, gameModes } from '@/game/GameManager';
+import { EGameMode, gameModes } from '@/game/EGameMode';
+import GameManager from '@/game/GameManager';
+import IGameStateData from '@/game/IGameStateData';
 import { EWallSide } from '@/game/WallPosition';
 import Game from '@/models/Game';
 import GameAction from '@/models/GameAction';
@@ -15,8 +17,8 @@ import CountDown from '../count-down';
 import GameInfo from '../game-info';
 
 export interface PlayRealTabProps {
-	gameState?: GameStateData;
-	onGameStateChange: (gameState: GameStateData) => void;
+	gameState?: IGameStateData;
+	onGameStateChange: (gameState: IGameStateData) => void;
 }
 
 export default function PlayRealTab({ onGameStateChange: onGameStateChange, gameState }: PlayRealTabProps) {
@@ -24,7 +26,7 @@ export default function PlayRealTab({ onGameStateChange: onGameStateChange, game
 	const [game, setGame] = useState<Game>();
 
 	const [side, setSide] = useState<EWallSide>('A');
-	const [gameMode, setGameMode] = useState<GameMode>('Caro');
+	const [gameMode, setGameMode] = useState<EGameMode>('Caro');
 
 	const [currentGameActions, setCurrentGameActions] = useState<GameAction[]>([]);
 	const [baseGameActions, setBaseGameActions] = useState<GameAction[]>([]);
@@ -151,7 +153,7 @@ export default function PlayRealTab({ onGameStateChange: onGameStateChange, game
 						/>
 
 						<Select
-							options={gameModes.map((e) => ({ value: e, label: e }))}
+							options={gameModes.map((mode) => ({ value: mode, label: mode }))}
 							placeholder='Game mode'
 							value={gameMode}
 							onChange={(value) => setGameMode(value)}

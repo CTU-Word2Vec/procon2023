@@ -5,152 +5,16 @@ import { ActionDto } from '@/services/player.service';
 import sortActions from '@/utils/sortActions';
 import { CraftsmenPosition } from './CraftsmenPosition';
 import { HashedType, PositionData } from './HashedType';
+import IGameStateData from './IGameStateData';
+import IScores from './IScores';
 import { Position } from './Position';
 import { EWallSide, WallPosition } from './WallPosition';
-
-/**
- * @description Game mode
- */
-export type GameMode = 'Caro' | 'A*';
-/**
- * @description List of game modes
- */
-export const gameModes: GameMode[] = ['Caro', 'A*'];
-
-/**
- * @description Scores of a side
- */
-export interface Scores {
-	/**
-	 * @description Walls score
-	 */
-	walls: number;
-
-	/**
-	 * @description Territories score
-	 */
-	territories: number;
-
-	/**
-	 * @description Castles score
-	 */
-	castles: number;
-
-	/**
-	 * @description Total scores (walls + territories + castles)
-	 */
-	total: number;
-}
-
-/**
- * @description Game state data
- */
-export interface GameStateData {
-	/**
-	 * @description Castle coefficient
-	 */
-	castle_coeff: number;
-
-	/**
-	 * @description Wall coefficient
-	 */
-	wall_coeff: number;
-
-	/**
-	 * @description Territory coefficient
-	 */
-	territory_coeff: number;
-
-	/**
-	 * @description Width of field
-	 */
-	width: number;
-
-	/**
-	 * @description Height of field
-	 */
-	height: number;
-
-	/**
-	 * @description Position of ponds
-	 */
-	ponds: Position[];
-
-	/**
-	 * @description Position of castles
-	 */
-	castles: Position[];
-
-	/**
-	 * @description Position of craftsmen
-	 */
-	craftsmen: CraftsmenPosition[];
-
-	/**
-	 * @description Position of walls
-	 */
-	walls: WallPosition[];
-
-	/**
-	 * @description Turn of lastest action has been added
-	 */
-	lastTurn: number;
-
-	/**
-	 * @description Hashed position of craftsmens
-	 */
-	hashedCraftmens: HashedType<CraftsmenPosition>;
-
-	/**
-	 * @description Hashed position of walls
-	 */
-	hashedWalls: HashedType<WallPosition>;
-
-	/**
-	 * @description Hashed position of ponds
-	 */
-	hashedPonds: HashedType<Position>;
-
-	/**
-	 * @description Hashed position of castles
-	 */
-	hashedCastles: HashedType<Position>;
-
-	/**
-	 * @description Hashed position of going to
-	 */
-	goingTo: HashedType<Position>;
-
-	/**
-	 * @description Hashed side of walls
-	 */
-	hashedSide: HashedType<EWallSide>;
-
-	/**
-	 * @description List of sides
-	 */
-	sides: PositionData<EWallSide>[];
-
-	/**
-	 * @description Scores
-	 */
-	scores: {
-		[side: string]: Scores;
-	};
-
-	/**
-	 * @description History of scores
-	 */
-	scoresHistory: {
-		[side: string]: Scores[];
-	};
-}
 
 /**
  * @description Game manager
  * @implements GameStateData
  */
-class GameManager implements GameStateData {
+export default class GameManager implements IGameStateData {
 	public castle_coeff: number;
 	public wall_coeff: number;
 	public territory_coeff: number;
@@ -172,11 +36,11 @@ class GameManager implements GameStateData {
 	public sides: PositionData<EWallSide>[];
 
 	public scores: {
-		[side: string]: Scores;
+		[side: string]: IScores;
 	};
 
 	public scoresHistory: {
-		[side: string]: Scores[];
+		[side: string]: IScores[];
 	};
 
 	/**
@@ -226,7 +90,7 @@ class GameManager implements GameStateData {
 	 *
 	 * @returns Game state data
 	 */
-	public getData(): GameStateData {
+	public getData(): IGameStateData {
 		return { ...this };
 	}
 
@@ -610,5 +474,3 @@ class GameManager implements GameStateData {
 		}
 	}
 }
-
-export default GameManager;

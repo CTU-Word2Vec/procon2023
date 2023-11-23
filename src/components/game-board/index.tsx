@@ -1,5 +1,5 @@
 import { CraftsmenPosition } from '@/game/CraftsmenPosition';
-import { GameStateData } from '@/game/GameManager';
+import IGameStateData from '@/game/IGameStateData';
 import clsx from 'clsx';
 import React, { useMemo, useState } from 'react';
 import Castle from '../castle';
@@ -8,7 +8,7 @@ import CraftsmenB from '../craftsmen-b';
 import styles from './index.module.scss';
 
 export interface GameBoardProps {
-	state: GameStateData;
+	state: IGameStateData;
 }
 
 function renderCraftsmen(craftmen: CraftsmenPosition) {

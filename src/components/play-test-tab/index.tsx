@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import GameManager, { GameMode, GameStateData, gameModes } from '@/game/GameManager';
+import { EGameMode, gameModes } from '@/game/EGameMode';
+import GameManager from '@/game/GameManager';
+import IGameStateData from '@/game/IGameStateData';
 import Field from '@/models/Field';
 import GameAction from '@/models/GameAction';
 import playTest from '@/utils/playTest';
@@ -12,8 +14,8 @@ import { useState } from 'react';
 import ActionList from '../action-list';
 
 export interface PlayRealTabProps {
-	gameState?: GameStateData;
-	onGameStateChange: (gameState: GameStateData) => void;
+	gameState?: IGameStateData;
+	onGameStateChange: (gameState: IGameStateData) => void;
 }
 
 const initialRandomFieldOptions: RandomFieldOptions = {
@@ -32,8 +34,8 @@ export default function PlayTestTab({ gameState, onGameStateChange }: PlayRealTa
 	const [isPlayingTest, setIsPlayingTest] = useState(false);
 	const [randomedField, setRandomedField] = useState<Field>();
 	const [numberOfTurns, setNumberOfTurns] = useState(100);
-	const [sideAMode, setSideAMode] = useState<GameMode>('Caro');
-	const [sideBMode, setSideBMode] = useState<GameMode>('Caro');
+	const [sideAMode, setSideAMode] = useState<EGameMode>('Caro');
+	const [sideBMode, setSideBMode] = useState<EGameMode>('Caro');
 	const [isRandoming, setIsRandoming] = useState(false);
 
 	const handleRandomField = (values: RandomFieldOptions) => {
