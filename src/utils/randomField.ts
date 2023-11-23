@@ -65,16 +65,27 @@ export interface RandomFieldOptions {
  * @throws {Error} Invalid number of objects
  * @throws {Error} To many object
  */
-export default function randomField({
-	width = 10,
-	height = 10,
-	wall_coeff = 1,
-	castle_coeff = 20,
-	territory_coeff = 5,
-	numOfPonds = 5,
-	numOfCastles = 5,
-	numOfCraftsmens = 5,
-}: RandomFieldOptions): Field {
+export default function randomField(
+	{
+		width = 10,
+		height = 10,
+		wall_coeff = 1,
+		castle_coeff = 20,
+		territory_coeff = 5,
+		numOfPonds = 5,
+		numOfCastles = 5,
+		numOfCraftsmens = 5,
+	}: RandomFieldOptions = {
+		width: 10,
+		height: 10,
+		wall_coeff: 1,
+		castle_coeff: 20,
+		territory_coeff: 5,
+		numOfPonds: 5,
+		numOfCastles: 5,
+		numOfCraftsmens: 5,
+	},
+): Field {
 	if (width <= 0 || height <= 0) {
 		throw new Error('Invalid width or height');
 	}

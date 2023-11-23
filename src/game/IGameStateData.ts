@@ -9,6 +9,21 @@ import { EWallSide, WallPosition } from './WallPosition';
  */
 export default interface IGameStateData {
 	/**
+	 * @description Id of the game
+	 */
+	id: number;
+
+	/**
+	 * @description Id of the match
+	 */
+	match_id: number;
+
+	/**
+	 * @description Name of the game
+	 */
+	name: string;
+
+	/**
 	 * @description Castle coefficient
 	 */
 	castle_coeff: number;

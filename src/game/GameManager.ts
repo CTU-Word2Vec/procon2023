@@ -2,6 +2,7 @@ import Action from '@/models/Action';
 import Field from '@/models/Field';
 import GameAction from '@/models/GameAction';
 import { ActionDto } from '@/services/player.service';
+import randomField, { RandomFieldOptions } from '@/utils/randomField';
 import sortActions from '@/utils/sortActions';
 import { CraftsmenPosition } from './CraftsmenPosition';
 import { HashedType, PositionData } from './HashedType';
@@ -15,6 +16,10 @@ import { EWallSide, WallPosition } from './WallPosition';
  * @implements GameStateData
  */
 export default class GameManager implements IGameStateData {
+	public id: number;
+	public match_id: number;
+	public name: string;
+
 	public castle_coeff: number;
 	public wall_coeff: number;
 	public territory_coeff: number;
@@ -49,6 +54,9 @@ export default class GameManager implements IGameStateData {
 	 * @constructor
 	 */
 	constructor(field: Field) {
+		this.id = field.id;
+		this.match_id = field.match_id;
+		this.name = field.name;
 		this.castle_coeff = field.castle_coeff;
 		this.wall_coeff = field.wall_coeff;
 		this.territory_coeff = field.territory_coeff;
@@ -472,5 +480,12 @@ export default class GameManager implements IGameStateData {
 
 			this.scoresHistory[side].push({ ...this.scores[side] });
 		}
+	}
+
+	public static randomGame(options?: RandomFieldOptions): GameManager {
+		const randomedField = randomField(options);
+		const randomedGame = new GameManager(randomedField);
+
+		return randomedGame;
 	}
 }

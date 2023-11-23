@@ -5,7 +5,7 @@ import IGameStateData from '@/game/IGameStateData';
 import Field from '@/models/Field';
 import GameAction from '@/models/GameAction';
 import playTest from '@/utils/playTest';
-import randomField, { RandomFieldOptions } from '@/utils/randomField';
+import { RandomFieldOptions } from '@/utils/randomField';
 import { BugOutlined, ThunderboltOutlined } from '@ant-design/icons';
 import { Button, Card, Collapse, Descriptions, Empty, Form, InputNumber, Progress, Select, Space, message } from 'antd';
 import DescriptionsItem from 'antd/es/descriptions/Item';
@@ -41,9 +41,8 @@ export default function PlayTestTab({ gameState, onGameStateChange }: PlayRealTa
 	const handleRandomField = (values: RandomFieldOptions) => {
 		try {
 			setIsRandoming(true);
-			const field = randomField(values);
-			setRandomedField(field);
-			const gameManager = new GameManager(field);
+			const gameManager = GameManager.randomGame(values);
+			setRandomedField(gameManager.getData());
 
 			onGameStateChange(gameManager.getData());
 		} catch (error: any) {
