@@ -3,23 +3,74 @@ import { HashedType } from '@/game/HashedType';
 import { Position } from '@/game/Position';
 import Field from '@/models/Field';
 
+/**
+ * @description Random field options
+ */
 export interface RandomFieldOptions {
+	/**
+	 * @description Field width
+	 * @default 10
+	 */
 	width?: number;
+
+	/**
+	 * @description Field height
+	 * @default 10
+	 */
 	height?: number;
+
+	/**
+	 * @description Score of castle
+	 * @default 1
+	 */
 	castle_coeff?: number;
+
+	/**
+	 * @description Score of wall
+	 * @default 20
+	 */
 	wall_coeff?: number;
+
+	/**
+	 * @description Score of territory
+	 * @default 5
+	 */
 	territory_coeff?: number;
+
+	/**
+	 * @description Number of ponds
+	 * @default 5
+	 */
 	numOfPonds?: number;
+
+	/**
+	 * @description Number of castles
+	 * @default 5
+	 */
 	numOfCastles?: number;
+
+	/**
+	 * @description Number of craftsmens
+	 * @default 5
+	 */
 	numOfCraftsmens?: number;
 }
 
+/**
+ * @description Random game field
+ * @param options - Random field options
+ * @returns Field
+ * @throws {Error} Invalid width or height
+ * @throws {Error} Invalid coefficients
+ * @throws {Error} Invalid number of objects
+ * @throws {Error} To many object
+ */
 export default function randomField({
 	width = 10,
 	height = 10,
 	wall_coeff = 1,
 	castle_coeff = 20,
-	territory_coeff = 1,
+	territory_coeff = 5,
 	numOfPonds = 5,
 	numOfCastles = 5,
 	numOfCraftsmens = 5,
