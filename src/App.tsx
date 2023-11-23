@@ -6,14 +6,16 @@ import {
 	ZoomInOutlined,
 	ZoomOutOutlined,
 } from '@ant-design/icons';
-import { App as AntdApp, Button, Col, Descriptions, Row, Spin, Tabs } from 'antd';
+import { App as AntdApp, Button, Col, Row, Spin, Tabs } from 'antd';
 import ButtonGroup from 'antd/es/button/button-group';
 import clsx from 'clsx';
 import { Suspense, lazy, useState } from 'react';
 import styles from './App.module.scss';
 import AppHeader from './components/app-header';
+
 import { GameStateData } from './game/GameManager';
 
+const GameScore = lazy(() => import('./components/game-score'));
 const GameBoard = lazy(() => import('./components/game-board'));
 const PlayTestTab = lazy(() => import('./components/play-test-tab'));
 const PlayRealTab = lazy(() => import('./components/play-real-tab'));
@@ -35,7 +37,10 @@ function App() {
 		<AntdApp>
 			<AppHeader />
 			<Row>
-				<Col xs={24} md={12} lg={18}>
+				<Col xs={12} md={6} lg={6}>
+					<Suspense fallback={<Spin />}>{gameState && <GameScore state={gameState} />}</Suspense>
+				</Col>
+				<Col xs={24} md={12} lg={12}>
 					<div
 						className={clsx(styles.gameBoard, {
 							[styles.isFullScreen]: isOpenFullScreen,
@@ -86,48 +91,6 @@ function App() {
 												})
 											}
 										></Button>
-									</div>
-
-									<div className={styles.scores}>
-										<div className={clsx(styles.side, styles.A)}>
-											<div className={styles.heading}>Team A</div>
-											<div className={styles.content}>
-												<div className={styles.total}>{gameState.scores['A'].total}</div>
-												<Descriptions
-													size='small'
-													column={1}
-													bordered
-													items={[
-														{ label: 'Walls', children: gameState.scores['A'].walls },
-														{
-															label: 'Territories',
-															children: gameState.scores['A'].territories,
-														},
-														{ label: 'Castles', children: gameState.scores['A'].castles },
-													]}
-												></Descriptions>
-											</div>
-										</div>
-
-										<div className={clsx(styles.side, styles.B)}>
-											<div className={styles.heading}>Team B</div>
-											<div className={styles.content}>
-												<div className={styles.total}>{gameState.scores['B'].total}</div>
-												<Descriptions
-													size='small'
-													column={1}
-													bordered
-													items={[
-														{ label: 'Walls', children: gameState.scores['B'].walls },
-														{
-															label: 'Territories',
-															children: gameState.scores['B'].territories,
-														},
-														{ label: 'Castles', children: gameState.scores['B'].castles },
-													]}
-												></Descriptions>
-											</div>
-										</div>
 									</div>
 								</>
 							)}

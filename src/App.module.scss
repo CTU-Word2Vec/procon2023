@@ -1,6 +1,3 @@
-$color-a: #06619e;
-$color-b: #009c15;
-
 .gameBoard {
 	display: flex;
 	justify-content: center;
@@ -38,65 +35,4 @@ $color-b: #009c15;
 	top: 0;
 	right: 0;
 	padding: 10px;
-}
-
-.scores {
-	position: absolute;
-	right: 0;
-	bottom: 0;
-	z-index: 10;
-	background: #fff;
-	margin: 10px;
-
-	.side {
-		border: 2px solid $color-a;
-		width: 180px;
-
-		.heading {
-			background: $color-a;
-			color: #fff;
-			text-align: center;
-			padding: 10px;
-			font-weight: bold;
-			text-transform: uppercase;
-		}
-
-		.content {
-			.total {
-				font-size: xx-large;
-				text-align: center;
-				font-weight: 900;
-				color: $color-a;
-				border-bottom: 2px solid $color-a;
-			}
-		}
-
-		&.A {
-			border-color: $color-a;
-			.heading {
-				background: $color-a;
-			}
-
-			.content {
-				.total {
-					border-color: $color-a;
-					color: $color-a;
-				}
-			}
-		}
-
-		&.B {
-			border-color: $color-b;
-			.heading {
-				background: $color-b;
-			}
-
-			.content {
-				.total {
-					border-color: $color-b;
-					color: $color-b;
-				}
-			}
-		}
-	}
 }

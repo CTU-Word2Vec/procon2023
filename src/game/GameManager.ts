@@ -136,6 +136,13 @@ export interface GameStateData {
 	scores: {
 		[side: string]: Scores;
 	};
+
+	/**
+	 * @description History of scores
+	 */
+	scoresHistory: {
+		[side: string]: Scores[];
+	};
 }
 
 /**
@@ -167,6 +174,10 @@ class GameManager implements GameStateData {
 		[side: string]: Scores;
 	};
 
+	public scoresHistory: {
+		[side: string]: Scores[];
+	};
+
 	/**
 	 * @description Game manager
 	 * @param field - Field of game
@@ -194,6 +205,8 @@ class GameManager implements GameStateData {
 		this.sides = [];
 
 		this.scores = {};
+		this.scoresHistory = {};
+
 		for (const side of ['A', 'B']) {
 			this.scores[side] = {
 				castles: 0,
@@ -201,6 +214,8 @@ class GameManager implements GameStateData {
 				total: 0,
 				walls: 0,
 			};
+
+			this.scoresHistory[side] = [this.scores[side]];
 		}
 
 		this.firstHashing();
@@ -588,6 +603,8 @@ class GameManager implements GameStateData {
 			// Calculate total score
 			this.scores[side].total =
 				this.scores[side].castles + this.scores[side].territories + this.scores[side].walls;
+
+			this.scoresHistory[side].push({ ...this.scores[side] });
 		}
 	}
 }
