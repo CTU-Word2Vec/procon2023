@@ -1,4 +1,4 @@
-import { CraftsmenPosition } from '@/game/CraftsmenPosition';
+import CraftsmenPosition from '@/game/CraftsmenPosition';
 import IGameStateData from '@/game/IGameStateData';
 import clsx from 'clsx';
 import React, { useMemo, useState } from 'react';

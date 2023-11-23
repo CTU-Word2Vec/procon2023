@@ -1,28 +1,13 @@
-import { IPosition, Position } from './Position';
-
-/**
- * @description Wall side
- * @enum
- */
-export type EWallSide = 'A' | 'B';
-
-/**
- * @description Wall position
- * @extends IPosition
- */
-export interface IWallPosition extends IPosition {
-	/**
-	 * @description Wall side
-	 */
-	side: EWallSide;
-}
+import { EWallSide } from './EWallSide';
+import { IWallPosition } from './IWallPosition';
+import Position from './Position';
 
 /**
  * @description Wall position
  * @extends Position
- * @implements IWallPosition
+ * @implements {IWallPosition}
  */
-export class WallPosition extends Position implements IWallPosition {
+export default class WallPosition extends Position implements IWallPosition {
 	public side: EWallSide;
 
 	/**

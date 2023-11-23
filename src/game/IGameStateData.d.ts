@@ -1,4 +1,4 @@
-import { CraftsmenPosition } from './CraftsmenPosition';
+import CraftsmenPosition from './CraftsmenPosition';
 import { HashedType, PositionData } from './HashedType';
 import IScores from './IScores';
 import { Position } from './Position';

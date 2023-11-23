@@ -1,45 +1,17 @@
-import { Position } from './Position';
-
-/**
- * @description Hashed type
- */
-export type BaseHashedType<T> = {
-	/**
-	 * @description X position
-	 */
-	[x: number]: {
-		[y: number]: T | null;
-	} | null;
-};
-
-/**
- * @description Position data
- * @template T - Data type
- */
-export interface PositionData<T> {
-	/**
-	 * @description X position
-	 */
-	x: number;
-	/**
-	 * @description Y position
-	 */
-	y: number;
-	/**
-	 * @description Data
-	 */
-	data: T;
-}
+import IHashedDataType from './IHashedDataType';
+import IHashedType from './IHashedType';
+import IPositionData from './IPositionData';
+import Position from './Position';
 
 /**
  * @description Hashed type
  * @template T - Data type
  */
-export class HashedType<T> {
+export class HashedType<T> implements IHashedType<T> {
 	/**
 	 * @description Data
 	 */
-	private data: BaseHashedType<T>;
+	private data: IHashedDataType<T>;
 
 	/**
 	 * @description Hashed type
@@ -48,20 +20,10 @@ export class HashedType<T> {
 		this.data = {};
 	}
 
-	/**
-	 * @description Existence
-	 * @param pos - Position
-	 * @returns  Existence
-	 */
 	public exist(pos: Position): boolean {
 		return !!this.data[pos.x]?.[pos.y];
 	}
 
-	/**
-	 * @description Read data
-	 * @param pos - Position
-	 * @returns Data
-	 */
 	public read(pos: Position): T | null {
 		// If the x position does not exist, return null
 		if (!this.data[pos.x]) return null;
@@ -69,11 +31,6 @@ export class HashedType<T> {
 		return this.data[pos.x]![pos.y];
 	}
 
-	/**
-	 * @description Write data
-	 * @param pos - Position
-	 * @param t - Data
-	 */
 	public write(pos: Position, t: T) {
 		if (!this.data[pos.x]) {
 			// If the x position does not exist, create it
@@ -83,10 +40,6 @@ export class HashedType<T> {
 		this.data[pos.x]![pos.y] = t;
 	}
 
-	/**
-	 * @description Remove data
-	 * @param pos - Position
-	 */
 	public remove(pos: Position) {
 		// If the x position does not exist, do nothing
 		if (!this.exist(pos)) return;
@@ -94,21 +47,13 @@ export class HashedType<T> {
 		this.data[pos.x]![pos.y] = null;
 	}
 
-	/**
-	 * @description Get base hashed type
-	 * @returns Base hashed type
-	 */
-	public getBaseHashedType(): BaseHashedType<T> {
+	public getBaseHashedType(): IHashedDataType<T> {
 		return this.data;
 	}
 
-	/**
-	 * @description Set base hashed type
-	 * @returns - List of position data
-	 */
-	public toList(): PositionData<T>[] {
+	public toList(): IPositionData<T>[] {
 		// Initialize result
-		const result: PositionData<T>[] = [];
+		const result: IPositionData<T>[] = [];
 
 		// Get x keys
 		const xKeys = Object.keys(this.data) as unknown as number[];

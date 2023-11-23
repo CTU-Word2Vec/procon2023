@@ -1,30 +1,17 @@
 import { EMoveParam } from '@/constants/action-params';
 import { ActionDto } from '@/services/player.service';
-import { IPosition, Position } from './Position';
-
-/**
- * @description Craftsmen position
- */
-export interface ICraftsmenPosition extends IPosition {
-	/**
-	 * @description Craftsmen Id
-	 */
-	id: string;
-
-	/**
-	 * @description Craftsmen side
-	 */
-	side: 'A' | 'B';
-}
+import { EWallSide } from './EWallSide';
+import { ICraftsmenPosition } from './ICraftsmenPosition';
+import Position from './Position';
 
 /**
  * @description Craftsmen position
  * @extends Position
- * @implements ICraftsmenPosition
+ * @implements {ICraftsmenPosition}
  */
-export class CraftsmenPosition extends Position implements ICraftsmenPosition {
+export default class CraftsmenPosition extends Position implements ICraftsmenPosition {
 	public id: string;
-	public side: 'A' | 'B';
+	public side: EWallSide;
 
 	/**
 	 * @description Craftsmen position
@@ -33,7 +20,7 @@ export class CraftsmenPosition extends Position implements ICraftsmenPosition {
 	 * @param id - Id of the craftsman
 	 * @param side - Side of the craftsman
 	 */
-	constructor(x: number, y: number, id: string, side: 'A' | 'B') {
+	constructor(x: number, y: number, id: string, side: EWallSide) {
 		// Call the parent constructor
 		super(x, y);
 
@@ -42,11 +29,6 @@ export class CraftsmenPosition extends Position implements ICraftsmenPosition {
 		this.side = side;
 	}
 
-	/**
-	 * @description Create a move action for the craftsman
-	 * @param param - Move param
-	 * @returns Move action
-	 */
 	public moveAction(param: EMoveParam): ActionDto {
 		return {
 			craftsman_id: this.id,
@@ -55,74 +37,38 @@ export class CraftsmenPosition extends Position implements ICraftsmenPosition {
 		};
 	}
 
-	/**
-	 * @description Create a move up action for the craftsman
-	 * @returns Move up action
-	 */
 	public moveUpAction(): ActionDto {
 		return this.moveAction('UP');
 	}
 
-	/**
-	 * @description Create a move down action for the craftsman
-	 * @returns Move down action
-	 */
 	public moveDownAction(): ActionDto {
 		return this.moveAction('DOWN');
 	}
 
-	/**
-	 * @description Create a move left action for the craftsman
-	 * @returns Move left action
-	 */
 	public moveLeftAction(): ActionDto {
 		return this.moveAction('LEFT');
 	}
 
-	/**
-	 * @description Create a move right action for the craftsman
-	 * @returns Move right action
-	 */
 	public moveRightAction(): ActionDto {
 		return this.moveAction('RIGHT');
 	}
 
-	/**
-	 * @description Create a move upper left action for the craftsman
-	 * @returns Move upper left action
-	 */
 	public moveUpperLeftAction(): ActionDto {
 		return this.moveAction('UPPER_LEFT');
 	}
 
-	/**
-	 * @description Create a move upper right action for the craftsman
-	 * @returns Move upper right action
-	 */
 	public moveUpperRightAction(): ActionDto {
 		return this.moveAction('UPPER_RIGHT');
 	}
 
-	/**
-	 * @description Create a move lower left action for the craftsman
-	 * @returns Move lower left action
-	 */
 	public moveLowerLeftAction(): ActionDto {
 		return this.moveAction('LOWER_LEFT');
 	}
 
-	/**
-	 * @description Create a move lower right action for the craftsman
-	 * @returns Move lower right action
-	 */
 	public moveLowerRightAction(): ActionDto {
 		return this.moveAction('LOWER_RIGHT');
 	}
 
-	/**
-	 * @description Get all move actions for the craftsman
-	 * @returns All move actions (up, down, left, right, upper left, upper right, lower left, lower right)
-	 */
 	public getAllMoveActions(): ActionDto[] {
 		return [
 			this.moveUpAction(),
@@ -136,11 +82,6 @@ export class CraftsmenPosition extends Position implements ICraftsmenPosition {
 		];
 	}
 
-	/**
-	 * @description Get all move actions for the craftsman
-	 * @param pos - Position to go to
-	 * @returns List of actions to go to the position
-	 */
 	public getNextActionsToGoToPosition(pos: Position): ActionDto[] {
 		// Get all move actions
 		const [up, down, left, right, upperLeft, upperRight, lowerLeft, lowerRight] = this.getAllMoveActions();

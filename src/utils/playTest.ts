@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import CaroGameManager from '@/game/CaroGameManager';
+import { EWallSide } from '@/game/EWallSide';
 import IGameStateData from '@/game/IGameStateData';
-import { EWallSide } from '@/game/WallPosition';
 import Action from '@/models/Action';
 import Field from '@/models/Field';
 import GameAction from '@/models/GameAction';

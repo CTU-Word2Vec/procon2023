@@ -4,12 +4,14 @@ import GameAction from '@/models/GameAction';
 import { ActionDto } from '@/services/player.service';
 import randomField, { RandomFieldOptions } from '@/utils/randomField';
 import sortActions from '@/utils/sortActions';
-import { CraftsmenPosition } from './CraftsmenPosition';
-import { HashedType, PositionData } from './HashedType';
+import CraftsmenPosition from './CraftsmenPosition';
+import { EWallSide } from './EWallSide';
+import { HashedType } from './HashedType';
 import IGameStateData from './IGameStateData';
+import IPositionData from './IPositionData';
 import IScores from './IScores';
-import { Position } from './Position';
-import { EWallSide, WallPosition } from './WallPosition';
+import Position from './Position';
+import WallPosition from './WallPosition';
 
 /**
  * @description Game manager
@@ -38,7 +40,7 @@ export default class GameManager implements IGameStateData {
 
 	public goingTo: HashedType<Position>;
 	public hashedSide: HashedType<EWallSide>;
-	public sides: PositionData<EWallSide>[];
+	public sides: IPositionData<EWallSide>[];
 
 	public scores: {
 		[side: string]: IScores;

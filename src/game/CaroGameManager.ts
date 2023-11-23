@@ -1,10 +1,10 @@
 import { EBuildDestryParam, buildDestroyActionParams } from '@/constants/action-params';
 import { ActionDto } from '@/services/player.service';
-import { CraftsmenPosition } from './CraftsmenPosition';
+import CraftsmenPosition from './CraftsmenPosition';
+import { EWallSide } from './EWallSide';
 import GameManager from './GameManager';
 import { HashedType } from './HashedType';
-import { Position } from './Position';
-import { EWallSide } from './WallPosition';
+import Position from './Position';
 
 /**
  * @description Caro game manager
