@@ -102,6 +102,7 @@ export default defineConfig({
 				start_url: '/',
 				theme_color: '#177cce',
 			},
+			minify: true,
 		}),
 	],
 	resolve: {
