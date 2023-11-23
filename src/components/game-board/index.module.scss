@@ -30,6 +30,7 @@ $inner-border-color: #001eb3;
 .inner {
 	position: relative;
 	border: 2px solid $inner-border-color;
+	padding: -2px;
 }
 
 .craftsmen {

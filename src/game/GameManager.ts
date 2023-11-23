@@ -2,6 +2,7 @@ import Action from '@/models/Action';
 import Field from '@/models/Field';
 import GameAction from '@/models/GameAction';
 import { ActionDto } from '@/services/player.service';
+import sortActions from '@/utils/sortActions';
 import { CraftsmenPosition } from './CraftsmenPosition';
 import { HashedType, PositionData } from './HashedType';
 import { Position } from './Position';
@@ -268,6 +269,8 @@ class GameManager implements GameStateData {
 				continue;
 			}
 
+			actions[i].actions = sortActions(actions[i].actions);
+
 			// Find craftsmen by id and do action
 			for (const action of actions[i].actions) {
 				for (const craftsman of this.craftsmen) {
@@ -464,7 +467,7 @@ class GameManager implements GameStateData {
 	): EWallSide | null {
 		// If the position is not valid, then return null
 		if (!pos.isValid(this.width, this.height)) return null;
-		if (this.hashedWalls.exist(pos)) {
+		if (this.hashedWalls.read(pos)?.side === currentSide) {
 			// If the position is a wall and the side of the wall is not equal to current side, then return null
 			if (currentSide && currentSide !== this.hashedWalls.read(pos)!.side) return null;
 			// Else return the side of the wall

@@ -90,12 +90,27 @@ export default function PlayTestTab({ gameState, onGameStateChange }: PlayRealTa
 								<FormItem label='Number of castles' name='numOfCastles'>
 									<InputNumber placeholder='Number of castles' name='numOfCastles' />
 								</FormItem>
+
 								<FormItem label='Number of craftsments' name='numOfCraftsmens'>
 									<InputNumber placeholder='Number of craftsments' name='numOfCraftsmens' />
 								</FormItem>
+
 								<FormItem label='Number of ponds' name='numOfPonds'>
 									<InputNumber placeholder='Number of ponds' />
 								</FormItem>
+
+								<FormItem label='Coeff of castles' name='castle_coeff'>
+									<InputNumber placeholder='Coeff of castles' name='castle_coeff' />
+								</FormItem>
+
+								<FormItem label='Coeff of territory' name='territory_coeff'>
+									<InputNumber placeholder='Coeff of territory' name='territory_coeff' />
+								</FormItem>
+
+								<FormItem label='Coeff of wall' name='wall_coeff'>
+									<InputNumber placeholder='Coeff of wall' name='wall_coeff' />
+								</FormItem>
+
 								<Button
 									icon={<ThunderboltOutlined />}
 									danger

@@ -66,6 +66,10 @@ export default class CaroGameManager extends GameManager {
 	 * @returns Next action for the craftsman
 	 */
 	private getNextCraftsmenAction(craftmen: CraftsmenPosition): ActionDto {
+		// If the craftsman can build a wall, build it
+		const buildAction = this.getBuildAction(craftmen);
+		if (buildAction) return buildAction;
+
 		// If the craftsman can destroy a wall, destroy it
 		const destroyAction = this.getDestroyAction(craftmen);
 		if (destroyAction) return destroyAction;
@@ -73,10 +77,6 @@ export default class CaroGameManager extends GameManager {
 		// If the craftsman can go to the closest castle, go to it
 		const gotoClosestCastleAction = this.gotoClosestCastleAction(craftmen);
 		if (gotoClosestCastleAction) return gotoClosestCastleAction;
-
-		// If the craftsman can build a wall, build it
-		const buildAction = this.getBuildAction(craftmen);
-		if (buildAction) return buildAction;
 
 		// Get next position for the craftsman
 		const pos = this.getNextPosition(craftmen);
@@ -202,31 +202,23 @@ export default class CaroGameManager extends GameManager {
 		if (pos.x === 0 || pos.y === 0) return true;
 		if (pos.x === this.width - 1 || pos.y === this.height - 1) return true;
 
-		if (pos.x === 1 || pos.y === 1) return false;
-		if (pos.x === this.width - 2 || pos.y === this.height - 2) return false;
-
 		if (this.hashedSide.read(pos) === side) return false;
 
 		// Get the positions around the position
-		const [top, right, bottom, left, upperLeft, upperRight, lowerLeft, lowerRight] = pos.allNears();
+		const [top, right, bottom, left, upperLeft, upperRight, lowerRight, lowerLeft] = pos.allNears();
 
-		const buildPairs = [
-			[upperLeft, upperRight],
-			[lowerLeft, lowerRight],
-			[upperLeft, lowerLeft],
-			[upperRight, lowerRight],
-		];
-
+		// If the craftsman can not build a wall at the position, return false
 		const noBuildPairs = [
-			[top, left],
-			[left, bottom],
-			[bottom, right],
-			[right, top],
+			[top, right, bottom, left],
+			[right, upperRight, lowerRight],
+			[bottom, lowerRight, lowerLeft],
+			[left, upperLeft, lowerLeft],
+			[top, upperLeft, upperRight],
+			[top, left, upperLeft],
+			[top, right, upperRight],
+			[bottom, left, lowerLeft],
+			[bottom, right, lowerRight],
 		];
-
-		for (const positions of buildPairs) {
-			if (positions.every((pos) => this.hashedWalls.read(pos)?.side === side)) return true;
-		}
 
 		for (const positions of noBuildPairs) {
 			if (positions.every((pos) => this.hashedWalls.read(pos)?.side === side)) return false;
