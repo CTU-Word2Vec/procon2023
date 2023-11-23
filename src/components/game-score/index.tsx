@@ -1,3 +1,4 @@
+import { EWallSide } from '@/game/EWallSide';
 import IGameStateData from '@/game/IGameStateData';
 import { Descriptions, Space } from 'antd';
 import clsx from 'clsx';
@@ -7,63 +8,101 @@ import styles from './index.module.scss';
 export interface GameScoreProps {
 	state: IGameStateData;
 }
+
+const sides: EWallSide[] = ['A', 'B'];
+
+const colors = {
+	A: '#06619e',
+	B: '#009c15',
+};
+
+const keys = ['walls', 'territories', 'castles'];
+
 export default function GameScore({ state }: GameScoreProps) {
 	return (
 		<Space style={{ width: '100%', position: 'sticky', top: 64 }} direction='vertical'>
 			<div className={styles.scores}>
-				<div className={clsx(styles.side, styles.A)}>
-					<div className={styles.heading}>Team A</div>
-					<div className={styles.content}>
-						<div className={styles.total}>{state.scores['A'].total}</div>
-						<Descriptions
-							size='small'
-							column={1}
-							bordered
-							items={[
-								{ label: 'Walls', children: state.scores['A'].walls },
-								{
-									label: 'Territories',
-									children: state.scores['A'].territories,
-								},
-								{ label: 'Castles', children: state.scores['A'].castles },
-							]}
-						></Descriptions>
+				{sides.map((side) => (
+					<div key={side} className={clsx(styles.side, styles[side])}>
+						<div className={styles.heading}>Team {side}</div>
+						<div className={styles.content}>
+							<div className={styles.total}>{state.scores[side].total}</div>
+							<Chart
+								type='area'
+								options={{
+									stroke: {
+										curve: 'smooth',
+										width: 2,
+									},
+									grid: { show: false },
+									chart: {
+										toolbar: {
+											show: false,
+										},
+										height: 100,
+										zoom: { enabled: false },
+										animations: {
+											enabled: true,
+											easing: 'easeinout',
+											dynamicAnimation: {
+												speed: 1000,
+											},
+										},
+										stacked: true,
+									},
+									xaxis: {
+										labels: {
+											show: false,
+										},
+										axisBorder: {
+											show: false,
+										},
+										axisTicks: {
+											show: false,
+										},
+									},
+									yaxis: {
+										labels: {
+											show: false,
+										},
+									},
+									dataLabels: {
+										enabled: false,
+									},
+									legend: {
+										show: false,
+									},
+								}}
+								series={keys.map((key) => ({
+									name: key,
+									data: state.scoresHistory[side].map((score) => score[key as keyof typeof score]),
+								}))}
+							/>
+							<Descriptions
+								size='small'
+								column={1}
+								bordered
+								items={[
+									{ label: 'Walls', children: state.scores[side].walls },
+									{
+										label: 'Territories',
+										children: state.scores[side].territories,
+									},
+									{ label: 'Castles', children: state.scores[side].castles },
+								]}
+							></Descriptions>
+						</div>
 					</div>
-				</div>
-
-				<div className={clsx(styles.side, styles.B)}>
-					<div className={styles.heading}>Team B</div>
-					<div className={styles.content}>
-						<div className={styles.total}>{state.scores['B'].total}</div>
-						<Descriptions
-							size='small'
-							column={1}
-							bordered
-							items={[
-								{ label: 'Walls', children: state.scores['B'].walls },
-								{
-									label: 'Territories',
-									children: state.scores['B'].territories,
-								},
-								{ label: 'Castles', children: state.scores['B'].castles },
-							]}
-						></Descriptions>
-					</div>
-				</div>
+				))}
 			</div>
 
 			<Chart
 				type='line'
-				series={[
-					{
-						name: 'Side A',
-						data: state.scoresHistory['A'].map((score) => score.total),
-					},
-					{
-						name: 'Side B',
-						data: state.scoresHistory['B'].map((score) => score.total),
-					},
-				]}
+				series={sides.map((side) => ({
+					name: 'Side ' + side,
+					data: state.scoresHistory[side].map((score) => score.total),
+					color: colors[side],
+				}))}
 				options={{
 					stroke: {
 						curve: 'smooth',
@@ -79,9 +118,6 @@ export default function GameScore({ state }: GameScoreProps) {
 						animations: {
 							enabled: true,
 							easing: 'easeinout',
-							dynamicAnimation: {
-								speed: 1000,
-							},
 						},
 					},
 					xaxis: {

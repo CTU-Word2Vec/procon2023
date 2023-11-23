@@ -167,8 +167,11 @@ export default function GameBoard({ state, action }: GameBoardProps) {
 							open={!!action}
 							zIndex={99}
 							placement='top'
+							arrow={false}
 							overlayInnerStyle={{
 								border: '1px dashed #fff',
+								background: '#00000090',
+								fontWeight: 'bold',
 							}}
 						>
 							<div

@@ -147,7 +147,9 @@ export default function PlayRealTab({ gameState, onGameStateChange, onAddAction 
 						loading={isLoadingGame}
 						htmlType='submit'
 						disabled={!gameId}
-					></Button>
+					>
+						Load
+					</Button>
 				</Space.Compact>
 			</form>
 
