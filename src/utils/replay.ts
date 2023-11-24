@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import GameManager from '@/game/GameManager';
+import GameManager from '@/game/classes/GameManager';
 import Game from '@/models/Game';
 import GameAction from '@/models/GameAction';
 import settingService from '@/services/setting.service';

@@ -1,5 +1,5 @@
+import Position from '../classes/Position';
 import IBasePosition from './IBasePosition';
-import Position from './Position';
 
 /**
  * @description Position interface

@@ -1,6 +1,6 @@
-import CraftsmenPosition from '@/game/CraftsmenPosition';
-import { HashedType } from '@/game/HashedType';
-import Position from '@/game/Position';
+import CraftsmenPosition from '@/game/classes/CraftsmenPosition';
+import HashedType from '@/game/classes/HashedType';
+import Position from '@/game/classes/Position';
 import Field from '@/models/Field';
 
 /**

@@ -1,4 +1,4 @@
-import IBasePosition from './IBasePosition';
+import IBasePosition from '../interfaces/IBasePosition';
 
 /**
  * @description Base position class

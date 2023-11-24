@@ -1,5 +1,5 @@
-import { EWallSide } from '@/game/EWallSide';
-import IGameStateData from '@/game/IGameStateData';
+import { EWallSide } from '@/game/enums/EWallSide';
+import IGameStateData from '@/game/interfaces/IGameStateData';
 import { Descriptions, Space } from 'antd';
 import clsx from 'clsx';
 import Chart from 'react-apexcharts';

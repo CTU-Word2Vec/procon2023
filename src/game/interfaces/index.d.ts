@@ -1,0 +1,12 @@
+export { default as IBaseGameManager } from './IBaseGameManager';
+export { default as IBasePosition } from './IBasePosition';
+export { default as ICaroGameManager } from './ICaroGameManager';
+export { default as ICraftsmenPosition } from './ICraftsmenPosition';
+export { default as IGameManager } from './IGameManager';
+export { default as IGameStateData } from './IGameStateData';
+export { default as IHashedDataType } from './IHashedDataType';
+export { default as IHashedType } from './IHashedType';
+export { default as IPosition } from './IPosition';
+export { default as IPositionData } from './IPositionData';
+export { default as IScores } from './IScores';
+export { default as IWallPosition } from './IWallPosition';

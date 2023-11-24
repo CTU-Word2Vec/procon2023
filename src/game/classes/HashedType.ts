@@ -1,13 +1,13 @@
-import IHashedDataType from './IHashedDataType';
-import IHashedType from './IHashedType';
-import IPositionData from './IPositionData';
+import IHashedDataType from '../interfaces/IHashedDataType';
+import IHashedType from '../interfaces/IHashedType';
+import IPositionData from '../interfaces/IPositionData';
 import Position from './Position';
 
 /**
  * @description Hashed type
  * @template T - Data type
  */
-export class HashedType<T> implements IHashedType<T> {
+export default class HashedType<T> implements IHashedType<T> {
 	/**
 	 * @description Data
 	 */

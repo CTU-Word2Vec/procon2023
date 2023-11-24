@@ -1,12 +1,12 @@
 import Field from '@/models/Field';
-import CraftsmenPosition from './CraftsmenPosition';
-import { EWallSide } from './EWallSide';
-import GameStateData from './GameStateData';
-import { HashedType } from './HashedType';
-import IBaseGameManager from './IBaseGameManager';
-import IScores from './IScores';
-import Position from './Position';
-import WallPosition from './WallPosition';
+import CraftsmenPosition from '../classes/CraftsmenPosition';
+import GameStateData from '../classes/GameStateData';
+import HashedType from '../classes/HashedType';
+import Position from '../classes/Position';
+import WallPosition from '../classes/WallPosition';
+import { EWallSide } from '../enums/EWallSide';
+import IBaseGameManager from '../interfaces/IBaseGameManager';
+import IScores from '../interfaces/IScores';
 
 /**
  * @description Base game manager

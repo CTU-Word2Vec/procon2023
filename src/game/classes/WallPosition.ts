@@ -1,5 +1,5 @@
-import { EWallSide } from './EWallSide';
-import { IWallPosition } from './IWallPosition';
+import { EWallSide } from '../enums/EWallSide';
+import IWallPosition from '../interfaces/IWallPosition';
 import Position from './Position';
 
 /**

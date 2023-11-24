@@ -1,6 +1,6 @@
 import { EActionParam } from '@/constants/action-params';
+import IPosition from '../interfaces/IPosition';
 import BasePosition from './BasePosition';
-import IPosition from './IPosition';
 
 /**
  * @description Position class

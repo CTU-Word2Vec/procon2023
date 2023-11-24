@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { EGameMode, gameModes } from '@/game/EGameMode';
-import { EWallSide } from '@/game/EWallSide';
-import GameManager from '@/game/GameManager';
-import IGameStateData from '@/game/IGameStateData';
+import GameManager from '@/game/classes/GameManager';
+import { EGameMode, gameModes } from '@/game/enums/EGameMode';
+import { EWallSide } from '@/game/enums/EWallSide';
+import IGameStateData from '@/game/interfaces/IGameStateData';
 import Game from '@/models/Game';
 import GameAction from '@/models/GameAction';
 import playerService from '@/services/player.service';

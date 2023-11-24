@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { EGameMode, gameModes } from '@/game/EGameMode';
-import GameManager from '@/game/GameManager';
-import IGameStateData from '@/game/IGameStateData';
+import GameManager from '@/game/classes/GameManager';
+import { EGameMode, gameModes } from '@/game/enums/EGameMode';
+import IGameStateData from '@/game/interfaces/IGameStateData';
 import Field from '@/models/Field';
 import GameAction from '@/models/GameAction';
 import playTest from '@/utils/playTest';

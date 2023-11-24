@@ -1,4 +1,4 @@
-import IGameStateData from './IGameStateData';
+import IGameStateData from '../interfaces/IGameStateData';
 
 /**
  * @description Base game manager interface

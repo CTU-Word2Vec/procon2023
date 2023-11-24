@@ -1,8 +1,8 @@
-import CraftsmenPosition from './CraftsmenPosition';
-import { HashedType, PositionData } from './HashedType';
+import CraftsmenPosition from '../classes/CraftsmenPosition';
+import { HashedType, PositionData } from '../classes/HashedType';
+import { Position } from '../classes/Position';
+import { EWallSide, WallPosition } from '../classes/WallPosition';
 import IScores from './IScores';
-import { Position } from './Position';
-import { EWallSide, WallPosition } from './WallPosition';
 
 /**
  * @description Game state data

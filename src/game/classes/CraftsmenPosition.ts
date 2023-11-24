@@ -1,7 +1,7 @@
 import { EMoveParam } from '@/constants/action-params';
 import { ActionDto } from '@/services/player.service';
-import { EWallSide } from './EWallSide';
-import ICraftsmenPosition from './ICraftsmenPosition';
+import { EWallSide } from '../enums/EWallSide';
+import ICraftsmenPosition from '../interfaces/ICraftsmenPosition';
 import Position from './Position';
 
 /**

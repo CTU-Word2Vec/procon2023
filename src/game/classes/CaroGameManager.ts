@@ -1,10 +1,10 @@
 import { EBuildDestryParam, buildDestroyActionParams } from '@/constants/action-params';
 import { ActionDto } from '@/services/player.service';
+import { EWallSide } from '../enums/EWallSide';
+import ICaroGameManager from '../interfaces/ICaroGameManager';
 import CraftsmenPosition from './CraftsmenPosition';
-import { EWallSide } from './EWallSide';
 import GameManager from './GameManager';
-import { HashedType } from './HashedType';
-import ICaroGameManager from './ICaroGameManager';
+import HashedType from './HashedType';
 import Position from './Position';
 
 /**

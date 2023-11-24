@@ -1,5 +1,5 @@
 import { ActionDto } from '@/services/player.service';
-import { EWallSide } from './EWallSide';
+import { EWallSide } from '../enums/EWallSide';
 import IGameManager from './IGameManager';
 
 /**

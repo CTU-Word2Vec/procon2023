@@ -3,12 +3,12 @@ import GameAction from '@/models/GameAction';
 import { ActionDto } from '@/services/player.service';
 import randomField, { RandomFieldOptions } from '@/utils/randomField';
 import sortActions from '@/utils/sortActions';
+import { EWallSide } from '../enums/EWallSide';
+import IGameManager from '../interfaces/IGameManager';
+import IGameStateData from '../interfaces/IGameStateData';
 import BaseGameManager from './BaseGameManager';
 import CraftsmenPosition from './CraftsmenPosition';
-import { EWallSide } from './EWallSide';
-import { HashedType } from './HashedType';
-import IGameManager from './IGameManager';
-import IGameStateData from './IGameStateData';
+import HashedType from './HashedType';
 import Position from './Position';
 import WallPosition from './WallPosition';
 

@@ -1,5 +1,6 @@
 import { EAction } from '@/constants/action';
 import { EBuildDestryParam, EMoveParam } from '@/constants/action-params';
+import { ActionDto } from '@/services';
 
 const actions: EAction[] = ['BUILD', 'DESTROY', 'MOVE', 'STAY'];
 const moveParams: EMoveParam[] = [
@@ -12,9 +13,10 @@ const moveParams: EMoveParam[] = [
 	'UPPER_LEFT',
 	'UPPER_RIGHT',
 ];
+
 const buildDestroyParams: EBuildDestryParam[] = ['ABOVE', 'BELOW', 'LEFT', 'RIGHT'];
 
-export default function randomAction(craftsman_id: string) {
+export default function randomAction(craftsman_id: string): ActionDto {
 	const action = actions[Math.floor(Math.random() * actions.length)];
 
 	switch (action) {

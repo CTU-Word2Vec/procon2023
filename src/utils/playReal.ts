@@ -1,6 +1,6 @@
-import CaroGameManager from '@/game/CaroGameManager';
-import { EWallSide } from '@/game/EWallSide';
-import IGameStateData from '@/game/IGameStateData';
+import CaroGameManager from '@/game/classes/CaroGameManager';
+import { EWallSide } from '@/game/enums';
+import IGameStateData from '@/game/interfaces/IGameStateData';
 import Game from '@/models/Game';
 import GameAction from '@/models/GameAction';
 import playerService from '@/services/player.service';

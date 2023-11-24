@@ -1,4 +1,4 @@
-import { EWallSide } from './EWallSide';
+import { EWallSide } from '../enums/EWallSide';
 import IPosition from './IPosition';
 
 /**

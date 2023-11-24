@@ -1,5 +1,5 @@
-import CraftsmenPosition from '@/game/CraftsmenPosition';
-import IGameStateData from '@/game/IGameStateData';
+import CraftsmenPosition from '@/game/classes/CraftsmenPosition';
+import IGameStateData from '@/game/interfaces/IGameStateData';
 import Action from '@/models/Action';
 import GameAction from '@/models/GameAction';
 import { DoubleRightOutlined, FormatPainterFilled, StopOutlined, UserOutlined } from '@ant-design/icons';

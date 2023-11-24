@@ -1,9 +1,9 @@
+import { EWallSide } from '../enums/EWallSide';
+import IGameStateData from '../interfaces/IGameStateData';
+import IPositionData from '../interfaces/IPositionData';
+import IScores from '../interfaces/IScores';
 import CraftsmenPosition from './CraftsmenPosition';
-import { EWallSide } from './EWallSide';
-import { HashedType } from './HashedType';
-import IGameStateData from './IGameStateData';
-import IPositionData from './IPositionData';
-import IScores from './IScores';
+import HashedType from './HashedType';
 import Position from './Position';
 import WallPosition from './WallPosition';
 

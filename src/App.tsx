@@ -4,7 +4,7 @@ import { Suspense, lazy, useState } from 'react';
 import AppHeader from './components/app-header';
 
 import GameBoardWrapper from './components/game-board-wrapper';
-import IGameStateData from './game/IGameStateData';
+import IGameStateData from './game/interfaces/IGameStateData';
 import GameAction from './models/GameAction';
 
 const GameScore = lazy(() => import('./components/game-score'));
