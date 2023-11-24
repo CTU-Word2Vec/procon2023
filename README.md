@@ -1,12 +1,5 @@
 # CTU.Word2Vec Procon 2023
 
-<p style="text-align: center">
-    <img 
-    src="./public/logo-ctu.png"
-    width="200" 
-    />
-</p>
-
 Procon 2023: Castle game [Details](https://drive.google.com/file/d/1GjMPgYpT2FNNmtSztPiTp1mWqT46vZLC/view)
 
 ## Real mode
