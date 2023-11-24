@@ -17,6 +17,8 @@ import WallPosition from './WallPosition';
  * @implements GameStateData
  */
 export default class GameManager extends BaseGameManager implements IGameManager {
+	private prevTurnScoreUpdated: number = 0;
+
 	public getData(): IGameStateData {
 		return { ...this };
 	}
@@ -263,8 +265,12 @@ export default class GameManager extends BaseGameManager implements IGameManager
 		// If the position is not valid, then return null
 		if (!pos.isValid(this.width, this.height)) return null;
 		if (this.hashedWalls.exist(pos)) {
+			// If the position is a wall and the current side is null, then return side of the wall
+			if (!currentSide) return this.hashedWalls.read(pos)!.side;
 			// If the position is a wall and the side of the wall is not equal to current side, then return null
-			if (currentSide && currentSide === this.hashedWalls.read(pos)!.side) return currentSide;
+			if (currentSide !== this.hashedWalls.read(pos)!.side) return null;
+			// If the position is a wall and the side of the wall is equal to current side, then return current side
+			return currentSide;
 		}
 
 		// Mark the position as visited
@@ -308,8 +314,14 @@ export default class GameManager extends BaseGameManager implements IGameManager
 		if (!pos.isValid(this.width, this.height)) return;
 		// If the position is filled, then do nothing
 		if (filled.exist(pos)) return;
-		// If the position is a wall, then do nothing
-		if (this.hashedWalls.exist(pos)) return;
+
+		// If the position is a wall
+		if (this.hashedWalls.exist(pos)) {
+			// If the side is null, then do nothing
+			if (!side) return;
+			// If the side of wall is equal to side, then do nothing
+			if (side === this.hashedWalls.read(pos)!.side) return;
+		}
 
 		// Mark the position as filled
 		filled.write(pos, true);
@@ -378,8 +390,14 @@ export default class GameManager extends BaseGameManager implements IGameManager
 			// Calculate total score
 			this.scores[side].total =
 				this.scores[side].castles + this.scores[side].territories + this.scores[side].walls;
+		}
 
-			this.scoresHistory[side][this.lastTurn] = { ...this.scores[side] };
+		// Update scores history
+		while (this.prevTurnScoreUpdated < this.lastTurn) {
+			this.prevTurnScoreUpdated++;
+			for (const side of sides) {
+				this.scoresHistory[side][this.prevTurnScoreUpdated] = { ...this.scores[side] };
+			}
 		}
 	}
 

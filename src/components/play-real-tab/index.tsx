@@ -92,7 +92,7 @@ export default function PlayRealTab({ gameState, onGameStateChange, onAddAction 
 			const currentActions = await playerService.getGameActions(game.id);
 			const baseActions = await playerService.getGameActions(game.id);
 
-			const gameManager = new GameManager(game.field);
+			const gameManager = new GameManager(game.field, game.num_of_turns);
 			gameManager.addActions(currentActions);
 
 			onGameStateChange(gameManager.getData());

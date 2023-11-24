@@ -15,7 +15,7 @@ export interface ReplayOptions {
 export default async function replay({ game, actions, onGameStateChange, onActionsChange }: ReplayOptions) {
 	const delayTime = settingService.replayDelay;
 
-	const gameState = new GameManager(game.field!);
+	const gameState = new GameManager(game.field!, game.num_of_turns);
 	const currentActions: GameAction[] = [];
 
 	for (let i = 0; i < actions.length; i++) {

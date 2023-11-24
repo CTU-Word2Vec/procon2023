@@ -114,6 +114,18 @@ export default function GameBoard({ state, action }: GameBoardProps) {
 					></div>
 				))}
 
+				{state.sides.map((side, index) => (
+					<div
+						className={clsx(styles.position, styles.side, styles[side.data])}
+						key={index}
+						style={{
+							transform: `translate(${side.x * 33 + 1}px, ${side.y * 33 + 1}px)`,
+						}}
+					>
+						{side.data}
+					</div>
+				))}
+
 				{state.walls.map((wall, index) => (
 					<div
 						key={index}
@@ -124,19 +136,6 @@ export default function GameBoard({ state, action }: GameBoardProps) {
 						}}
 					>
 						<div className={clsx(styles.wall, styles[wall.side])}></div>
-					</div>
-				))}
-
-				{state.sides.map((side, index) => (
-					<div
-						className={clsx(styles.position, styles.side, styles[side.data])}
-						key={index}
-						style={{
-							transform: `translate(${side.x * 33 + 1}px, ${side.y * 33 + 1}px)`,
-							zIndex: state.height,
-						}}
-					>
-						{state.territory_coeff}
 					</div>
 				))}
 

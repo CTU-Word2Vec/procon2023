@@ -32,7 +32,7 @@ export default async function playReal({ game, side, onGameStateChange, onGameAc
 		await wait(Math.max(0, startTime.getTime() - now.getTime()));
 	}
 
-	const gameManager = new CaroGameManager(game.field);
+	const gameManager = new CaroGameManager(game.field, game.num_of_turns);
 
 	const actions = await playerService.getGameActions(game.id);
 

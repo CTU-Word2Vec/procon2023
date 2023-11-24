@@ -17,9 +17,10 @@ export default class BaseGameManager extends GameStateData implements IBaseGameM
 	/**
 	 * @description Game manager constructor
 	 * @param field - Field of game
+	 * @param numberOfTurns - Number of turns
 	 * @constructor
 	 */
-	constructor(field: Field) {
+	constructor(field: Field, numberOfTurns: number = 100) {
 		const scores: {
 			[x: string]: IScores;
 		} = {};
@@ -36,7 +37,12 @@ export default class BaseGameManager extends GameStateData implements IBaseGameM
 				walls: 0,
 			};
 
-			scoresHistory[side] = [scores[side]];
+			scoresHistory[side] = Array.from({ length: numberOfTurns }, () => ({
+				castles: 0,
+				territories: 0,
+				total: 0,
+				walls: 0,
+			}));
 		}
 
 		super(
