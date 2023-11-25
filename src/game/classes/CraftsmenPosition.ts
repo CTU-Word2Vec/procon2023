@@ -1,4 +1,4 @@
-import { EMoveParam } from '@/constants/action-params';
+import { EBuildDestryParam, EMoveParam } from '@/constants/action-params';
 import { ActionDto } from '@/services/player.service';
 import { EWallSide } from '../enums/EWallSide';
 import ICraftsmenPosition from '../interfaces/ICraftsmenPosition';
@@ -131,5 +131,36 @@ export default class CraftsmenPosition extends Position implements ICraftsmenPos
 		}
 
 		return [];
+	}
+
+	public getStayAction(): ActionDto {
+		return {
+			craftsman_id: this.id,
+			action: 'STAY',
+		};
+	}
+
+	public getBuildAction(param: EBuildDestryParam): ActionDto {
+		return {
+			craftsman_id: this.id,
+			action: 'BUILD',
+			action_param: param,
+		};
+	}
+
+	public getMoveAction(param: EMoveParam): ActionDto {
+		return {
+			craftsman_id: this.id,
+			action: 'MOVE',
+			action_param: param,
+		};
+	}
+
+	public getDestroyAction(param: EBuildDestryParam): ActionDto {
+		return {
+			craftsman_id: this.id,
+			action: 'DESTROY',
+			action_param: param,
+		};
 	}
 }

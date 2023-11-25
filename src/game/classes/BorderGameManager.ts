@@ -17,10 +17,7 @@ export default class BorderGameManager extends GameManager implements IBorderGam
 		const moveAction = this.getCraftsmanMoveAction(craftsmen);
 		if (moveAction) return moveAction;
 
-		return {
-			craftsman_id: craftsmen.id,
-			action: 'STAY',
-		};
+		return craftsmen.getStayAction();
 	}
 
 	/**
@@ -70,11 +67,7 @@ export default class BorderGameManager extends GameManager implements IBorderGam
 		// If there is a build action, return it
 		for (let i = 0; i < nears.length; i++) {
 			if (!this.willBuildWall(nears[i])) continue;
-			return {
-				craftsman_id: craftsmen.id,
-				action: 'BUILD',
-				action_param: buildDestroyActionParams[i],
-			};
+			return craftsmen.getBuildAction(buildDestroyActionParams[i]);
 		}
 
 		return null;
