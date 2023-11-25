@@ -37,10 +37,9 @@ export default class BorderGameManager extends GameManager implements IBorderGam
 			const moveActions = craftsmen.getNextActionsToGoToPosition(pos);
 
 			for (const action of moveActions) {
-				this.goingTo.write(pos, pos);
-
 				if (!this.canCrafsmenDoAction(craftsmen, action)) continue;
 
+				this.goingTo.write(pos, pos);
 				return action;
 			}
 		}
