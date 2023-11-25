@@ -63,7 +63,8 @@ export class PlayerService {
 	}
 
 	async getGameActions(gameId: number) {
-		return (await this.client.get(`/games/${gameId}/actions`)) as GameAction[];
+		const actions = (await this.client.get(`/games/${gameId}/actions`)) as GameAction[];
+		return actions.sort((a, b) => a.turn - b.turn);
 	}
 
 	async createAction(gameId: number, body: CreateActionDto) {

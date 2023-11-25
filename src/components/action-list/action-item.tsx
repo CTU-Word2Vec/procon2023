@@ -2,6 +2,8 @@ import GameAction from '@/models/GameAction';
 import { DoubleRightOutlined, FormatPainterFilled, StopOutlined, UserOutlined } from '@ant-design/icons';
 import { Descriptions } from 'antd';
 import clsx from 'clsx';
+import CraftsmenA from '../craftsmen-a';
+import CraftsmenB from '../craftsmen-b';
 import styles from './index.module.scss';
 
 const iconMap = {
@@ -15,6 +17,11 @@ export interface ActionItemProps {
 	action: GameAction;
 }
 
+const craftmenMap = {
+	A: <CraftsmenA noBorder noScale noShadow size={48} />,
+	B: <CraftsmenB noBorder noScale noShadow size={48} />,
+};
+
 export default function ActionItem({ action }: ActionItemProps) {
 	return (
 		<div
@@ -22,7 +29,11 @@ export default function ActionItem({ action }: ActionItemProps) {
 				[styles.disabled]: action.disabled,
 			})}
 		>
-			<span className={styles.turn}>{action.turn}</span>
+			<div className={styles.left}>
+				<span className={styles.turn}>{action.turn}</span>
+
+				<span className={styles.craftsmen}>{craftmenMap[action.turn % 2 ? 'B' : 'A']}</span>
+			</div>
 			<div className={styles.content}>
 				<Descriptions
 					items={action.actions.map((action) => ({

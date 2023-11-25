@@ -7,8 +7,23 @@
 
 	img {
 		filter: drop-shadow(2px 2px 0px #00117390);
-		// animation: animate 3s ease alternate infinite;
 		scale: 1.2;
+	}
+
+	&.noBorder {
+		border: none;
+	}
+
+	&.noShadow {
+		img {
+			filter: none;
+		}
+	}
+
+	&.noScale {
+		img {
+			scale: 1;
+		}
 	}
 }
 
@@ -21,14 +36,4 @@
 	border-radius: 2px;
 	font-size: 10px;
 	border: 1px solid #fff;
-}
-
-@keyframes animate {
-	0%,
-	100% {
-		transform: translateY(-40%) scale(1.5);
-	}
-	50% {
-		transform: translateY(-20%) scale(1.2);
-	}
 }

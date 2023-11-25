@@ -48,7 +48,7 @@ $color-b: #009c15;
 		opacity: 0.2;
 		margin-top: 0;
 
-		.turn {
+		.left {
 			visibility: hidden;
 		}
 
@@ -57,16 +57,19 @@ $color-b: #009c15;
 		}
 	}
 
-	.turn {
-		display: flex;
-		width: 48px;
-		aspect-ratio: 1;
-		align-items: center;
-		justify-content: center;
-		font-weight: bold;
-		color: #fff;
+	.left {
 		position: sticky;
 		top: 128px;
+
+		.turn {
+			display: flex;
+			width: 48px;
+			aspect-ratio: 1;
+			align-items: center;
+			justify-content: center;
+			font-weight: bold;
+			color: #fff;
+		}
 	}
 	.content {
 		flex: 1;
