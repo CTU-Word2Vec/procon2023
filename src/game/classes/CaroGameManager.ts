@@ -101,12 +101,10 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 			const near = nears[index];
 			const actionParam = buildDestroyActionParams[index];
 
-			if (this.willSelfDestroy(near, craftsmen.side))
-				return {
-					action: 'DESTROY',
-					craftsman_id: craftsmen.id,
-					action_param: actionParam,
-				};
+			// If the craftsman can not destroy a wall at the position, continue
+			if (!this.willSelfDestroy(near, craftsmen.side)) continue;
+
+			return craftsmen.getDestroyAction(actionParam);
 		}
 
 		return null;
@@ -126,9 +124,11 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 		const willDestroyGroups = [[top, bottom, left, right]];
 
 		for (const group of willDestroyGroups) {
-			if (group.every((pos) => this.hashedSide.read(pos) === side || this.hashedWalls.read(pos)?.side === side)) {
-				return true;
-			}
+			const valid = group.every(
+				(pos) => this.hashedSide.read(pos) === side || this.hashedWalls.read(pos)?.side === side,
+			);
+
+			if (valid) return true;
 		}
 
 		return false;
@@ -145,11 +145,7 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 
 		if (!actionParam) return null;
 
-		return {
-			craftsman_id: craftmen.id,
-			action: 'BUILD',
-			action_param: actionParam,
-		};
+		return craftmen.getBuildAction(actionParam);
 	}
 
 	/**
@@ -305,11 +301,7 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 			this.goingTo.write(pos, pos);
 
 			// Return the destroy action
-			return {
-				craftsman_id: craftsmen.id,
-				action: 'DESTROY',
-				action_param: param,
-			};
+			return craftsmen.getDestroyAction(param);
 		}
 
 		// If the craftsman can not destroy a wall at any position
