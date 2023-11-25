@@ -93,7 +93,7 @@ export default function GameBoard({ state, action }: GameBoardProps) {
 	}, [action]);
 
 	return (
-		<div className={styles.wrapper}>
+		<div className={clsx(styles.wrapper, styles[state.lastTurn % 2 ? 'B' : 'A'])}>
 			<div
 				className={styles.inner}
 				style={{
@@ -156,7 +156,7 @@ export default function GameBoard({ state, action }: GameBoardProps) {
 
 					return (
 						<div
-							className={styles.craftsmen}
+							className={clsx(styles.craftsmen, styles[craftsmen.side])}
 							style={{
 								transform: `translate(${craftsmen.x * 33 - 1}px, ${craftsmen.y * 33 - 1}px)`,
 								zIndex: craftsmen.y + 1,

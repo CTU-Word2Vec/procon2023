@@ -36,7 +36,7 @@ export default function PlayTestTab({ gameState, onGameStateChange, onAddAction 
 	const [randomedField, setRandomedField] = useState<Field>();
 	const [numberOfTurns, setNumberOfTurns] = useState(100);
 	const [sideAMode, setSideAMode] = useState<EGameMode>('Caro');
-	const [sideBMode, setSideBMode] = useState<EGameMode>('Caro');
+	const [sideBMode, setSideBMode] = useState<EGameMode>('Border');
 	const [isRandoming, setIsRandoming] = useState(false);
 
 	const handleRandomField = (values: RandomFieldOptions) => {

@@ -71,6 +71,7 @@ function createGameManager(field: Field, numberOfTurns: number, gameMode: EGameM
 		case 'Caro':
 			return new CaroGameManager(field, numberOfTurns);
 		case 'A*':
+			return new GameManager(field, numberOfTurns);
 		case 'Border':
 			return new BorderGameManager(field, numberOfTurns);
 	}

@@ -34,11 +34,11 @@ export default class BorderGameManager extends GameManager implements IBorderGam
 		const positions = this.getPositionsWillGoto(craftsmen);
 
 		for (const pos of positions) {
-			this.goingTo.write(pos, pos);
-
 			const moveActions = craftsmen.getNextActionsToGoToPosition(pos);
 
 			for (const action of moveActions) {
+				this.goingTo.write(pos, pos);
+
 				if (!this.canCrafsmenDoAction(craftsmen, action)) continue;
 
 				return action;
@@ -56,9 +56,11 @@ export default class BorderGameManager extends GameManager implements IBorderGam
 	private getCraftsmenBuildAction(craftsmen: CraftsmenPosition): ActionDto | null {
 		const nears = craftsmen.topRightBottomLeft();
 
-		// If there is a build action, return it
 		for (let i = 0; i < nears.length; i++) {
+			// If position is not valid, continue
 			if (!this.willBuildWall(nears[i], craftsmen.side)) continue;
+
+			this.goingTo.write(nears[i], nears[i]);
 			return craftsmen.getBuildAction(buildDestroyActionParams[i]);
 		}
 
@@ -77,6 +79,9 @@ export default class BorderGameManager extends GameManager implements IBorderGam
 		for (let i = 0; i < nears.length; i++) {
 			if (!this.hashedWalls.exist(nears[i])) continue;
 			if (this.hashedWalls.read(nears[i])!.side === craftsmen.side) continue;
+			if (this.goingTo.exist(nears[i])) continue;
+
+			this.goingTo.write(nears[i], nears[i]);
 
 			return craftsmen.getDestroyAction(buildDestroyActionParams[i]);
 		}
@@ -90,6 +95,7 @@ export default class BorderGameManager extends GameManager implements IBorderGam
 	 * @returns True if can do action
 	 */
 	private willBuildWall(pos: Position, side: EWallSide): boolean {
+		if (!pos.isValid(this.width, this.height)) return false;
 		if (this.hashedWalls.read(pos) && this.hashedWalls.read(pos)!.side === side) return false;
 
 		if (pos.x === 0 || pos.y === 0) return true;
@@ -105,11 +111,10 @@ export default class BorderGameManager extends GameManager implements IBorderGam
 	 */
 	private getPositionsWillGoto(craftmen: CraftsmenPosition): Position[] {
 		const MAX_LOOP = 1000;
-		const visited = new HashedType<boolean>();
 
 		const queue = craftmen.x1xh1ywy(this.width, this.height);
 		const results: Position[] = [];
-
+		const visited = new HashedType<boolean>();
 		let loop = 0;
 
 		while (queue.length) {
@@ -122,6 +127,8 @@ export default class BorderGameManager extends GameManager implements IBorderGam
 			if (visited.exist(pos)) continue;
 			// Else, mark it as visited
 			visited.write(pos, true);
+
+			if (this.goingTo.exist(pos)) continue;
 
 			const nears = pos.topRightBottomLeft();
 
