@@ -70,4 +70,8 @@ export default class BaseGameManager extends GameStateData implements IBaseGameM
 			scoresHistory,
 		);
 	}
+
+	getCraftsmansBySide(side: EWallSide): CraftsmenPosition[] {
+		return this.craftsmen.filter((e) => e.side === side);
+	}
 }

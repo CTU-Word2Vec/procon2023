@@ -123,12 +123,12 @@ export default class Position extends BasePosition implements IPosition {
 		return new Position(x, y);
 	}
 
-	public x0xh0ywy(width: number, height: number): [Position, Position, Position, Position] {
+	public x1xh1ywy(width: number, height: number): [Position, Position, Position, Position] {
 		return [
-			new Position(this.x, 0),
-			new Position(this.x, height - 1),
-			new Position(0, this.y),
-			new Position(width - 1, this.y),
+			new Position(this.x, 1),
+			new Position(this.x, height - 2),
+			new Position(1, this.y),
+			new Position(width - 2, this.y),
 		];
 	}
 

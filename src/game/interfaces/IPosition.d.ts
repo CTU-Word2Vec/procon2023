@@ -228,5 +228,5 @@ export default interface IPosition extends IBasePosition {
 	 * @param width - Width of the map
 	 * @param height - Height of the map
 	 */
-	x0xh0ywy(width: number, height: number): [IPosition, IPosition, IPosition, IPosition];
+	x1xh1ywy(width: number, height: number): [IPosition, IPosition, IPosition, IPosition];
 }

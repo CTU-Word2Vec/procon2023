@@ -401,9 +401,53 @@ export default class GameManager extends BaseGameManager implements IGameManager
 		}
 	}
 
-	public static randomGame(options?: RandomFieldOptions): GameManager {
+	public getNextActions(side: EWallSide): ActionDto[] {
+		this.goingTo = new HashedType<Position>();
+
+		const craftmens = this.getCraftsmansBySide(side);
+		const actions = craftmens.map((craftmen) => this.getNextCraftsmenAction(craftmen));
+
+		this.goingTo = new HashedType<Position>();
+
+		return actions;
+	}
+
+	/**
+	 * @description Get next action for craftsmen
+	 * @param craftsmen - Craftsman
+	 * @returns Action
+	 */
+	protected getNextCraftsmenAction(craftsmen: CraftsmenPosition): ActionDto {
+		return {
+			craftsman_id: craftsmen.id,
+			action: 'STAY',
+		};
+	}
+
+	public async getNextActionsAsync(side: EWallSide): Promise<ActionDto[]> {
+		this.goingTo = new HashedType<Position>();
+
+		const craftmens = this.getCraftsmansBySide(side);
+		const actions = craftmens.map((craftmen) => this.getNextCraftsmenActionAsync(craftmen));
+
+		this.goingTo = new HashedType<Position>();
+
+		return await Promise.all(actions);
+	}
+
+	private async getNextCraftsmenActionAsync(craftmen: CraftsmenPosition): Promise<ActionDto> {
+		return this.getNextCraftsmenAction.bind(this)(craftmen);
+	}
+
+	/**
+	 * @description Create a random game
+	 * @param options - Random field option
+	 * @param numberOfTurns - Number of turns
+	 * @returns - Random game
+	 */
+	public static randomGame(options?: RandomFieldOptions, numberOfTurns?: number): GameManager {
 		const randomedField = randomField(options);
-		const randomedGame = new GameManager(randomedField);
+		const randomedGame = new GameManager(randomedField, numberOfTurns);
 
 		return randomedGame;
 	}

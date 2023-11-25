@@ -4,7 +4,6 @@ import { EWallSide } from '../enums/EWallSide';
 import ICaroGameManager from '../interfaces/ICaroGameManager';
 import CraftsmenPosition from './CraftsmenPosition';
 import GameManager from './GameManager';
-import HashedType from './HashedType';
 import Position from './Position';
 
 /**
@@ -13,51 +12,7 @@ import Position from './Position';
  * @implements ICaroGameManager
  */
 export default class CaroGameManager extends GameManager implements ICaroGameManager {
-	public getNextActions(side: EWallSide): ActionDto[] {
-		this.goingTo = new HashedType<Position>();
-		// Initialize actions
-		const actions: ActionDto[] = [];
-
-		for (const craftmen of this.craftsmen) {
-			// If the craftsman is not on the side of the player, skip
-			if (craftmen.side !== side) continue;
-
-			// Get next action for the craftsman and push it to the actions array
-			const action = this.getNextCraftsmenAction(craftmen);
-			actions.push(action);
-		}
-
-		this.goingTo = new HashedType<Position>();
-
-		return actions;
-	}
-
-	public async getNextActionsAsync(side: EWallSide): Promise<ActionDto[]> {
-		this.goingTo = new HashedType<Position>();
-		// Initialize actions
-		const actions: Promise<ActionDto>[] = [];
-
-		for (const craftmen of this.craftsmen) {
-			// If the craftsman is not on the side of the player, skip
-			if (craftmen.side !== side) continue;
-
-			// Get next action for the craftsman and push it to the actions array
-			const action = this.getNextCraftsmenActionAsync(craftmen);
-
-			actions.push(action);
-		}
-
-		this.goingTo = new HashedType<Position>();
-
-		return await Promise.all(actions);
-	}
-
-	/**
-	 * @description Get next action for the craftsman
-	 * @param craftmen - Craftsmen position
-	 * @returns Next action for the craftsman
-	 */
-	private getNextCraftsmenAction(craftmen: CraftsmenPosition): ActionDto {
+	protected override getNextCraftsmenAction(craftmen: CraftsmenPosition): ActionDto {
 		// If the craftsman can build a wall, build it
 		const buildAction = this.getBuildAction(craftmen);
 		if (buildAction) return buildAction;
@@ -84,15 +39,6 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 			action: 'STAY',
 			craftsman_id: craftmen.id,
 		};
-	}
-
-	/**
-	 * @description Get next action of the craftsmen
-	 * @param craftmen - Craftsmen
-	 * @returns Next action of the craftsmen
-	 */
-	private async getNextCraftsmenActionAsync(craftmen: CraftsmenPosition): Promise<ActionDto> {
-		return this.getNextCraftsmenAction(craftmen);
 	}
 
 	/**

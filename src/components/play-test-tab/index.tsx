@@ -54,20 +54,23 @@ export default function PlayTestTab({ gameState, onGameStateChange, onAddAction 
 		}
 	};
 
-	const handlePlayTest = () => {
-		setIsPlayingTest(true);
-		playTest({
-			numberOfTurns,
-			field: randomedField!,
-			onGameStateChange,
-			onGameActionsChange: (actions) => {
-				setActions(actions);
-				onAddAction?.(actions[actions.length - 1]);
-			},
-		}).then(() => {
+	const handlePlayTest = async () => {
+		try {
+			setIsPlayingTest(true);
+			await playTest({
+				numberOfTurns,
+				field: randomedField!,
+				onGameStateChange,
+				onGameActionsChange: (actions) => {
+					setActions(actions);
+					onAddAction?.(actions[actions.length - 1]);
+				},
+			});
+		} catch (error: any) {
+			message.error(error.message);
+		} finally {
 			setIsPlayingTest(false);
-			onAddAction?.();
-		});
+		}
 	};
 
 	return (

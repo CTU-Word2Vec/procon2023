@@ -1,6 +1,6 @@
+import { buildDestroyActionParams } from '@/constants';
 import { ActionDto } from '@/services';
-import { CraftsmenPosition, GameManager } from '.';
-import { EWallSide } from '../enums';
+import { CraftsmenPosition, GameManager, Position } from '.';
 import { IBorderGameManager } from '../interfaces';
 
 /**
@@ -9,34 +9,10 @@ import { IBorderGameManager } from '../interfaces';
  * @implements IBorderGameManager
  */
 export default class BorderGameManager extends GameManager implements IBorderGameManager {
-	public async getNextActionsAsync(side: EWallSide): Promise<ActionDto[]> {
-		const actions: Promise<ActionDto>[] = [];
+	protected override getNextCraftsmenAction(craftsmen: CraftsmenPosition): ActionDto {
+		const buildAction = this.getCraftsmenBuildAction(craftsmen);
+		if (buildAction) return buildAction;
 
-		for (const craftsmen of this.craftsmen) {
-			if (craftsmen.side !== side) continue;
-
-			const action = this.getNextCraftsmanActionAsync(craftsmen);
-			actions.push(action);
-		}
-
-		return await Promise.all(actions);
-	}
-
-	/**
-	 * @description Get next action for craftsmen
-	 * @param craftsmen - Craftsman position
-	 * @returns Action for craftsmen
-	 */
-	private async getNextCraftsmanActionAsync(craftsmen: CraftsmenPosition): Promise<ActionDto> {
-		return this.getNextCraftsmanAction(craftsmen);
-	}
-
-	/**
-	 * @description Get next action for craftsmen
-	 * @param craftsmen - Craftsman position
-	 * @returns Action for craftsmen
-	 */
-	private getNextCraftsmanAction(craftsmen: CraftsmenPosition): ActionDto {
 		// If there is a move action, return it
 		const moveAction = this.getCraftsmanMoveAction(craftsmen);
 		if (moveAction) return moveAction;
@@ -52,8 +28,9 @@ export default class BorderGameManager extends GameManager implements IBorderGam
 	 * @param craftsmen - Craftsman position
 	 */
 	private getCraftsmanMoveAction(craftsmen: CraftsmenPosition): ActionDto | null {
-		const positions = craftsmen.x0xh0ywy(this.width, this.height);
+		const positions = craftsmen.x1xh1ywy(this.width, this.height);
 
+		// Initial min index and minInstance
 		let minIndex = 0;
 		let minDistance = Infinity;
 
@@ -61,14 +38,57 @@ export default class BorderGameManager extends GameManager implements IBorderGam
 			const pos = positions[i];
 			const distance = pos.distance(craftsmen);
 
-			if (distance > minDistance) continue;
+			// If distance is greater than min distance, continue
+			if (distance >= minDistance) continue;
 
+			// Else if distance is equal to min distance, check if it is better
 			minIndex = i;
 			minDistance = distance;
 		}
 
 		const pos = positions[minIndex];
 
-		return craftsmen.getNextActionsToGoToPosition(pos)[0];
+		const moveActions = craftsmen.getNextActionsToGoToPosition(pos);
+
+		for (const action of moveActions) {
+			if (!this.canCrafsmenDoAction(craftsmen, action)) continue;
+
+			return action;
+		}
+
+		return null;
+	}
+
+	/**
+	 * @description Get build action for craftsmen
+	 * @param craftsmen - Craftsman position
+	 * @returns Action
+	 */
+	private getCraftsmenBuildAction(craftsmen: CraftsmenPosition): ActionDto | null {
+		const nears = craftsmen.topRightBottomLeft();
+
+		// If there is a build action, return it
+		for (let i = 0; i < nears.length; i++) {
+			if (!this.willBuildWall(nears[i])) continue;
+			return {
+				craftsman_id: craftsmen.id,
+				action: 'BUILD',
+				action_param: buildDestroyActionParams[i],
+			};
+		}
+
+		return null;
+	}
+
+	/**
+	 * @description Check if craftsmen can do action
+	 * @param pos - Position
+	 * @returns True if can do action
+	 */
+	private willBuildWall(pos: Position): boolean {
+		if (pos.x === 0 || pos.y === 0) return true;
+		if (pos.x === this.width - 1 || pos.y === this.height - 1) return true;
+
+		return false;
 	}
 }
