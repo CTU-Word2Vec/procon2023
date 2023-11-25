@@ -1,5 +1,6 @@
 import { EBuildDestryParam, buildDestroyActionParams } from '@/constants/action-params';
 import { ActionDto } from '@/services/player.service';
+import { HashedType } from '.';
 import { EWallSide } from '../enums/EWallSide';
 import ICaroGameManager from '../interfaces/ICaroGameManager';
 import CraftsmenPosition from './CraftsmenPosition';
@@ -66,10 +67,14 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 		const position = new Position(craftmen.x, craftmen.y);
 		const positions: Position[] = [];
 		positions.push(position);
+		const visited = new HashedType<boolean>();
 
 		while (positions.length) {
 			// Get the first position in the positions array and remove it from the array
 			const pos = positions.shift() as Position;
+
+			if (visited.exist(pos)) continue;
+			visited.write(pos, true);
 
 			// If the position is not valid, continue
 			if (!pos.isValid(this.width, this.height)) continue;

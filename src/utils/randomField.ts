@@ -98,7 +98,7 @@ export default function randomField(
 		throw new Error('Invalid number of objects');
 	}
 
-	if (numOfPonds + numOfCastles + numOfCraftsmens * 2 > width * height) {
+	if (numOfPonds + numOfCastles + numOfCraftsmens * 2 > width * height - width * 2 - height * 2) {
 		throw new Error('Too many objects');
 	}
 

@@ -60,6 +60,8 @@ export default function PlayTestTab({ gameState, onGameStateChange, onAddAction 
 			await playTest({
 				numberOfTurns,
 				field: randomedField!,
+				sideAMode,
+				sideBMode,
 				onGameStateChange,
 				onGameActionsChange: (actions) => {
 					setActions(actions);
@@ -70,6 +72,7 @@ export default function PlayTestTab({ gameState, onGameStateChange, onAddAction 
 			message.error(error.message);
 		} finally {
 			setIsPlayingTest(false);
+			onAddAction?.();
 		}
 	};
 

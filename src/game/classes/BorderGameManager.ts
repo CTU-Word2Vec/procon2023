@@ -1,6 +1,7 @@
 import { buildDestroyActionParams } from '@/constants';
 import { ActionDto } from '@/services';
-import { CraftsmenPosition, GameManager, Position } from '.';
+import { CraftsmenPosition, GameManager, HashedType, Position } from '.';
+import { EWallSide } from '../enums';
 import { IBorderGameManager } from '../interfaces';
 
 /**
@@ -10,6 +11,11 @@ import { IBorderGameManager } from '../interfaces';
  */
 export default class BorderGameManager extends GameManager implements IBorderGameManager {
 	protected override getNextCraftsmenAction(craftsmen: CraftsmenPosition): ActionDto {
+		// If there is a destroy action, return it
+		const destroyAction = this.getCrafsmenDestroyAction(craftsmen);
+		if (destroyAction) return destroyAction;
+
+		// If there is a build action, return it
 		const buildAction = this.getCraftsmenBuildAction(craftsmen);
 		if (buildAction) return buildAction;
 
@@ -25,32 +31,18 @@ export default class BorderGameManager extends GameManager implements IBorderGam
 	 * @param craftsmen - Craftsman position
 	 */
 	private getCraftsmanMoveAction(craftsmen: CraftsmenPosition): ActionDto | null {
-		const positions = craftsmen.x1xh1ywy(this.width, this.height);
+		const positions = this.getPositionsWillGoto(craftsmen);
 
-		// Initial min index and minInstance
-		let minIndex = 0;
-		let minDistance = Infinity;
+		for (const pos of positions) {
+			this.goingTo.write(pos, pos);
 
-		for (let i = 0; i < positions.length; i++) {
-			const pos = positions[i];
-			const distance = pos.distance(craftsmen);
+			const moveActions = craftsmen.getNextActionsToGoToPosition(pos);
 
-			// If distance is greater than min distance, continue
-			if (distance >= minDistance) continue;
+			for (const action of moveActions) {
+				if (!this.canCrafsmenDoAction(craftsmen, action)) continue;
 
-			// Else if distance is equal to min distance, check if it is better
-			minIndex = i;
-			minDistance = distance;
-		}
-
-		const pos = positions[minIndex];
-
-		const moveActions = craftsmen.getNextActionsToGoToPosition(pos);
-
-		for (const action of moveActions) {
-			if (!this.canCrafsmenDoAction(craftsmen, action)) continue;
-
-			return action;
+				return action;
+			}
 		}
 
 		return null;
@@ -66,8 +58,27 @@ export default class BorderGameManager extends GameManager implements IBorderGam
 
 		// If there is a build action, return it
 		for (let i = 0; i < nears.length; i++) {
-			if (!this.willBuildWall(nears[i])) continue;
+			if (!this.willBuildWall(nears[i], craftsmen.side)) continue;
 			return craftsmen.getBuildAction(buildDestroyActionParams[i]);
+		}
+
+		return null;
+	}
+
+	/**
+	 * @description Get destroy action for craftsmen
+	 * @param craftsmen - Craftsman position
+	 * @returns Destroy action
+	 */
+	private getCrafsmenDestroyAction(craftsmen: CraftsmenPosition): ActionDto | null {
+		const nears = craftsmen.topRightBottomLeft();
+
+		// If there is a build action, return it
+		for (let i = 0; i < nears.length; i++) {
+			if (!this.hashedWalls.exist(nears[i])) continue;
+			if (this.hashedWalls.read(nears[i])!.side === craftsmen.side) continue;
+
+			return craftsmen.getDestroyAction(buildDestroyActionParams[i]);
 		}
 
 		return null;
@@ -78,10 +89,50 @@ export default class BorderGameManager extends GameManager implements IBorderGam
 	 * @param pos - Position
 	 * @returns True if can do action
 	 */
-	private willBuildWall(pos: Position): boolean {
+	private willBuildWall(pos: Position, side: EWallSide): boolean {
+		if (this.hashedWalls.read(pos) && this.hashedWalls.read(pos)!.side === side) return false;
+
 		if (pos.x === 0 || pos.y === 0) return true;
 		if (pos.x === this.width - 1 || pos.y === this.height - 1) return true;
 
 		return false;
+	}
+
+	/**
+	 * @description Get craftsmen will goto positions
+	 * @param craftmen - Craftsman position
+	 * @returns List of positions
+	 */
+	private getPositionsWillGoto(craftmen: CraftsmenPosition): Position[] {
+		const MAX_LOOP = 1000;
+		const visited = new HashedType<boolean>();
+
+		const queue = craftmen.x1xh1ywy(this.width, this.height);
+		const results: Position[] = [];
+
+		let loop = 0;
+
+		while (queue.length) {
+			if (loop > MAX_LOOP) break;
+			loop++;
+
+			const pos = queue.shift()!;
+
+			// If position is visited, continue
+			if (visited.exist(pos)) continue;
+			// Else, mark it as visited
+			visited.write(pos, true);
+
+			const nears = pos.topRightBottomLeft();
+
+			const willBuildable = nears.some((near) => this.willBuildWall(near, craftmen.side));
+			if (!willBuildable) continue;
+
+			results.push(pos);
+
+			queue.push(...nears);
+		}
+
+		return results.sort((a, b) => a.distance(craftmen) - b.distance(craftmen));
 	}
 }
