@@ -3,7 +3,6 @@ import IGameStateData from '@/game/interfaces/IGameStateData';
 import Action from '@/models/Action';
 import GameAction from '@/models/GameAction';
 import { DoubleRightOutlined, FormatPainterFilled, StopOutlined, UserOutlined } from '@ant-design/icons';
-import { Tooltip } from 'antd';
 import clsx from 'clsx';
 import React, { useMemo, useState } from 'react';
 import Castle from '../castle';
@@ -24,9 +23,9 @@ export interface GameBoardProps {
 }
 
 function renderCraftsmen(craftmen: CraftsmenPosition) {
-	if (craftmen.side === 'A') return <CraftsmenA id={craftmen.id} />;
+	if (craftmen.side === 'A') return <CraftsmenA />;
 
-	return <CraftsmenB id={craftmen.id} />;
+	return <CraftsmenB />;
 }
 
 interface MapProps {
@@ -145,7 +144,7 @@ export default function GameBoard({ state, action }: GameBoardProps) {
 						className={styles.position}
 						style={{
 							transform: `translate(${castle.x * 33 + 1}px, ${castle.y * 33 + 1}px)`,
-							zIndex: state.height,
+							zIndex: castle.y,
 						}}
 					>
 						<Castle />
@@ -156,33 +155,24 @@ export default function GameBoard({ state, action }: GameBoardProps) {
 					const action = hashedActions[craftsmen.id];
 
 					return (
-						<Tooltip
-							key={craftsmen.id}
-							title={
-								<div style={{ fontSize: 12 }}>
-									{iconMap[action?.action as keyof typeof iconMap]} {action?.action_param}
-								</div>
-							}
-							open={!!action}
-							zIndex={99}
-							placement='top'
-							arrow={false}
-							overlayInnerStyle={{
-								border: '1px dashed #fff',
-								background: '#00000090',
-								fontWeight: 'bold',
+						<div
+							className={styles.craftsmen}
+							style={{
+								transform: `translate(${craftsmen.x * 33 - 2}px, ${craftsmen.y * 33 - 2}px)`,
+								zIndex: craftsmen.y + 1,
 							}}
+							key={craftsmen.id}
 						>
 							<div
-								className={styles.craftsmen}
-								style={{
-									transform: `translate(${craftsmen.x * 33 - 2}px, ${craftsmen.y * 33 - 2}px)`,
-									zIndex: state.height,
-								}}
+								className={clsx(styles.actionTooltip, styles[craftsmen.side], {
+									[styles.show]: !!action,
+								})}
 							>
-								{renderCraftsmen(craftsmen)}
+								<div>{iconMap[action?.action as keyof typeof iconMap]}</div>
+								{action?.action_param && <span>{action.action_param}</span>}
 							</div>
-						</Tooltip>
+							{renderCraftsmen(craftsmen)}
+						</div>
 					);
 				})}
 				<div
