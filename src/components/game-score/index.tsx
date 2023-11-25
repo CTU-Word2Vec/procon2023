@@ -4,6 +4,7 @@ import { Descriptions, Space } from 'antd';
 import clsx from 'clsx';
 import Chart from 'react-apexcharts';
 import styles from './index.module.scss';
+import { mainChartOptions, sideChartOptions } from './options';
 
 export interface GameScoreProps {
 	state: IGameStateData;
@@ -29,50 +30,7 @@ export default function GameScore({ state }: GameScoreProps) {
 							<div className={styles.total}>{state.scores[side].total}</div>
 							<Chart
 								type='area'
-								options={{
-									stroke: {
-										curve: 'smooth',
-										width: 2,
-									},
-									grid: { show: false },
-									chart: {
-										toolbar: {
-											show: false,
-										},
-										height: 100,
-										zoom: { enabled: false },
-										animations: {
-											enabled: true,
-											easing: 'easeinout',
-											dynamicAnimation: {
-												speed: 1000,
-											},
-										},
-										stacked: true,
-									},
-									xaxis: {
-										labels: {
-											show: false,
-										},
-										axisBorder: {
-											show: false,
-										},
-										axisTicks: {
-											show: false,
-										},
-									},
-									yaxis: {
-										labels: {
-											show: false,
-										},
-									},
-									dataLabels: {
-										enabled: false,
-									},
-									legend: {
-										show: false,
-									},
-								}}
+								options={sideChartOptions}
 								series={keys.map((key) => ({
 									name: key,
 									data: state.scoresHistory[side].map((score) => score[key as keyof typeof score]),
@@ -103,29 +61,7 @@ export default function GameScore({ state }: GameScoreProps) {
 					data: state.scoresHistory[side].map((score) => score.total),
 					color: colors[side],
 				}))}
-				options={{
-					stroke: {
-						curve: 'smooth',
-						width: 2,
-						colors: ['#06619e', '#009c15'],
-					},
-					chart: {
-						toolbar: {
-							show: false,
-						},
-						height: 400,
-						zoom: { enabled: false },
-						animations: {
-							enabled: true,
-							easing: 'easeinout',
-						},
-					},
-					xaxis: {
-						labels: {
-							show: false,
-						},
-					},
-				}}
+				options={mainChartOptions}
 			/>
 		</Space>
 	);
