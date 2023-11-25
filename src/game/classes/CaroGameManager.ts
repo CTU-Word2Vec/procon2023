@@ -28,18 +28,16 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 
 		// Get next position for the craftsman
 		const pos = this.getNextPosition(craftmen);
+		if (!pos) return craftmen.getStayAction();
 
-		if (pos) {
-			// If the craftsman can go to the position, go to it
-			const nextActions = this.getActionToGoToPosition(craftmen, pos);
-			if (nextActions) return nextActions;
-		}
+		// If the craftsman can go to the position, go to it
+		const nextAction = this.getActionToGoToPosition(craftmen, pos);
+		if (!nextAction) return craftmen.getStayAction();
+
+		this.goingTo.write(pos, pos);
 
 		// If the craftsman can not do anything, stay
-		return {
-			action: 'STAY',
-			craftsman_id: craftmen.id,
-		};
+		return nextAction;
 	}
 
 	/**
@@ -109,6 +107,8 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 			// If the craftsman can not destroy a wall at the position, continue
 			if (!this.willSelfDestroy(near, craftsmen.side)) continue;
 
+			this.goingTo.write(craftsmen, craftsmen);
+
 			return craftsmen.getDestroyAction(actionParam);
 		}
 
@@ -150,6 +150,8 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 
 		if (!actionParam) return null;
 
+		this.goingTo.write(craftmen, craftmen);
+
 		return craftmen.getBuildAction(actionParam);
 	}
 
@@ -184,6 +186,7 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 	 * @returns Whether the craftsman will be able to build a wall at the position
 	 */
 	private willBeBuild(pos: Position, side: EWallSide): boolean {
+		if (this.goingTo.exist(pos)) return false;
 		// If the position is not valid, return false
 		if (!this.canCraftsmenBuildWall(pos)) return false;
 
@@ -265,6 +268,8 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 	 * @returns Whether the craftsman can build or destroy at the position
 	 */
 	private canBuildOrDestroy(pos: Position, side: EWallSide): boolean {
+		if (this.goingTo.exist(pos)) return false;
+
 		// Get the positions around the position
 		const positions = pos.topRightBottomLeft();
 
