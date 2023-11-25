@@ -123,6 +123,15 @@ export default class Position extends BasePosition implements IPosition {
 		return new Position(x, y);
 	}
 
+	public x0xh0ywy(width: number, height: number): [Position, Position, Position, Position] {
+		return [
+			new Position(this.x, 0),
+			new Position(this.x, height - 1),
+			new Position(0, this.y),
+			new Position(width - 1, this.y),
+		];
+	}
+
 	/**
 	 * @description Get Manhattan distance between two positions
 	 * @param pos Position to calculate distance

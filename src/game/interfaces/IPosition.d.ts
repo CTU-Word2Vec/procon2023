@@ -222,4 +222,11 @@ export default interface IPosition extends IBasePosition {
 	 * console.log(isEqual) // true
 	 */
 	isEquals(pos: Position): boolean;
+
+	/**
+	 * @description Get 4 positions [(x, 0), (x, height - 1), (0, y), (width - 1, y)]
+	 * @param width - Width of the map
+	 * @param height - Height of the map
+	 */
+	x0xh0ywy(width: number, height: number): [IPosition, IPosition, IPosition, IPosition];
 }

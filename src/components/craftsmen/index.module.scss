@@ -6,6 +6,9 @@
 	border-style: dashed;
 
 	img {
+		width: 32px;
+		height: 32px;
+		object-fit: contain;
 		filter: drop-shadow(2px 2px 0px #00117390);
 		scale: 1.2;
 	}

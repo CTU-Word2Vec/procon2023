@@ -1,5 +1,6 @@
 export { default as IBaseGameManager } from './IBaseGameManager';
 export { default as IBasePosition } from './IBasePosition';
+export { default as IBorderGameManager } from './IBorderGameManager';
 export { default as ICaroGameManager } from './ICaroGameManager';
 export { default as ICraftsmenPosition } from './ICraftsmenPosition';
 export { default as IGameManager } from './IGameManager';

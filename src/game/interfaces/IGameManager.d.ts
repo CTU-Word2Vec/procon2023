@@ -6,7 +6,7 @@ import IGameStateData from './IGameStateData';
  * @description Game manager
  * @extends IBaseGameManager
  */
-export default interface GameManager extends IBaseGameManager {
+export default interface IGameManager extends IBaseGameManager {
 	/**
 	 *
 	 * @returns Game state data

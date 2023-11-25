@@ -158,7 +158,7 @@ export default function GameBoard({ state, action }: GameBoardProps) {
 						<div
 							className={styles.craftsmen}
 							style={{
-								transform: `translate(${craftsmen.x * 33 - 2}px, ${craftsmen.y * 33 - 2}px)`,
+								transform: `translate(${craftsmen.x * 33 - 1}px, ${craftsmen.y * 33 - 1}px)`,
 								zIndex: craftsmen.y + 1,
 							}}
 							key={craftsmen.id}

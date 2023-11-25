@@ -1,4 +1,4 @@
-import CaroGameManager from '@/game/classes/CaroGameManager';
+import BorderGameManager from '@/game/classes/BorderGameManager';
 import { EWallSide } from '@/game/enums/EWallSide';
 import IGameStateData from '@/game/interfaces/IGameStateData';
 import Action from '@/models/Action';
@@ -23,7 +23,7 @@ export default async function playTest({
 	const delayTime = settingService.replayDelay;
 
 	const actions: GameAction[] = [];
-	const gameManager = new CaroGameManager(field, numberOfTurns);
+	const gameManager = new BorderGameManager(field, numberOfTurns);
 
 	for (let i = 1; i <= numberOfTurns; i++) {
 		const turnOf: EWallSide = i % 2 !== 0 ? 'A' : 'B';
