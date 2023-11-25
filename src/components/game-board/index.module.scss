@@ -48,6 +48,33 @@ $inner-border-color: #001eb3;
 	left: 0;
 	top: 0;
 	transition: 0.4s ease;
+
+	.id {
+		position: absolute;
+		top: 100%;
+		left: 50%;
+		transform: translate(-50%);
+		background: #000;
+		color: #fff;
+		font-size: xx-small;
+		border-radius: 100px;
+		font-weight: bold;
+		padding: 2px;
+		text-align: center;
+		border: 1px solid #fff;
+	}
+
+	&.A {
+		& > .id {
+			background: #020061;
+		}
+	}
+
+	&.B {
+		& > .id {
+			background: #096e00;
+		}
+	}
 }
 
 .position {
@@ -129,10 +156,6 @@ $inner-border-color: #001eb3;
 	border-color: #fff;
 	font-size: small;
 	border-radius: 100px;
-
-	& > span {
-		padding-right: 5px;
-	}
 
 	&.A {
 		& > div {

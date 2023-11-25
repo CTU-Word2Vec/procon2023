@@ -2,7 +2,16 @@ import CraftsmenPosition from '@/game/classes/CraftsmenPosition';
 import IGameStateData from '@/game/interfaces/IGameStateData';
 import Action from '@/models/Action';
 import GameAction from '@/models/GameAction';
-import { DoubleRightOutlined, FormatPainterFilled, StopOutlined, UserOutlined } from '@ant-design/icons';
+import {
+	ArrowDownOutlined,
+	ArrowLeftOutlined,
+	ArrowRightOutlined,
+	ArrowUpOutlined,
+	DoubleRightOutlined,
+	FormatPainterFilled,
+	StopOutlined,
+	UserOutlined,
+} from '@ant-design/icons';
 import clsx from 'clsx';
 import React, { useMemo, useState } from 'react';
 import Castle from '../castle';
@@ -15,6 +24,43 @@ const iconMap = {
 	DESTROY: <StopOutlined />,
 	BUILD: <FormatPainterFilled />,
 	MOVE: <DoubleRightOutlined />,
+};
+
+const actionParamMap = {
+	UP: <ArrowUpOutlined />,
+	DOWN: <ArrowDownOutlined />,
+	LEFT: <ArrowLeftOutlined />,
+	RIGHT: <ArrowRightOutlined />,
+	ABOVE: <ArrowUpOutlined />,
+	BELOW: <ArrowDownOutlined />,
+	UPPER_LEFT: (
+		<ArrowUpOutlined
+			style={{
+				transform: 'rotate(45deg)',
+			}}
+		/>
+	),
+	UPPER_RIGHT: (
+		<ArrowUpOutlined
+			style={{
+				transform: 'rotate(135deg)',
+			}}
+		/>
+	),
+	LOWER_LEFT: (
+		<ArrowUpOutlined
+			style={{
+				transform: 'rotate(-135deg)',
+			}}
+		/>
+	),
+	LOWER_RIGHT: (
+		<ArrowUpOutlined
+			style={{
+				transform: 'rotate(-45deg)',
+			}}
+		/>
+	),
 };
 
 export interface GameBoardProps {
@@ -158,7 +204,7 @@ export default function GameBoard({ state, action }: GameBoardProps) {
 						<div
 							className={clsx(styles.craftsmen, styles[craftsmen.side])}
 							style={{
-								transform: `translate(${craftsmen.x * 33 - 1}px, ${craftsmen.y * 33 - 1}px)`,
+								transform: `translate(${craftsmen.x * 33}px, ${craftsmen.y * 33}px)`,
 								zIndex: craftsmen.y + 1,
 							}}
 							key={craftsmen.id}
@@ -169,9 +215,13 @@ export default function GameBoard({ state, action }: GameBoardProps) {
 								})}
 							>
 								<div>{iconMap[action?.action as keyof typeof iconMap]}</div>
-								{action?.action_param && <span>{action.action_param}</span>}
+								{action?.action_param && (
+									<div>{actionParamMap[action?.action_param as keyof typeof actionParamMap]}</div>
+								)}
 							</div>
 							{renderCraftsmen(craftsmen)}
+
+							<div className={styles.id}>{craftsmen.id}</div>
 						</div>
 					);
 				})}
