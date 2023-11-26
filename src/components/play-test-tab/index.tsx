@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import GameManager from '@/game/classes/GameManager';
 import { EGameMode, gameModes } from '@/game/enums/EGameMode';
-import IGameStateData from '@/game/interfaces/IGameStateData';
 import Field from '@/models/Field';
 import GameAction from '@/models/GameAction';
+import { RootState } from '@/store';
+import { setCurrentAction, setGameState } from '@/store/gameState';
 import playTest from '@/utils/playTest';
 import { RandomFieldOptions } from '@/utils/randomField';
 import { BugOutlined, ThunderboltOutlined } from '@ant-design/icons';
@@ -11,13 +12,10 @@ import { Button, Card, Collapse, Descriptions, Empty, Form, InputNumber, Progres
 import DescriptionsItem from 'antd/es/descriptions/Item';
 import FormItem from 'antd/es/form/FormItem';
 import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import ActionList from '../action-list';
 
-export interface PlayRealTabProps {
-	gameState?: IGameStateData;
-	onGameStateChange(gameState: IGameStateData): void;
-	onAddAction?(action?: GameAction): void;
-}
+export interface PlayRealTabProps {}
 
 const initialRandomFieldOptions: RandomFieldOptions = {
 	width: 20,
@@ -30,7 +28,7 @@ const initialRandomFieldOptions: RandomFieldOptions = {
 	numOfPonds: 5,
 };
 
-export default function PlayTestTab({ gameState, onGameStateChange, onAddAction }: PlayRealTabProps) {
+export default function PlayTestTab() {
 	const [actions, setActions] = useState<GameAction[]>([]);
 	const [isPlayingTest, setIsPlayingTest] = useState(false);
 	const [randomedField, setRandomedField] = useState<Field>();
@@ -39,14 +37,19 @@ export default function PlayTestTab({ gameState, onGameStateChange, onAddAction 
 	const [sideBMode, setSideBMode] = useState<EGameMode>('Border');
 	const [isRandoming, setIsRandoming] = useState(false);
 
+	const gameState = useSelector((state: RootState) => state.gameState.gameState);
+	const dispatch = useDispatch();
+
 	const handleRandomField = (values: RandomFieldOptions) => {
 		try {
 			setIsRandoming(true);
 			const gameManager = GameManager.randomGame(values);
 			setRandomedField(gameManager.toObject());
 
-			onGameStateChange(gameManager.toObject());
-			onAddAction?.();
+			dispatch(setGameState(gameManager.toObject()));
+
+			// Set current action to undefined
+			dispatch(setCurrentAction(undefined));
 		} catch (error: any) {
 			message.error(error.message);
 		} finally {
@@ -62,17 +65,18 @@ export default function PlayTestTab({ gameState, onGameStateChange, onAddAction 
 				field: randomedField!,
 				sideAMode,
 				sideBMode,
-				onGameStateChange,
+				onGameStateChange: (gameState) => dispatch(setGameState(gameState)),
 				onGameActionsChange: (actions) => {
 					setActions(actions);
-					onAddAction?.(actions[actions.length - 1]);
+
+					dispatch(setCurrentAction({ ...actions[actions.length - 1] }));
 				},
 			});
 		} catch (error: any) {
 			message.error(error.message);
 		} finally {
 			setIsPlayingTest(false);
-			onAddAction?.();
+			dispatch(setCurrentAction(undefined));
 		}
 	};
 

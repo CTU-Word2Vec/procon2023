@@ -3,9 +3,9 @@ import { App as AntdApp, Col, Empty, Row, Spin, Tabs } from 'antd';
 import { Suspense, lazy, useState } from 'react';
 import AppHeader from './components/app-header';
 
+import { useSelector } from 'react-redux';
 import GameBoardWrapper from './components/game-board-wrapper';
-import IGameStateData from './game/interfaces/IGameStateData';
-import GameAction from './models/GameAction';
+import { RootState } from './store';
 
 const GameScore = lazy(() => import('./components/game-score'));
 const GameBoard = lazy(() => import('./components/game-board'));
@@ -13,9 +13,10 @@ const PlayTestTab = lazy(() => import('./components/play-test-tab'));
 const PlayRealTab = lazy(() => import('./components/play-real-tab'));
 
 function App() {
-	const [gameState, setGameState] = useState<IGameStateData>();
 	const [activeKey, setActiveKey] = useState('play-real');
-	const [currentAction, setCurrentAction] = useState<GameAction | null>();
+
+	const gameState = useSelector((state: RootState) => state.gameState.gameState);
+	const currentAction = useSelector((state: RootState) => state.gameState.currentAction);
 
 	return (
 		<AntdApp>
@@ -59,11 +60,7 @@ function App() {
 								key: 'play-real',
 								children: (
 									<Suspense fallback={<Spin />}>
-										<PlayRealTab
-											gameState={gameState}
-											onGameStateChange={setGameState}
-											onAddAction={setCurrentAction}
-										/>
+										<PlayRealTab />
 									</Suspense>
 								),
 							},
@@ -77,11 +74,7 @@ function App() {
 								key: 'real-test',
 								children: (
 									<Suspense fallback={<Spin />}>
-										<PlayTestTab
-											gameState={gameState}
-											onGameStateChange={setGameState}
-											onAddAction={setCurrentAction}
-										/>
+										<PlayTestTab />
 									</Suspense>
 								),
 							},

@@ -48,5 +48,5 @@ const orderMap = {
  * // ]
  */
 export default function sortActions(actions: Action[]) {
-	return actions.sort((a, b) => orderMap[a.action] - orderMap[b.action]);
+	return [...actions].sort((a, b) => orderMap[a.action] - orderMap[b.action]);
 }

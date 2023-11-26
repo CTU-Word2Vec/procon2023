@@ -2,27 +2,25 @@
 import GameManager from '@/game/classes/GameManager';
 import { EGameMode, gameModes } from '@/game/enums/EGameMode';
 import { EWallSide } from '@/game/enums/EWallSide';
-import IGameStateData from '@/game/interfaces/IGameStateData';
 import Game from '@/models/Game';
 import GameAction from '@/models/GameAction';
 import playerService from '@/services/player.service';
+import { RootState } from '@/store';
+import { setCurrentAction, setGameState } from '@/store/gameState';
 import playReal from '@/utils/playReal';
 import replay from '@/utils/replay';
 import { PlayCircleOutlined, ReloadOutlined, SearchOutlined, UserOutlined } from '@ant-design/icons';
 import { Button, Descriptions, Empty, Input, Select, Space, message } from 'antd';
 import DescriptionsItem from 'antd/es/descriptions/Item';
 import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import ActionList from '../action-list';
 import CountDown from '../count-down';
 import GameInfo from '../game-info';
 
-export interface PlayRealTabProps {
-	gameState?: IGameStateData;
-	onGameStateChange(gameState: IGameStateData): void;
-	onAddAction?(action?: GameAction): void;
-}
+export interface PlayRealTabProps {}
 
-export default function PlayRealTab({ gameState, onGameStateChange, onAddAction }: PlayRealTabProps) {
+export default function PlayRealTab() {
 	const [gameId, setGameId] = useState('');
 	const [game, setGame] = useState<Game>();
 
@@ -38,36 +36,47 @@ export default function PlayRealTab({ gameState, onGameStateChange, onAddAction 
 
 	const [messageApi, contextHolder] = message.useMessage();
 
-	const handlePlayReal = () => {
-		setIsPlaying(true);
-		playReal({
-			game: game!,
-			side,
-			onGameStateChange,
-			onGameActionsChange(actions) {
-				setCurrentGameActions(actions);
-				onAddAction?.(actions[actions.length - 1]);
-			},
-		}).finally(() => {
+	const gameState = useSelector((state: RootState) => state.gameState.gameState);
+	const dispatch = useDispatch();
+
+	const handlePlayReal = async () => {
+		try {
+			setIsPlaying(true);
+			await playReal({
+				game: game!,
+				side,
+				onGameStateChange: (gameState) => dispatch(setGameState(gameState)),
+				onGameActionsChange(actions) {
+					setCurrentGameActions(actions);
+					dispatch(setCurrentAction(actions[actions.length - 1]));
+				},
+			});
+		} catch (error: any) {
+			message.error(error.message);
+		} finally {
 			setIsPlaying(false);
-			onAddAction?.();
-		});
+			dispatch(setCurrentAction(undefined));
+		}
 	};
 
-	const handleReplay = () => {
-		setIsReplaying(true);
-		replay({
-			game: game!,
-			actions: baseGameActions,
-			onGameStateChange,
-			onActionsChange(actions) {
-				setCurrentGameActions(actions);
-				onAddAction?.(actions[actions.length - 1]);
-			},
-		}).finally(() => {
+	const handleReplay = async () => {
+		try {
+			setIsReplaying(true);
+			await replay({
+				game: game!,
+				actions: baseGameActions,
+				onGameStateChange: (gameState) => dispatch(setGameState(gameState)),
+				onActionsChange(actions) {
+					setCurrentGameActions(actions);
+					dispatch(setCurrentAction(actions[actions.length - 1]));
+				},
+			});
+		} catch (error: any) {
+			message.error(error.message);
+		} finally {
 			setIsReplaying(false);
-			onAddAction?.();
-		});
+			setCurrentAction(undefined);
+		}
 	};
 
 	const handleGetGameData = async () => {
@@ -78,7 +87,7 @@ export default function PlayRealTab({ gameState, onGameStateChange, onAddAction 
 				throw new Error('Please provide the id of game');
 			}
 
-			onAddAction?.();
+			setCurrentAction(undefined);
 
 			setIsLoadingGame(true);
 			messageApi.open({
@@ -95,7 +104,8 @@ export default function PlayRealTab({ gameState, onGameStateChange, onAddAction 
 			const gameManager = new GameManager(game.field, game.num_of_turns);
 			gameManager.addActions(currentActions);
 
-			onGameStateChange(gameManager.toObject());
+			// Dispatch game state to redux
+			dispatch(setGameState(gameManager.toObject()));
 			setCurrentGameActions(currentActions);
 			setBaseGameActions(baseActions);
 
