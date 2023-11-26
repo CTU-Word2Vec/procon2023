@@ -48,7 +48,7 @@ export default function PlayRealTab() {
 				onGameStateChange: (gameState) => dispatch(setGameState(gameState)),
 				onGameActionsChange(actions) {
 					setCurrentGameActions(actions);
-					dispatch(setCurrentAction(actions[actions.length - 1]));
+					dispatch(setCurrentAction({ ...actions[actions.length - 1] }));
 				},
 			});
 		} catch (error: any) {
@@ -68,7 +68,7 @@ export default function PlayRealTab() {
 				onGameStateChange: (gameState) => dispatch(setGameState(gameState)),
 				onActionsChange(actions) {
 					setCurrentGameActions(actions);
-					dispatch(setCurrentAction(actions[actions.length - 1]));
+					dispatch(setCurrentAction({ ...actions[actions.length - 1] }));
 				},
 			});
 		} catch (error: any) {
