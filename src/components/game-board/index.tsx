@@ -36,14 +36,14 @@ const actionParamMap = {
 	UPPER_LEFT: (
 		<ArrowUpOutlined
 			style={{
-				transform: 'rotate(45deg)',
+				transform: 'rotate(-45deg)',
 			}}
 		/>
 	),
 	UPPER_RIGHT: (
 		<ArrowUpOutlined
 			style={{
-				transform: 'rotate(135deg)',
+				transform: 'rotate(-45deg)',
 			}}
 		/>
 	),
@@ -57,7 +57,7 @@ const actionParamMap = {
 	LOWER_RIGHT: (
 		<ArrowUpOutlined
 			style={{
-				transform: 'rotate(-45deg)',
+				transform: 'rotate(135deg)',
 			}}
 		/>
 	),
