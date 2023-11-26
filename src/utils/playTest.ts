@@ -60,7 +60,7 @@ export default async function playTest({
 		sideAgameManager.addActions(actions);
 		sideBgameManager.addActions(actions);
 
-		onGameStateChange(sideAgameManager.getData());
+		onGameStateChange(sideAgameManager.toObject());
 
 		await wait(delayTime);
 	}

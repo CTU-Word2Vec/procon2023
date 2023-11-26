@@ -53,13 +53,15 @@ export default class GameStateData implements IGameStateData {
 		public walls: WallPosition[],
 
 		public lastTurn = 0,
-		public hashedCraftmens: HashedType<CraftsmenPosition>,
-		public hashedWalls: HashedType<WallPosition>,
-		public hashedPonds: HashedType<Position>,
-		public hashedCastles: HashedType<Position>,
 
-		public goingTo: HashedType<Position>,
-		public hashedSide: HashedType<EWallSide>,
+		protected hashedCraftmens: HashedType<CraftsmenPosition>,
+		protected hashedWalls: HashedType<WallPosition>,
+		protected hashedPonds: HashedType<Position>,
+		protected hashedCastles: HashedType<Position>,
+
+		protected goingTo: HashedType<Position>,
+		protected hashedSide: HashedType<EWallSide>,
+
 		public sides: IPositionData<EWallSide>[],
 
 		public scores: {

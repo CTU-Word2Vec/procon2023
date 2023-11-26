@@ -1,4 +1,4 @@
-import CraftsmenPosition from '@/game/classes/CraftsmenPosition';
+import { ICraftsmenPosition } from '@/game/interfaces';
 import IGameStateData from '@/game/interfaces/IGameStateData';
 import Action from '@/models/Action';
 import GameAction from '@/models/GameAction';
@@ -68,7 +68,7 @@ export interface GameBoardProps {
 	action?: GameAction | null;
 }
 
-function renderCraftsmen(craftmen: CraftsmenPosition) {
+function renderCraftsmen(craftmen: ICraftsmenPosition) {
 	if (craftmen.side === 'A') return <CraftsmenA />;
 
 	return <CraftsmenB />;

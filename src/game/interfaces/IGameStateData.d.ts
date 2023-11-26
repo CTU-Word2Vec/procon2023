@@ -1,7 +1,5 @@
-import CraftsmenPosition from '../classes/CraftsmenPosition';
-import { HashedType, PositionData } from '../classes/HashedType';
-import { Position } from '../classes/Position';
-import { EWallSide, WallPosition } from '../classes/WallPosition';
+import { ICraftsmenPosition, IPosition, IPositionData, IWallPosition } from '.';
+import { EWallSide } from '../classes/WallPosition';
 import IScores from './IScores';
 
 /**
@@ -51,22 +49,22 @@ export default interface IGameStateData {
 	/**
 	 * @description Position of ponds
 	 */
-	ponds: Position[];
+	ponds: IPosition[];
 
 	/**
 	 * @description Position of castles
 	 */
-	castles: Position[];
+	castles: IPosition[];
 
 	/**
 	 * @description Position of craftsmen
 	 */
-	craftsmen: CraftsmenPosition[];
+	craftsmen: ICraftsmenPosition[];
 
 	/**
 	 * @description Position of walls
 	 */
-	walls: WallPosition[];
+	walls: IWallPosition[];
 
 	/**
 	 * @description Turn of lastest action has been added
@@ -74,39 +72,9 @@ export default interface IGameStateData {
 	lastTurn: number;
 
 	/**
-	 * @description Hashed position of craftsmens
-	 */
-	hashedCraftmens: HashedType<CraftsmenPosition>;
-
-	/**
-	 * @description Hashed position of walls
-	 */
-	hashedWalls: HashedType<WallPosition>;
-
-	/**
-	 * @description Hashed position of ponds
-	 */
-	hashedPonds: HashedType<Position>;
-
-	/**
-	 * @description Hashed position of castles
-	 */
-	hashedCastles: HashedType<Position>;
-
-	/**
-	 * @description Hashed position of going to
-	 */
-	goingTo: HashedType<Position>;
-
-	/**
-	 * @description Hashed side of walls
-	 */
-	hashedSide: HashedType<EWallSide>;
-
-	/**
 	 * @description List of sides
 	 */
-	sides: PositionData<EWallSide>[];
+	sides: IPositionData<EWallSide>[];
 
 	/**
 	 * @description Scores

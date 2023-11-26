@@ -28,7 +28,7 @@ export default async function replay({ game, actions, onGameStateChange, onActio
 		currentActions.push(action);
 		gameState.addActions(currentActions);
 
-		onGameStateChange?.(gameState.getData());
+		onGameStateChange?.(gameState.toObject());
 		onActionsChange?.(currentActions);
 
 		await wait(delayTime);

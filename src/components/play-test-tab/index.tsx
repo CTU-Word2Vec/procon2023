@@ -43,9 +43,9 @@ export default function PlayTestTab({ gameState, onGameStateChange, onAddAction 
 		try {
 			setIsRandoming(true);
 			const gameManager = GameManager.randomGame(values);
-			setRandomedField(gameManager.getData());
+			setRandomedField(gameManager.toObject());
 
-			onGameStateChange(gameManager.getData());
+			onGameStateChange(gameManager.toObject());
 			onAddAction?.();
 		} catch (error: any) {
 			message.error(error.message);

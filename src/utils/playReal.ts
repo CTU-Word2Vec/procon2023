@@ -38,7 +38,7 @@ export default async function playReal({ game, side, onGameStateChange, onGameAc
 
 	gameManager.addActions(actions);
 
-	onGameStateChange(gameManager.getData());
+	onGameStateChange(gameManager.toObject());
 
 	for (let i = 0; i <= game.num_of_turns; i++) {
 		const actions = await playerService.getGameActions(game.id);
@@ -47,7 +47,7 @@ export default async function playReal({ game, side, onGameStateChange, onGameAc
 
 		onGameActionsChange(actions);
 		gameManager.addActions(actions);
-		onGameStateChange(gameManager.getData());
+		onGameStateChange(gameManager.toObject());
 
 		if ((side === 'A' && cur_turn % 2 !== 0) || (side === 'B' && cur_turn % 2 === 0)) {
 			playerService

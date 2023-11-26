@@ -19,8 +19,8 @@ import WallPosition from './WallPosition';
 export default class GameManager extends BaseGameManager implements IGameManager {
 	private prevTurnScoreUpdated: number = 0;
 
-	public getData(): IGameStateData {
-		return { ...this };
+	public toObject(): IGameStateData {
+		return JSON.parse(JSON.stringify(this));
 	}
 
 	public addActions(actions: GameAction[]): void {

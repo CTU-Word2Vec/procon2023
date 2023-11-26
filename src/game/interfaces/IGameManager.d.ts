@@ -13,7 +13,7 @@ export default interface IGameManager extends IBaseGameManager {
 	 *
 	 * @returns Game state data
 	 */
-	getData(): IGameStateData;
+	toObject(): IGameStateData;
 
 	/**
 	 * @description Get position of craftsmen
