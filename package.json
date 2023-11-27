@@ -3,6 +3,16 @@
 	"private": true,
 	"version": "0.0.0",
 	"type": "module",
+	"description": "Procon 2023 - Castles game",
+	"author": {
+		"email": "root@thangved.com",
+		"name": "Kim Minh Thang",
+		"url": "https://thangved.com"
+	},
+	"repository": {
+		"url": "https://github.com/CTU-Word2Vec/procon2023",
+		"type": "git"
+	},
 	"scripts": {
 		"dev": "vite",
 		"build": "tsc && vite build",
