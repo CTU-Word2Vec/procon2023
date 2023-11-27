@@ -1,5 +1,6 @@
 import DefaultLayout from '@/layouts/default';
 import HomePage from '@/pages';
+import NotFoundPage from '@/pages/NotFound';
 import { createBrowserRouter } from 'react-router-dom';
 
 const router = createBrowserRouter([
@@ -12,6 +13,7 @@ const router = createBrowserRouter([
 				Component: HomePage,
 			},
 		],
+		errorElement: <NotFoundPage />,
 	},
 ]);
 

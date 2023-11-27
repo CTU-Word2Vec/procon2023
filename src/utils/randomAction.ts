@@ -1,21 +1,12 @@
-import { EAction } from '@/constants/action';
-import { EBuildDestryParam, EMoveParam } from '@/constants/action-params';
+import { actions } from '@/constants/action';
+import { buildDestroyActionParams, moveParams } from '@/constants/action-params';
 import { ActionDto } from '@/services';
 
-const actions: EAction[] = ['BUILD', 'DESTROY', 'MOVE', 'STAY'];
-const moveParams: EMoveParam[] = [
-	'DOWN',
-	'LEFT',
-	'LOWER_LEFT',
-	'LOWER_RIGHT',
-	'RIGHT',
-	'UP',
-	'UPPER_LEFT',
-	'UPPER_RIGHT',
-];
-
-const buildDestroyParams: EBuildDestryParam[] = ['ABOVE', 'BELOW', 'LEFT', 'RIGHT'];
-
+/**
+ * @description Random action
+ * @param craftsman_id - Craftsman id
+ * @returns - Action
+ */
 export default function randomAction(craftsman_id: string): ActionDto {
 	const action = actions[Math.floor(Math.random() * actions.length)];
 
@@ -30,7 +21,7 @@ export default function randomAction(craftsman_id: string): ActionDto {
 		case 'DESTROY':
 			return {
 				craftsman_id,
-				action_param: buildDestroyParams[Math.floor(Math.random() * buildDestroyParams.length)],
+				action_param: buildDestroyActionParams[Math.floor(Math.random() * buildDestroyActionParams.length)],
 				action,
 			};
 		case 'STAY':

@@ -1,20 +1,53 @@
-import CaroGameManager from '@/game/classes/CaroGameManager';
-import { EWallSide } from '@/game/enums';
+import { EGameMode, EWallSide } from '@/game/enums';
 import IGameStateData from '@/game/interfaces/IGameStateData';
 import Game from '@/models/Game';
 import GameAction from '@/models/GameAction';
 import playerService from '@/services/player.service';
 import { message } from 'antd';
+import { createGameManager } from '.';
 import wait from './wait';
 
+/**
+ * @description Play real options
+ */
 export interface PlayRealOptions {
+	/**
+	 * @description Game
+	 */
 	game: Game;
+	/**
+	 * @description Side
+	 */
 	side: EWallSide;
+	/**
+	 * @description Game mode
+	 */
+	gameMode?: EGameMode;
+	/**
+	 * @description On game state change
+	 * @param gameState - Game state
+	 * @returns Void
+	 */
 	onGameStateChange: (gameState: IGameStateData) => void;
+	/**
+	 * @description On game actions change
+	 * @param gameActions - Game actions
+	 * @returns Void
+	 */
 	onGameActionsChange: (gameActions: GameAction[]) => void;
 }
 
-export default async function playReal({ game, side, onGameStateChange, onGameActionsChange }: PlayRealOptions) {
+/**
+ * @description Play real
+ * @param options - Options
+ */
+export default async function playReal({
+	game,
+	side,
+	gameMode = 'Caro',
+	onGameStateChange,
+	onGameActionsChange,
+}: PlayRealOptions) {
 	const now = new Date();
 	const startTime = new Date(game.start_time);
 
@@ -32,7 +65,7 @@ export default async function playReal({ game, side, onGameStateChange, onGameAc
 		await wait(Math.max(0, startTime.getTime() - now.getTime()));
 	}
 
-	const gameManager = new CaroGameManager(game.field, game.num_of_turns);
+	const gameManager = createGameManager(game.field, game.num_of_turns, gameMode);
 
 	const actions = await playerService.getGameActions(game.id);
 

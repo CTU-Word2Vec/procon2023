@@ -1,4 +1,5 @@
 export { default as createClient } from './createClient';
+export { default as createGameManager } from './createGameManager';
 export { default as playReal, type PlayRealOptions } from './playReal';
 export { default as playTest, type PlayTestOptions } from './playTest';
 export { default as randomAction } from './randomAction';

@@ -5,7 +5,7 @@ import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { RouterProvider } from 'react-router-dom';
 import './index.css';
-import router from './router/index.ts';
+import router from './router/index.tsx';
 import store from './store/index.ts';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

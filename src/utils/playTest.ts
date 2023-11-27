@@ -1,5 +1,3 @@
-import { CaroGameManager, GameManager } from '@/game/classes';
-import BorderGameManager from '@/game/classes/BorderGameManager';
 import { EGameMode } from '@/game/enums';
 import { EWallSide } from '@/game/enums/EWallSide';
 import IGameStateData from '@/game/interfaces/IGameStateData';
@@ -7,14 +5,40 @@ import Action from '@/models/Action';
 import Field from '@/models/Field';
 import GameAction from '@/models/GameAction';
 import settingService from '@/services/setting.service';
+import { createGameManager } from '.';
 import wait from './wait';
 
+/**
+ * @description Play test options
+ */
 export interface PlayTestOptions {
+	/**
+	 * @description Number of turns
+	 */
 	numberOfTurns: number;
+	/**
+	 * @description Field
+	 */
 	field: Field;
+	/**
+	 * @description Side A mode
+	 */
 	sideAMode?: EGameMode;
+	/**
+	 * @description Side B mode
+	 */
 	sideBMode?: EGameMode;
+	/**
+	 * @description On game state change
+	 * @param gameState - Game state
+	 * @returns - Void
+	 */
 	onGameStateChange: (gameState: IGameStateData) => void;
+	/**
+	 * @description On game actions change
+	 * @param gameActions - Game actions
+	 * @returns - Void
+	 */
 	onGameActionsChange: (gameActions: GameAction[]) => void;
 }
 
@@ -63,16 +87,5 @@ export default async function playTest({
 		onGameStateChange(sideAgameManager.toObject());
 
 		await wait(delayTime);
-	}
-}
-
-function createGameManager(field: Field, numberOfTurns: number, gameMode: EGameMode): GameManager {
-	switch (gameMode) {
-		case 'Caro':
-			return new CaroGameManager(field, numberOfTurns);
-		case 'A*':
-			return new GameManager(field, numberOfTurns);
-		case 'Border':
-			return new BorderGameManager(field, numberOfTurns);
 	}
 }
