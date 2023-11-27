@@ -43,6 +43,9 @@ const GameDashboard = () => {
 
 function HomePage() {
 	const [activeKey, setActiveKey] = useState('play-real');
+	const auth = useSelector((state: RootState) => state.auth);
+
+	if (!auth) return <></>;
 
 	return (
 		<Row>
