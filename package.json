@@ -59,6 +59,7 @@
 		"sass": "^1.69.5",
 		"sharp": "^0.32.6",
 		"svgo": "^3.0.4",
+		"tree-kill": "^1.2.2",
 		"typedoc": "^0.25.3",
 		"typedoc-material-theme": "^1.0.0",
 		"typedoc-plugin-coverage": "^2.2.0",
