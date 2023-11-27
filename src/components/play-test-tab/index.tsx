@@ -11,7 +11,7 @@ import { BugOutlined, PauseOutlined, ThunderboltOutlined } from '@ant-design/ico
 import { Button, Card, Collapse, Descriptions, Empty, Form, InputNumber, Progress, Select, Space, message } from 'antd';
 import DescriptionsItem from 'antd/es/descriptions/Item';
 import FormItem from 'antd/es/form/FormItem';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import ActionList from '../action-list';
 
@@ -40,24 +40,27 @@ export default function PlayTestTab() {
 	const gameState = useSelector((state: RootState) => state.gameState.gameState);
 	const dispatch = useDispatch();
 
-	const handleRandomField = (values: RandomFieldOptions) => {
-		try {
-			setIsRandoming(true);
-			const gameManager = GameManager.randomGame(values);
-			setRandomedField(gameManager.toObject());
+	const handleRandomField = useCallback(
+		(values: RandomFieldOptions) => {
+			try {
+				setIsRandoming(true);
+				const gameManager = GameManager.randomGame(values);
+				setRandomedField(gameManager.toObject());
 
-			dispatch(setGameState(gameManager.toObject()));
+				dispatch(setGameState(gameManager.toObject()));
 
-			// Set current action to undefined
-			dispatch(setCurrentAction(undefined));
-		} catch (error: any) {
-			message.error(error.message);
-		} finally {
-			setIsRandoming(false);
-		}
-	};
+				// Set current action to undefined
+				dispatch(setCurrentAction(undefined));
+			} catch (error: any) {
+				message.error(error.message);
+			} finally {
+				setIsRandoming(false);
+			}
+		},
+		[dispatch],
+	);
 
-	const handlePlayTest = async () => {
+	const handlePlayTest = useCallback(async () => {
 		try {
 			setIsPlayingTest(true);
 			await playTest({
@@ -78,7 +81,7 @@ export default function PlayTestTab() {
 			setIsPlayingTest(false);
 			dispatch(setCurrentAction(undefined));
 		}
-	};
+	}, [dispatch, numberOfTurns, randomedField, sideAMode, sideBMode]);
 
 	const stopPlayTest = () => {
 		playTestState.playing = false;
@@ -191,6 +194,7 @@ export default function PlayTestTab() {
 							<Button
 								icon={<PauseOutlined />}
 								danger
+								type='primary'
 								disabled={!isPlayingTest}
 								onClick={stopPlayTest}
 							></Button>
