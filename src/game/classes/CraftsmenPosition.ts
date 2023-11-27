@@ -1,4 +1,4 @@
-import { EBuildDestryParam, EMoveParam } from '@/constants/action-params';
+import { EBuildDestryParam, EMoveParam, buildDestroyActionParams, moveParams } from '@/constants/action-params';
 import { ActionDto } from '@/services/player.service';
 import { EWallSide } from '../enums/EWallSide';
 import ICraftsmenPosition from '../interfaces/ICraftsmenPosition';
@@ -70,16 +70,7 @@ export default class CraftsmenPosition extends Position implements ICraftsmenPos
 	}
 
 	public getAllMoveActions(): ActionDto[] {
-		return [
-			this.moveUpAction(),
-			this.moveDownAction(),
-			this.moveLeftAction(),
-			this.moveRightAction(),
-			this.moveUpperLeftAction(),
-			this.moveUpperRightAction(),
-			this.moveLowerLeftAction(),
-			this.moveLowerRightAction(),
-		];
+		return moveParams.map((param) => this.moveAction(param));
 	}
 
 	public getNextActionsToGoToPosition(pos: Position): ActionDto[] {
@@ -162,5 +153,25 @@ export default class CraftsmenPosition extends Position implements ICraftsmenPos
 			action: 'DESTROY',
 			action_param: param,
 		};
+	}
+
+	public getAllActions(): ActionDto[] {
+		return [...this.getAllBuildActions(), ...this.getAllMoveActions(), ...this.getAllDestroyActions()];
+	}
+
+	/**
+	 * @description Get all actions that can be done by the craftsman
+	 * @returns All actions that can be done by the craftsman
+	 */
+	private getAllBuildActions(): ActionDto[] {
+		return buildDestroyActionParams.map((param) => this.getBuildAction(param));
+	}
+
+	/**
+	 * @description Get all actions that can be done by the craftsman
+	 * @returns All actions that can be done by the craftsman
+	 */
+	private getAllDestroyActions(): ActionDto[] {
+		return buildDestroyActionParams.map((param) => this.getDestroyAction(param));
 	}
 }
