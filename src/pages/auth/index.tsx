@@ -44,7 +44,14 @@ export default function AuthPage() {
 				<h2 className={styles.title}>Authentication</h2>
 
 				<Form.Item name='password' label='Password'>
-					<Input placeholder='Password' type='password' autoComplete='password' name='password' required />
+					<Input
+						placeholder='Password'
+						type='password'
+						autoComplete='password'
+						name='password'
+						required
+						autoFocus
+					/>
 				</Form.Item>
 
 				<Button htmlType='submit' type='primary' block loading={isLoading}>
