@@ -168,6 +168,7 @@ export default function PlayRealTab() {
 							<Button
 								icon={<PauseOutlined />}
 								danger
+								type='primary'
 								disabled={!isReplaying}
 								onClick={stopReplay}
 							></Button>
@@ -215,7 +216,13 @@ export default function PlayRealTab() {
 							Play
 						</Button>
 
-						<Button icon={<PauseOutlined />} danger disabled={!isPlaying} onClick={stopPlaying}></Button>
+						<Button
+							icon={<PauseOutlined />}
+							danger
+							type='primary'
+							disabled={!isPlaying}
+							onClick={stopPlaying}
+						></Button>
 					</Space>
 
 					{!!waitTime && (
