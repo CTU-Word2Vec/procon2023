@@ -246,6 +246,25 @@ export default class GameManager extends BaseGameManager implements IGameManager
 	}
 
 	/**
+	 * @description Get actions to go to position
+	 * @param craftsmen - Craftsmen
+	 * @returns Actions to go to position
+	 */
+	protected getAvailableActions(craftsmen: CraftsmenPosition): ActionDto[] {
+		return craftsmen.getAllActions().filter((action) => this.canCrafsmenDoAction(craftsmen, action));
+	}
+
+	protected getRandomAvailableActions(craftsmen: CraftsmenPosition): ActionDto[] {
+		const availableActions = this.getAvailableActions(craftsmen);
+
+		const randomIndexs = [
+			Math.floor(Math.random() * availableActions.length),
+			Math.floor(Math.random() * availableActions.length),
+		];
+
+		return [availableActions[randomIndexs[0]], availableActions[randomIndexs[1]]];
+	}
+	/**
 	 * @description Get side of position
 	 * @param pos - Position
 	 * @param currentSide - Current side

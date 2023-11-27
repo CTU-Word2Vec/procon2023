@@ -1,3 +1,4 @@
+export { default as IAStarGameManager } from './IAStarGameManager';
 export { default as IBaseGameManager } from './IBaseGameManager';
 export { default as IBasePosition } from './IBasePosition';
 export { default as IBorderGameManager } from './IBorderGameManager';
