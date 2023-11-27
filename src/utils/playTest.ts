@@ -43,6 +43,16 @@ export interface PlayTestOptions {
 }
 
 /**
+ * @description Play test state
+ */
+export const playTestState = {
+	/**
+	 * @description Playing
+	 */
+	playing: false,
+};
+
+/**
  * @description Play test
  * @param options - Options
  */
@@ -54,6 +64,9 @@ export default async function playTest({
 	onGameStateChange,
 	onGameActionsChange,
 }: PlayTestOptions) {
+	// Set playing state to true
+	playTestState.playing = true;
+
 	const delayTime = settingService.replayDelay;
 
 	const actions: GameAction[] = [];
@@ -65,7 +78,7 @@ export default async function playTest({
 		B: sideBgameManager,
 	};
 
-	for (let i = 1; i <= numberOfTurns; i++) {
+	for (let i = 1; i <= numberOfTurns && playTestState.playing; i++) {
 		const turnOf: EWallSide = i % 2 !== 0 ? 'A' : 'B';
 
 		const action = (await gameManagerMap[turnOf].getNextActionsAsync(turnOf)) as unknown as Action[];
@@ -88,4 +101,7 @@ export default async function playTest({
 
 		await wait(delayTime);
 	}
+
+	// Set playing state to false
+	playTestState.playing = false;
 }

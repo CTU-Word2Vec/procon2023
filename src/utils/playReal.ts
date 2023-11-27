@@ -35,7 +35,29 @@ export interface PlayRealOptions {
 	 * @returns Void
 	 */
 	onGameActionsChange: (gameActions: GameAction[]) => void;
+	/**
+	 * @description On wait time change
+	 * @param waitTime - Wait time
+	 * @returns Void
+	 */
+	onWaitTimeChange?: (waitTime: number) => void;
+	/**
+	 * @description On show count down
+	 * @param showCountDown - Show count down
+	 * @returns Void
+	 */
+	onShowCountDownChange?: (showCountDown: boolean) => void;
 }
+
+/**
+ * @description Play real state
+ */
+export const playRealState = {
+	/**
+	 * @description Playing
+	 */
+	playing: false,
+};
 
 /**
  * @description Play real
@@ -45,9 +67,14 @@ export default async function playReal({
 	game,
 	side,
 	gameMode = 'Caro',
+	onWaitTimeChange,
+	onShowCountDownChange,
 	onGameStateChange,
 	onGameActionsChange,
 }: PlayRealOptions) {
+	// Set playing state to true
+	playRealState.playing = true;
+
 	const now = new Date();
 	const startTime = new Date(game.start_time);
 
@@ -62,8 +89,14 @@ export default async function playReal({
 			nextTurn++;
 		}
 	} else {
-		await wait(Math.max(0, startTime.getTime() - now.getTime()));
+		const waitTime = Math.max(0, startTime.getTime() - now.getTime());
+
+		onWaitTimeChange?.(waitTime);
+		await wait(waitTime);
+		onWaitTimeChange?.(0);
 	}
+
+	onShowCountDownChange?.(true);
 
 	const gameManager = createGameManager(game.field, game.num_of_turns, gameMode);
 
@@ -73,7 +106,7 @@ export default async function playReal({
 
 	onGameStateChange(gameManager.toObject());
 
-	for (let i = 0; i <= game.num_of_turns; i++) {
+	for (let i = 0; i <= game.num_of_turns && playRealState.playing; i++) {
 		const actions = await playerService.getGameActions(game.id);
 
 		const { cur_turn } = await playerService.getGameStatus(game.id);
@@ -95,4 +128,9 @@ export default async function playReal({
 
 		await wait(remaining * 1000);
 	}
+
+	onShowCountDownChange?.(false);
+
+	// Set playing state to false
+	playRealState.playing = false;
 }

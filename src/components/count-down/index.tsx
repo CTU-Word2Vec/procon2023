@@ -7,13 +7,13 @@ export interface CountDownProps {
 }
 
 export default function CountDown({ seconds = 5 }: CountDownProps) {
-	const [count, setCount] = useState(0);
+	const [count, setCount] = useState(() => seconds);
 
 	useEffect(() => {
 		const timeout = window.setTimeout(() => {
 			setCount((prev) => {
-				if (prev === seconds) return 0;
-				return prev + 1;
+				if (prev === 0) return seconds;
+				return prev - 1;
 			});
 		}, 1000);
 

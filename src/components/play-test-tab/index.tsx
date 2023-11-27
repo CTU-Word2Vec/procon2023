@@ -5,9 +5,9 @@ import Field from '@/models/Field';
 import GameAction from '@/models/GameAction';
 import { RootState } from '@/store';
 import { setCurrentAction, setGameState } from '@/store/gameState';
-import playTest from '@/utils/playTest';
+import playTest, { playTestState } from '@/utils/playTest';
 import { RandomFieldOptions } from '@/utils/randomField';
-import { BugOutlined, ThunderboltOutlined } from '@ant-design/icons';
+import { BugOutlined, PauseOutlined, ThunderboltOutlined } from '@ant-design/icons';
 import { Button, Card, Collapse, Descriptions, Empty, Form, InputNumber, Progress, Select, Space, message } from 'antd';
 import DescriptionsItem from 'antd/es/descriptions/Item';
 import FormItem from 'antd/es/form/FormItem';
@@ -80,6 +80,10 @@ export default function PlayTestTab() {
 		}
 	};
 
+	const stopPlayTest = () => {
+		playTestState.playing = false;
+	};
+
 	return (
 		<Space style={{ width: '100%' }} direction='vertical'>
 			<Collapse
@@ -148,7 +152,7 @@ export default function PlayTestTab() {
 
 			{randomedField && gameState ? (
 				<>
-					<Form component={Card} title='Select algorithms' disabled={isPlayingTest}>
+					<Form component={Card} title='Select algorithms'>
 						<Form.Item label='Side A'>
 							<Select
 								placeholder='Select game mode'
@@ -174,6 +178,7 @@ export default function PlayTestTab() {
 								value={numberOfTurns}
 								onChange={(value) => setNumberOfTurns(value!)}
 							/>
+
 							<Button
 								icon={<BugOutlined />}
 								type='primary'
@@ -182,6 +187,14 @@ export default function PlayTestTab() {
 							>
 								{isPlayingTest ? 'Playing test...' : 'Play test'}
 							</Button>
+
+							<Button
+								icon={<PauseOutlined />}
+								type='primary'
+								danger
+								disabled={!isPlayingTest}
+								onClick={stopPlayTest}
+							></Button>
 						</Space>
 					</Form>
 

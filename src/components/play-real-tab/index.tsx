@@ -7,12 +7,12 @@ import GameAction from '@/models/GameAction';
 import playerService from '@/services/player.service';
 import { RootState } from '@/store';
 import { setCurrentAction, setGameState } from '@/store/gameState';
-import playReal from '@/utils/playReal';
-import replay from '@/utils/replay';
-import { PlayCircleOutlined, ReloadOutlined, SearchOutlined, UserOutlined } from '@ant-design/icons';
+import playReal, { playRealState } from '@/utils/playReal';
+import replay, { replayState } from '@/utils/replay';
+import { PauseOutlined, PlayCircleOutlined, ReloadOutlined, SearchOutlined, UserOutlined } from '@ant-design/icons';
 import { Button, Descriptions, Empty, Input, Select, Space, message } from 'antd';
 import DescriptionsItem from 'antd/es/descriptions/Item';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import ActionList from '../action-list';
 import CountDown from '../count-down';
@@ -33,18 +33,23 @@ export default function PlayRealTab() {
 	const [isPlaying, setIsPlaying] = useState(false);
 	const [isReplaying, setIsReplaying] = useState(false);
 	const [isLoadingGame, setIsLoadingGame] = useState(false);
+	const [isShowCountDown, setIsShowCountDown] = useState(false);
+
+	const [waitTime, setWaitTime] = useState(0);
 
 	const [messageApi, contextHolder] = message.useMessage();
 
 	const gameState = useSelector((state: RootState) => state.gameState.gameState);
 	const dispatch = useDispatch();
 
-	const handlePlayReal = async () => {
+	const handlePlayReal = useCallback(async () => {
 		try {
 			setIsPlaying(true);
 			await playReal({
 				game: game!,
 				side,
+				onWaitTimeChange: (time) => setWaitTime(time),
+				onShowCountDownChange: (show) => setIsShowCountDown(show),
 				onGameStateChange: (gameState) => dispatch(setGameState(gameState)),
 				onGameActionsChange(actions) {
 					setCurrentGameActions(actions);
@@ -57,9 +62,9 @@ export default function PlayRealTab() {
 			setIsPlaying(false);
 			dispatch(setCurrentAction(undefined));
 		}
-	};
+	}, [dispatch, game, side]);
 
-	const handleReplay = async () => {
+	const handleReplay = useCallback(async () => {
 		try {
 			setIsReplaying(true);
 			await replay({
@@ -77,9 +82,9 @@ export default function PlayRealTab() {
 			setIsReplaying(false);
 			setCurrentAction(undefined);
 		}
-	};
+	}, [dispatch, game, baseGameActions]);
 
-	const handleGetGameData = async () => {
+	const handleGetGameData = useCallback(async () => {
 		const key = 'loadGameData';
 
 		try {
@@ -127,6 +132,14 @@ export default function PlayRealTab() {
 		} finally {
 			setIsLoadingGame(false);
 		}
+	}, [dispatch, gameId, messageApi]);
+
+	const stopReplay = () => {
+		replayState.playing = false;
+	};
+
+	const stopPlaying = () => {
+		playRealState.playing = false;
 	};
 
 	return (
@@ -147,9 +160,17 @@ export default function PlayRealTab() {
 						onChange={(event) => setGameId(event.target.value)}
 					/>
 					{game && (
-						<Button icon={<ReloadOutlined />} loading={isReplaying} onClick={handleReplay}>
-							Replay
-						</Button>
+						<>
+							<Button icon={<ReloadOutlined />} loading={isReplaying} onClick={handleReplay}>
+								Replay
+							</Button>
+							<Button
+								icon={<PauseOutlined />}
+								danger
+								disabled={!isReplaying}
+								onClick={stopReplay}
+							></Button>
+						</>
 					)}
 					<Button
 						icon={<SearchOutlined />}
@@ -192,9 +213,19 @@ export default function PlayRealTab() {
 						>
 							{isPlaying ? 'Playing...' : 'Play'}
 						</Button>
+
+						<Button icon={<PauseOutlined />} danger disabled={!isPlaying} onClick={stopPlaying}></Button>
 					</Space>
 
-					{isPlaying && (
+					{waitTime && (
+						<Descriptions bordered>
+							<DescriptionsItem label='Waiting'>
+								<CountDown seconds={waitTime / 1000} />
+							</DescriptionsItem>
+						</Descriptions>
+					)}
+
+					{isShowCountDown && (
 						<Descriptions bordered column={1}>
 							<DescriptionsItem label='Count down'>
 								<CountDown seconds={game.time_per_turn} />
