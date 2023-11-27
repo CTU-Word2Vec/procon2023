@@ -1,0 +1,18 @@
+.wrapper {
+	min-height: 100vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.brand {
+	display: flex;
+	width: 100%;
+	justify-content: center;
+}
+
+.title {
+	text-align: center;
+	margin: 10px 0;
+	font-weight: bold;
+}
