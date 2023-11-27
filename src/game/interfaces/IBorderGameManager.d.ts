@@ -1,4 +1,4 @@
-import { IGameManager } from '.';
+import IGameManager from './IGameManager';
 
 /**
  * @description Border game manager

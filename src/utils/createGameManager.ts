@@ -1,4 +1,4 @@
-import { CaroGameManager, GameManager } from '@/game/classes';
+import { AStarGameManager, CaroGameManager, GameManager } from '@/game/classes';
 import BorderGameManager from '@/game/classes/BorderGameManager';
 import { EGameMode } from '@/game/enums';
 import Field from '@/models/Field';
@@ -15,7 +15,7 @@ export default function createGameManager(field: Field, numberOfTurns: number, g
 		case 'Caro':
 			return new CaroGameManager(field, numberOfTurns);
 		case 'A*':
-			return new GameManager(field, numberOfTurns);
+			return new AStarGameManager(field, numberOfTurns);
 		case 'Border':
 			return new BorderGameManager(field, numberOfTurns);
 	}
