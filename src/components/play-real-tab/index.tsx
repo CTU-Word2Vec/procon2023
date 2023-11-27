@@ -48,6 +48,7 @@ export default function PlayRealTab() {
 			await playReal({
 				game: game!,
 				side,
+				gameMode,
 				onWaitTimeChange: (time) => setWaitTime(time),
 				onShowCountDownChange: (show) => setIsShowCountDown(show),
 				onGameStateChange: (gameState) => dispatch(setGameState(gameState)),
@@ -62,7 +63,7 @@ export default function PlayRealTab() {
 			setIsPlaying(false);
 			dispatch(setCurrentAction(undefined));
 		}
-	}, [dispatch, game, side]);
+	}, [dispatch, game, side, gameMode]);
 
 	const handleReplay = useCallback(async () => {
 		try {
@@ -72,7 +73,7 @@ export default function PlayRealTab() {
 				actions: baseGameActions,
 				onGameStateChange: (gameState) => dispatch(setGameState(gameState)),
 				onActionsChange(actions) {
-					setCurrentGameActions(actions);
+					setCurrentGameActions([...actions]);
 					dispatch(setCurrentAction({ ...actions[actions.length - 1] }));
 				},
 			});
@@ -186,7 +187,7 @@ export default function PlayRealTab() {
 
 			{game ? (
 				<Space direction='vertical' style={{ width: '100%', marginTop: 10 }}>
-					<Space>
+					<Space wrap>
 						<Select
 							placeholder='Side'
 							value={side}
@@ -211,13 +212,13 @@ export default function PlayRealTab() {
 							loading={isPlaying}
 							onClick={handlePlayReal}
 						>
-							{isPlaying ? 'Playing...' : 'Play'}
+							Play
 						</Button>
 
 						<Button icon={<PauseOutlined />} danger disabled={!isPlaying} onClick={stopPlaying}></Button>
 					</Space>
 
-					{waitTime && (
+					{!!waitTime && (
 						<Descriptions bordered>
 							<DescriptionsItem label='Waiting'>
 								<CountDown seconds={waitTime / 1000} />

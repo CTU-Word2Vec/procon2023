@@ -190,7 +190,6 @@ export default function PlayTestTab() {
 
 							<Button
 								icon={<PauseOutlined />}
-								type='primary'
 								danger
 								disabled={!isPlayingTest}
 								onClick={stopPlayTest}
