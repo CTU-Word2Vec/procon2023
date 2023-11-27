@@ -1,9 +1,8 @@
 {
 	"name": "procon2023",
 	"private": true,
-	"version": "0.0.0",
-	"type": "commonjs",
-	"main": "dist-electron/main.js",
+	"version": "0.0.1",
+	"type": "module",
 	"description": "Procon 2023 - Castles game",
 	"author": {
 		"email": "root@thangved.com",
@@ -21,7 +20,11 @@
 		"preview": "vite preview",
 		"prepare": "husky install",
 		"format": "prettier --write .",
-		"typedoc": "typedoc"
+		"typedoc": "typedoc",
+		"release": "standard-version",
+		"release:minor": "standard-version --release-as minor",
+		"release:patch": "standard-version --release-as patch",
+		"release:major": "standard-version --release-as major"
 	},
 	"dependencies": {
 		"@ant-design/icons": "^5.2.6",
@@ -58,6 +61,7 @@
 		"prettier-plugin-organize-imports": "^3.2.3",
 		"sass": "^1.69.5",
 		"sharp": "^0.32.6",
+		"standard-version": "^9.5.0",
 		"svgo": "^3.0.4",
 		"tree-kill": "^1.2.2",
 		"typedoc": "^0.25.3",
