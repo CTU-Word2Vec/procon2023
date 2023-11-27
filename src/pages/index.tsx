@@ -46,7 +46,7 @@ function HomePage() {
 
 	return (
 		<Row>
-			<Col md={24} lg={12}>
+			<Col xs={24} md={24} lg={12}>
 				<MainGame />
 			</Col>
 
