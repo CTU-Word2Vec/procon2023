@@ -1,6 +1,7 @@
 import react from '@vitejs/plugin-react-swc';
 import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
+import electron from 'vite-plugin-electron';
 import { ViteImageOptimizer } from 'vite-plugin-image-optimizer';
 import { VitePWA } from 'vite-plugin-pwa';
 
@@ -9,6 +10,9 @@ export default defineConfig({
 	plugins: [
 		react(),
 		// ViteMinifyPlugin(),
+		electron({
+			entry: 'electron/main.ts',
+		}),
 		ViteImageOptimizer(),
 		VitePWA({
 			registerType: 'autoUpdate',
