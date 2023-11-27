@@ -1,0 +1,33 @@
+{
+	"$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
+	"appId": "com.thangved.${name}",
+	"asar": false,
+	"productName": "Word2Vec Procon 2023",
+	"directories": {
+		"output": "release/${version}"
+	},
+	"files": ["dist", "dist-electron"],
+	"mac": {
+		"target": ["dmg"],
+		"artifactName": "${productName}-Mac-${version}-Installer.${ext}"
+	},
+	"win": {
+		"target": [
+			{
+				"target": "msi",
+				"arch": ["x64"]
+			}
+		],
+		"artifactName": "${productName}-Windows-${version}-Setup.${ext}"
+	},
+	"nsis": {
+		"oneClick": false,
+		"perMachine": false,
+		"allowToChangeInstallationDirectory": true,
+		"deleteAppDataOnUninstall": false
+	},
+	"linux": {
+		"target": ["AppImage", "deb"],
+		"artifactName": "${productName}-Linux-${version}.${ext}"
+	}
+}

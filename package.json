@@ -3,6 +3,7 @@
 	"private": true,
 	"version": "0.0.0",
 	"type": "commonjs",
+	"main": "dist-electron/main.js",
 	"description": "Procon 2023 - Castles game",
 	"author": {
 		"email": "root@thangved.com",
