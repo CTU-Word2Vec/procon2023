@@ -432,10 +432,7 @@ export default class GameManager extends BaseGameManager implements IGameManager
 	 * @returns Action
 	 */
 	protected getNextCraftsmenAction(craftsmen: CraftsmenPosition): ActionDto {
-		return {
-			craftsman_id: craftsmen.id,
-			action: 'STAY',
-		};
+		return craftsmen.getStayAction();
 	}
 
 	public async getNextActionsAsync(side: EWallSide): Promise<ActionDto[]> {
