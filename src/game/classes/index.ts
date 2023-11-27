@@ -1,3 +1,4 @@
+export { default as AStarGameManager } from './AStarGameManager';
 export { default as BaseGameManager } from './BaseGameManager';
 export { default as BasePosition } from './BasePosition';
 export { default as CaroGameManager } from './CaroGameManager';

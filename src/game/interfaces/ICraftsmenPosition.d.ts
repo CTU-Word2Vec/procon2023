@@ -111,4 +111,10 @@ export default interface ICraftsmenPosition extends IPosition {
 	 * @returns Destroy action
 	 */
 	getDestroyAction(param: EBuildDestryParam): ActionDto;
+
+	/**
+	 * @description Get all actions
+	 * @returns All actions
+	 */
+	getAllActions(): ActionDto[];
 }
