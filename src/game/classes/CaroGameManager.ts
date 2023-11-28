@@ -15,7 +15,7 @@ import Position from './Position';
 export default class CaroGameManager extends GameManager implements ICaroGameManager {
 	protected override getNextCraftsmenAction(craftmen: CraftsmenPosition): ActionDto {
 		// If the craftsman can build a wall, build it
-		const buildAction = this.getBuildAction(craftmen);
+		const buildAction = this.getCraftsmenBuildAction(craftmen);
 		if (buildAction) return buildAction;
 
 		// If the craftsman can destroy a wall, destroy it
@@ -80,7 +80,7 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 			if (this.goingTo.exist(pos)) continue;
 
 			// If the can build a wall at the position, return the position
-			const canBuild = !!this.getBuildActionParamFromPosition(pos, craftmen.side);
+			const canBuild = !!this.getBuildActionParamFromCraftsmenPosition(craftmen);
 			if (canBuild) return pos;
 
 			// Else, push the next positions to the positions array
@@ -144,33 +144,33 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 	 * @param craftmen - Craftsmen position
 	 * @returns Build action
 	 */
-	private getBuildAction(craftmen: CraftsmenPosition): ActionDto | null {
+	private getCraftsmenBuildAction(craftmen: CraftsmenPosition): ActionDto | null {
 		// Get the build action from the position, if it does not exist, return null
-		const actionParam = this.getBuildActionParamFromPosition(craftmen, craftmen.side);
+		const actionParam = this.getBuildActionParamFromCraftsmenPosition(craftmen);
 
 		if (!actionParam) return null;
 
-		this.goingTo.write(craftmen, craftmen);
+		this.goingTo.write(craftmen.getPositionByActionParam(actionParam), craftmen);
 
 		return craftmen.getBuildAction(actionParam);
 	}
 
 	/**
 	 * @description Get action to go to the position
-	 * @param pos - Position to build
+	 * @param craftsmen - Position to build
 	 * @param side - Side of the player
 	 * @returns
 	 */
-	private getBuildActionParamFromPosition(pos: Position, side: EWallSide): EBuildDestryParam | null {
+	private getBuildActionParamFromCraftsmenPosition(craftsmen: CraftsmenPosition): EBuildDestryParam | null {
 		// Get the positions around the position
-		const positions = pos.topRightBottomLeft();
+		const positions = craftsmen.topRightBottomLeft();
 
 		for (let i = 0; i < positions.length; i++) {
 			const position = positions[i];
 			const param = buildDestroyActionParams[i];
 
 			// If the craftsman can not build a wall at the position, continue
-			if (!this.willBeBuild(position, side)) continue;
+			if (!this.willBeBuild(position, craftsmen.side)) continue;
 
 			return param;
 		}
