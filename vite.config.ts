@@ -8,13 +8,12 @@ import { VitePWA } from 'vite-plugin-pwa';
 export default defineConfig({
 	plugins: [
 		react(),
-		// ViteMinifyPlugin(),
 		ViteImageOptimizer(),
 		VitePWA({
 			registerType: 'autoUpdate',
 			injectRegister: 'auto',
 			devOptions: {
-				enabled: false,
+				enabled: true,
 			},
 			workbox: {
 				clientsClaim: true,

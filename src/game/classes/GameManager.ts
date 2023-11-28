@@ -193,7 +193,6 @@ export default class GameManager extends BaseGameManager implements IGameManager
 		if (!pos.isValid(this.width, this.height)) return false;
 		if (this.hashedCraftmens.exist(pos)) return false;
 		if (this.hashedWalls.exist(pos)) return false;
-		if (this.hashedPonds.exist(pos)) return false;
 		if (this.hashedCastles.exist(pos)) return false;
 
 		return true;
