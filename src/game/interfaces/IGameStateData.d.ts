@@ -89,4 +89,10 @@ export default interface IGameStateData {
 	scoresHistory: {
 		[side: string]: IScores[];
 	};
+
+	/**
+	 * @description Clone the game state data
+	 * @returns Cloned game state data
+	 */
+	clone(): IGameStateData;
 }

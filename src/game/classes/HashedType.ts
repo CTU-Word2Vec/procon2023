@@ -79,4 +79,13 @@ export default class HashedType<T> implements IHashedType<T> {
 
 		return result;
 	}
+
+	public clone(): HashedType<T> {
+		const data = JSON.parse(JSON.stringify(this.data));
+
+		const clonedObject = new HashedType<T>();
+		clonedObject.data = data;
+
+		return clonedObject;
+	}
 }

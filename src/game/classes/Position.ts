@@ -149,4 +149,8 @@ export default class Position extends BasePosition implements IPosition {
 	private euclideanDistance(pos: Position): number {
 		return Math.sqrt(Math.pow(this.x - pos.x, 2) + Math.pow(this.y - pos.y, 2));
 	}
+
+	public clone(): Position {
+		return new Position(this.x, this.y);
+	}
 }

@@ -229,4 +229,9 @@ export default interface IPosition extends IBasePosition {
 	 * @param height - Height of the map
 	 */
 	x1xh1ywy(width: number, height: number): [IPosition, IPosition, IPosition, IPosition];
+
+	/**
+	 * @description Clone this object
+	 */
+	clone(): IPosition;
 }
