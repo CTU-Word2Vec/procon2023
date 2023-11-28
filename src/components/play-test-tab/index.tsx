@@ -101,9 +101,9 @@ export default function PlayTestTab() {
 								initialValues={initialRandomFieldOptions}
 								labelAlign='left'
 								labelCol={{ xs: 12 }}
-								onFinish={handleRandomField}
 								size='middle'
 								disabled={isRandoming}
+								onFinish={handleRandomField}
 							>
 								<FormItem label='Width' name='width'>
 									<InputNumber placeholder='Width' name='width' />

@@ -9,7 +9,6 @@ import { VitePWA } from 'vite-plugin-pwa';
 export default defineConfig({
 	plugins: [
 		react(),
-		// ViteMinifyPlugin(),
 		electron({
 			entry: 'electron/main.ts',
 		}),
@@ -18,7 +17,7 @@ export default defineConfig({
 			registerType: 'autoUpdate',
 			injectRegister: 'auto',
 			devOptions: {
-				enabled: false,
+				enabled: true,
 			},
 			workbox: {
 				clientsClaim: true,
