@@ -79,9 +79,7 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 			// If the position is going to, continue
 			if (this.goingTo.exist(pos)) continue;
 
-			// If the can build a wall at the position, return the position
-			const canBuild = !!this.getBuildActionParamFromCraftsmenPosition(craftmen);
-			if (canBuild) return pos;
+			if (this.canBuildOrDestroy(pos, craftmen.side)) return pos;
 
 			// Else, push the next positions to the positions array
 			positions.push(...pos.upperLeftUpperRightLowerRightLowerLeft(), ...pos.topRightBottomLeft());
