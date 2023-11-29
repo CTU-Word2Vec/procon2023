@@ -92,36 +92,4 @@ export default class GameStateData implements IGameStateData {
 			this.hashedCastles.write(castle, castle);
 		}
 	}
-
-	public clone() {
-		const field = JSON.parse(JSON.stringify(this)) as IGameStateData;
-		const cloned = new GameStateData(
-			field.id,
-			field.match_id,
-			field.name,
-			field.castle_coeff,
-			field.wall_coeff,
-			field.territory_coeff,
-			field.width,
-			field.height,
-			field.ponds.map((pond) => new Position(pond.x, pond.y)),
-			field.castles.map((castle) => new Position(castle.x, castle.y)),
-			field.craftsmen.map(
-				(craftsmen) => new CraftsmenPosition(craftsmen.x, craftsmen.y, craftsmen.id, craftsmen.side),
-			),
-			field.walls.map((wall) => new WallPosition(wall.x, wall.y, wall.side)),
-			field.lastTurn,
-			this.hashedCraftmens.clone(),
-			this.hashedWalls.clone(),
-			this.hashedPonds.clone(),
-			this.hashedCastles.clone(),
-			this.goingTo.clone(),
-			this.hashedSide.clone(),
-			field.sides,
-			field.scores,
-			field.scoresHistory,
-		);
-
-		return cloned;
-	}
 }

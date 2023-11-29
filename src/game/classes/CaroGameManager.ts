@@ -333,17 +333,4 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 		// If the craftsman can not destroy a wall at any position
 		return null;
 	}
-
-	public clone(): CaroGameManager {
-		const superClone = super.clone();
-		const cloned = new CaroGameManager(superClone);
-
-		cloned.hashedCastles = this.hashedCastles.clone();
-		cloned.hashedCraftmens = this.hashedCraftmens.clone();
-		cloned.hashedPonds = this.hashedPonds.clone();
-		cloned.hashedSide = this.hashedSide.clone();
-		cloned.hashedWalls = this.hashedWalls.clone();
-
-		return cloned;
-	}
 }
