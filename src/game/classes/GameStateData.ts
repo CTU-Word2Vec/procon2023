@@ -93,9 +93,9 @@ export default class GameStateData implements IGameStateData {
 		}
 	}
 
-	public clone(): GameStateData {
+	public clone() {
 		const field = JSON.parse(JSON.stringify(this)) as IGameStateData;
-		const copiedObject = new GameStateData(
+		const cloned = new GameStateData(
 			field.id,
 			field.match_id,
 			field.name,
@@ -122,6 +122,6 @@ export default class GameStateData implements IGameStateData {
 			field.scoresHistory,
 		);
 
-		return copiedObject;
+		return cloned;
 	}
 }
