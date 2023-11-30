@@ -88,12 +88,12 @@ export default class Position extends BasePosition implements IPosition {
 		return [this.up(), this.right(), this.down(), this.left()];
 	}
 
-	public upperLeftUpperRightLowerRightLowerLeft(): [Position, Position, Position, Position] {
-		return [this.upperLeft(), this.upperRight(), this.lowerRight(), this.lowerLeft()];
+	public upperLeftUpperRightLowerLeftLowerRight(): [Position, Position, Position, Position] {
+		return [this.upperLeft(), this.upperRight(), this.lowerLeft(), this.lowerRight()];
 	}
 
 	public allNears(): [Position, Position, Position, Position, Position, Position, Position, Position] {
-		return [...this.topRightBottomLeft(), ...this.upperLeftUpperRightLowerRightLowerLeft()];
+		return [...this.topRightBottomLeft(), ...this.upperLeftUpperRightLowerLeftLowerRight()];
 	}
 
 	public distance(pos: Position, formular: 'mahata' | 'euclid' = 'mahata'): number {

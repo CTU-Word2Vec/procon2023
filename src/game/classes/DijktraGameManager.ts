@@ -1,4 +1,4 @@
-import { EActionParam, EBuildDestryParam, buildDestroyActionParams } from '@/constants/action-params';
+import { EActionParam, EBuildDestroyParam, buildDestroyActionParams, moveParams } from '@/constants/action-params';
 import Field from '@/models/Field';
 import { ActionDto } from '@/services';
 import generatePermutations from '@/utils/permutation';
@@ -40,12 +40,15 @@ export default class DijktraGameManager extends GameManager {
 		}
 	}
 
-	private solverDijkstra(side: EWallSide): ActionDto[] {
-		const ownCrafts: CraftsmenPosition[] = this.craftsmen.filter((craftsmen) => craftsmen.side === side);
-		const eneCrafts: CraftsmenPosition[] = this.craftsmen.filter((craftsmen) => craftsmen.side !== side);
+	private solverDijkstra(ownSide: EWallSide): ActionDto[] {
+		const eneSide: EWallSide = ownSide === 'A' ? 'B' : 'A';
+
+		const ownCrafts: CraftsmenPosition[] = this.craftsmen.filter((craftsmen) => craftsmen.side === ownSide);
+		const eneCrafts: CraftsmenPosition[] = this.craftsmen.filter((craftsmen) => craftsmen.side !== ownSide);
 
 		// Default max hands
 		let maxHands: ActionDto[] = ownCrafts.map((craft) => craft.getStayAction());
+		let maxFromPositions: Position[] = ownCrafts.map(() => new Position(-1, -1));
 		let maxToPositions: Position[] = ownCrafts.map(() => new Position(-1, -1));
 		let maxHandsScore: number = -Infinity;
 
@@ -54,26 +57,27 @@ export default class DijktraGameManager extends GameManager {
 		const start = new Date().getTime();
 
 		for (const ownCraftsmens of permutations) {
-			const ownPos = new HashedType<boolean>(ownCrafts, true);
-			const enePos = new HashedType<boolean>(eneCrafts, true);
-			const inCreateMap = this.createMap.clone();
-			const inBreakMap = this.breakMap.clone();
+			const ownPos: HashedType<boolean> = new HashedType<boolean>(ownCrafts, true);
+			const enePos: HashedType<boolean> = new HashedType<boolean>(eneCrafts, true);
+			const inCreateMap: HashedType<boolean> = this.createMap.clone();
+			const inBreakMap: HashedType<boolean> = this.breakMap.clone();
 
-			const footprints = new HashedType<boolean>(ownCrafts, true);
+			const footprints: HashedType<boolean> = new HashedType<boolean>(ownCrafts, true);
 
 			const nowHands: ActionDto[] = [];
 			const nowToPositions: Position[] = [];
+			const nowFromPositions: Position[] = [];
 			let nowHandsScore: number = 0;
 
 			for (let i = 0; i < ownCraftsmens.length; i++) {
-				const currentCraft = ownCraftsmens[i];
-				const x = currentCraft.x;
-				const y = currentCraft.y;
+				const currentCraft: CraftsmenPosition = ownCraftsmens[i];
+				const x: number = currentCraft.x;
+				const y: number = currentCraft.y;
 
-				let act = currentCraft.getStayAction();
-				const dist = new HashedType<number>();
-				let from = new Position(x, y);
-				let to = new Position(x, y);
+				let act: ActionDto = currentCraft.getStayAction();
+				const dist: HashedType<number> = new HashedType<number>();
+				let from: Position = new Position(x, y);
+				let to: Position = new Position(x, y);
 
 				if (!this.isValidPosition(this.ownMoveTo[i])) {
 					const res = this.ownDijkstra(
@@ -82,7 +86,7 @@ export default class DijktraGameManager extends GameManager {
 						ownPos,
 						enePos,
 						currentCraft,
-						side,
+						ownSide,
 						inCreateMap,
 						inBreakMap,
 					);
@@ -91,26 +95,95 @@ export default class DijktraGameManager extends GameManager {
 						from = res.from;
 						to = res.to;
 
+						let d: number = dist.read(from)!;
+
 						if (currentCraft.isEquals(from)) {
 							// If the current position is the first position
 							if (inBreakMap.exist(to))
-								act = currentCraft.getDestroyAction(res.direction as EBuildDestryParam);
+								act = currentCraft.getDestroyAction(res.direction as EBuildDestroyParam);
 							if (inCreateMap.exist(to))
-								act = currentCraft.getBuildAction(res.direction as EBuildDestryParam);
+								act = currentCraft.getBuildAction(res.direction as EBuildDestroyParam);
 						} else {
 							// If the current position is not the first position
 							inBreakMap.remove(to);
 							inCreateMap.remove(to);
 
-							act = this.getActionToGoToPosition(currentCraft, to) || act;
+							for (;;) {
+								let getProcessFlag = false;
+								let getAnswerFlag = false;
+
+								if (this.hashedWalls.read(from)?.side != eneSide) {
+									const ulurlllr: Position[] = from.upperLeftUpperRightLowerLeftLowerRight();
+
+									for (const i in ulurlllr) {
+										const nextPos: Position = ulurlllr[i];
+
+										if (!this.isValidPosition(nextPos)) continue;
+
+										if (nextPos.isEquals(currentCraft) && d == 1) {
+											getAnswerFlag = true;
+											to = nextPos;
+											act = currentCraft.getMoveAction(moveParams[+i + 4]);
+										}
+
+										if (dist.read(nextPos) === d - 1) {
+											from = nextPos;
+											getProcessFlag = true;
+											d -= 1;
+											break;
+										}
+									}
+								}
+
+								if (getProcessFlag) continue;
+								if (getAnswerFlag) break;
+
+								const trbl: Position[] = from.topRightBottomLeft();
+
+								for (const i in trbl) {
+									const nextPos: Position = trbl[i];
+
+									if (!this.isValidPosition(nextPos)) continue;
+									if (currentCraft.isEquals(nextPos)) {
+										getAnswerFlag = true;
+										to = nextPos;
+
+										if (
+											this.hashedWalls.exist(from) &&
+											this.hashedWalls.read(from)!.side === eneSide
+										) {
+											act = currentCraft.getDestroyAction(buildDestroyActionParams[+i + 4]);
+										} else {
+											act = currentCraft.getMoveAction(moveParams[+i + 4]);
+										}
+
+										break;
+									}
+
+									if (this.hashedWalls.exist(from) && this.hashedWalls.read(from)!.side === eneSide) {
+										if (dist.read(nextPos) === d - 1.875) {
+											from = nextPos;
+											getProcessFlag = true;
+											d -= 1.875;
+											break;
+										}
+									} else if (dist.read(nextPos) === d - 1) {
+										from = nextPos;
+										getProcessFlag = true;
+										d -= 1;
+										break;
+									}
+								}
+
+								if (getAnswerFlag) break;
+								if (!getProcessFlag) throw new Error('Error'); // If the process is not found, throw an error
+							}
 						}
 					}
-				} else {
-					act = this.getActionToGoToPosition(currentCraft, this.ownMoveTo[i]) || act;
-					to = this.ownMoveTo[i];
 				}
 
 				nowHands.push(act);
+				nowFromPositions.push(from);
 				nowToPositions.push(to);
 
 				if (act.action === 'STAY') {
@@ -136,19 +209,25 @@ export default class DijktraGameManager extends GameManager {
 
 				if (nowHandsScore > maxHandsScore) {
 					maxHands = nowHands;
+					maxFromPositions = nowFromPositions;
 					maxToPositions = nowToPositions;
 					maxHandsScore = nowHandsScore;
 				}
 			}
 		}
 
-		const end = new Date().getTime();
+		const end: number = new Date().getTime();
 
 		console.log('Dijstra: ' + (end - start) + 'ms');
 
 		for (const i in maxHands) {
-			const act = maxHands[i];
-			const to = maxToPositions[i];
+			const act: ActionDto = maxHands[i];
+			const from: Position = maxFromPositions[i];
+			const to: Position = maxToPositions[i];
+
+			if (act.action === 'MOVE' && this.ownMoveTo[i].isEquals(from)) {
+				this.ownMoveTo[i] = new Position(-1, -1); // If the position is the first position, reset the position
+			}
 
 			if (act.action === 'BUILD') {
 				this.createMap.remove(to);
@@ -205,9 +284,9 @@ export default class DijktraGameManager extends GameManager {
 				if (createMap.exist(to)) {
 					if (d !== 0 || !enePos.exist(to))
 						// Skip if the position is not the first position and the position is enemy position
-						return { from: startPos, to: to, direction: buildDestroyActionParams[i] };
+						return { from, to: to, direction: buildDestroyActionParams[i] };
 				}
-				if (breakMap.exist(to)) return { from: startPos, to: to, direction: buildDestroyActionParams[i] }; // If can break wall, return the position
+				if (breakMap.exist(to)) return { from, to: to, direction: buildDestroyActionParams[i] }; // If can break wall, return the position
 				if (d === 0 && (enePos.exist(to) || ownPos.exist(to) || footprints.exist(to))) continue; // Skip if the position is enemy position or own position or footprints)))
 				if (this.hashedPonds.exist(to)) continue; // Skip if the position is pond
 				if (this.hashedWalls.exist(to) && this.hashedWalls.read(to)!.side === eneSide) cost = 1.875;
@@ -220,7 +299,7 @@ export default class DijktraGameManager extends GameManager {
 				}
 			}
 
-			const ulurlllr = from.upperLeftUpperRightLowerRightLowerLeft();
+			const ulurlllr = from.upperLeftUpperRightLowerLeftLowerRight();
 
 			for (const i in ulurlllr) {
 				const to = ulurlllr[i];

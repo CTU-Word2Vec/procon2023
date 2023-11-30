@@ -1,4 +1,4 @@
-import { EBuildDestryParam, buildDestroyActionParams } from '@/constants/action-params';
+import { EBuildDestroyParam, buildDestroyActionParams } from '@/constants/action-params';
 import { ActionDto } from '@/services/player.service';
 import { HashedType } from '.';
 import { EWallSide } from '../enums/EWallSide';
@@ -80,7 +80,7 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 			if (this.willBuildOrDestroy(pos, craftmen.side)) return pos;
 
 			// Else, push the next positions to the positions array
-			positions.push(...pos.upperLeftUpperRightLowerRightLowerLeft(), ...pos.topRightBottomLeft());
+			positions.push(...pos.upperLeftUpperRightLowerLeftLowerRight(), ...pos.topRightBottomLeft());
 		}
 
 		// If the craftsman can not go to any position, return null
@@ -157,7 +157,7 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 	 * @param side - Side of the player
 	 * @returns
 	 */
-	private getBuildActionParamFromCraftsmenPosition(craftsmen: CraftsmenPosition): EBuildDestryParam | null {
+	private getBuildActionParamFromCraftsmenPosition(craftsmen: CraftsmenPosition): EBuildDestroyParam | null {
 		// Get the positions around the position
 		const positions = craftsmen.topRightBottomLeft();
 
