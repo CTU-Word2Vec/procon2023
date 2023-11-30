@@ -1,4 +1,11 @@
-import { EActionParam, EBuildDestroyParam, buildDestroyActionParams, moveParams } from '@/constants/action-params';
+import {
+	EActionParam,
+	EBuildDestroyParam,
+	buildDestroyActionParams,
+	moveParams,
+	reverseBuildDestroyActionParams,
+	reverseMoveParams,
+} from '@/constants/action-params';
 import Field from '@/models/Field';
 import { ActionDto } from '@/services';
 import generatePermutations from '@/utils/permutation';
@@ -26,7 +33,7 @@ export default class DijktraGameManager extends GameManager {
 
 	constructor(field: Field, numberOfTurns?: number) {
 		super(field, numberOfTurns);
-		this.ownMoveTo = Array.from({ length: this.craftsmen.length }, () => new Position(-1, -1));
+		this.ownMoveTo = this.castles.map((castle) => new Position(castle.x, castle.y));
 		this.createMap = new HashedType<boolean>();
 		this.breakMap = new HashedType<boolean>();
 
@@ -74,8 +81,8 @@ export default class DijktraGameManager extends GameManager {
 				const x: number = currentCraft.x;
 				const y: number = currentCraft.y;
 
+				let dist: HashedType<number> = new HashedType<number>();
 				let act: ActionDto = currentCraft.getStayAction();
-				const dist: HashedType<number> = new HashedType<number>();
 				let from: Position = new Position(x, y);
 				let to: Position = new Position(x, y);
 
@@ -95,8 +102,6 @@ export default class DijktraGameManager extends GameManager {
 						from = res.from;
 						to = res.to;
 
-						let d: number = dist.read(from)!;
-
 						if (currentCraft.isEquals(from)) {
 							// If the current position is the first position
 							if (inBreakMap.exist(to))
@@ -107,6 +112,7 @@ export default class DijktraGameManager extends GameManager {
 							// If the current position is not the first position
 							inBreakMap.remove(to);
 							inCreateMap.remove(to);
+							let d: number = dist.read(from)!;
 
 							for (;;) {
 								let getProcessFlag = false;
@@ -122,8 +128,8 @@ export default class DijktraGameManager extends GameManager {
 
 										if (nextPos.isEquals(currentCraft) && d == 1) {
 											getAnswerFlag = true;
-											to = nextPos;
-											act = currentCraft.getMoveAction(moveParams[+i + 4]);
+											to = from;
+											act = currentCraft.getMoveAction(reverseMoveParams[moveParams[+i + 4]]);
 										}
 
 										if (dist.read(nextPos) === d - 1) {
@@ -151,11 +157,11 @@ export default class DijktraGameManager extends GameManager {
 										if (
 											this.hashedWalls.exist(from) &&
 											this.hashedWalls.read(from)!.side === eneSide
-										) {
-											act = currentCraft.getDestroyAction(buildDestroyActionParams[+i + 4]);
-										} else {
-											act = currentCraft.getMoveAction(moveParams[+i + 4]);
-										}
+										)
+											act = currentCraft.getDestroyAction(
+												reverseBuildDestroyActionParams[buildDestroyActionParams[i]],
+											);
+										else act = currentCraft.getMoveAction(reverseMoveParams[moveParams[i]]);
 
 										break;
 									}
@@ -176,8 +182,85 @@ export default class DijktraGameManager extends GameManager {
 								}
 
 								if (getAnswerFlag) break;
-								if (!getProcessFlag) throw new Error('Error'); // If the process is not found, throw an error
+								if (!getProcessFlag) break; // If the process is not found, throw an error
 							}
+						}
+					}
+				} else {
+					const targetPos = this.ownMoveTo[i];
+					dist = new HashedType<number>();
+					this.moveDijkstra(footprints, dist, ownPos, enePos, currentCraft, targetPos, ownSide);
+
+					from = targetPos;
+					let d: number = dist.read(targetPos)!;
+
+					if (d != -1) {
+						for (;;) {
+							let getProcessFlag = false;
+							let getAnswerFlag = false;
+
+							if (this.hashedWalls.read(from)?.side != eneSide) {
+								const ulurlllr: Position[] = from.upperLeftUpperRightLowerLeftLowerRight();
+
+								for (const i in ulurlllr) {
+									const nextPos: Position = ulurlllr[i];
+
+									if (!this.isValidPosition(nextPos)) continue;
+
+									if (nextPos.isEquals(currentCraft) && d == 1) {
+										getAnswerFlag = true;
+										to = nextPos;
+										act = currentCraft.getMoveAction(reverseMoveParams[moveParams[+i + 4]]);
+									}
+
+									if (dist.read(nextPos) === d - 1) {
+										from = nextPos;
+										getProcessFlag = true;
+										d -= 1;
+										break;
+									}
+								}
+							}
+
+							if (getProcessFlag) continue;
+							if (getAnswerFlag) break;
+
+							const trbl: Position[] = from.topRightBottomLeft();
+
+							for (const i in trbl) {
+								const nextPos: Position = trbl[i];
+
+								if (!this.isValidPosition(nextPos)) continue;
+								if (currentCraft.isEquals(nextPos)) {
+									getAnswerFlag = true;
+									to = nextPos;
+
+									if (this.hashedWalls.exist(from) && this.hashedWalls.read(from)!.side === eneSide)
+										act = currentCraft.getDestroyAction(
+											reverseBuildDestroyActionParams[buildDestroyActionParams[i]],
+										);
+									else act = currentCraft.getMoveAction(reverseMoveParams[moveParams[i]]);
+
+									break;
+								}
+
+								if (this.hashedWalls.exist(from) && this.hashedWalls.read(from)!.side === eneSide) {
+									if (dist.read(nextPos) === d - 1.875) {
+										from = nextPos;
+										getProcessFlag = true;
+										d -= 1.875;
+										break;
+									}
+								} else if (dist.read(nextPos) === d - 1) {
+									from = nextPos;
+									getProcessFlag = true;
+									d -= 1;
+									break;
+								}
+							}
+
+							if (getAnswerFlag) break;
+							if (!getProcessFlag) break; // If the process is not found, throw an error
 						}
 					}
 				}
@@ -201,18 +284,18 @@ export default class DijktraGameManager extends GameManager {
 				if (act.action === 'DESTROY') {
 					inBreakMap.remove(to);
 					if (this.breakMap.exist(to)) {
-						nowHandsScore += 100;
+						nowHandsScore -= dist.read(from)!;
 					} else {
-						nowHandsScore -= 100;
+						nowHandsScore += 100;
 					}
 				}
+			}
 
-				if (nowHandsScore > maxHandsScore) {
-					maxHands = nowHands;
-					maxFromPositions = nowFromPositions;
-					maxToPositions = nowToPositions;
-					maxHandsScore = nowHandsScore;
-				}
+			if (nowHandsScore > maxHandsScore) {
+				maxHands = nowHands;
+				maxFromPositions = nowFromPositions;
+				maxToPositions = nowToPositions;
+				maxHandsScore = nowHandsScore;
 			}
 		}
 
@@ -320,5 +403,75 @@ export default class DijktraGameManager extends GameManager {
 		}
 
 		return null;
+	}
+
+	private moveDijkstra(
+		footprints: HashedType<boolean>,
+		dist: HashedType<number>,
+		ownPos: HashedType<boolean>,
+		enePos: HashedType<boolean>,
+		startPos: Position,
+		targetPos: Position,
+		ownSide: EWallSide,
+	) {
+		const eneSide = ownSide === 'A' ? 'B' : 'A';
+
+		dist.write(startPos, 0);
+
+		const queue = new PriorityQueue<Position>();
+		queue.enQueue(startPos, 0);
+
+		while (!queue.isEmpty()) {
+			const top = queue.deQueue();
+
+			if (top.value.isEquals(targetPos)) return;
+
+			const from = top.value;
+			const d = top.priority;
+
+			if (dist.exist(from) && dist.read(from)! < d) continue; // Skip if the distance is greater than the current distance
+
+			/**
+			 * @description Top right bottom left of the position
+			 */
+			const trbl = from.topRightBottomLeft();
+
+			for (const i in trbl) {
+				const to = trbl[i];
+				let cost = 1;
+				let totalCost = 0;
+
+				if (!this.isValidPosition(to)) continue; // Skip if the position is invalid
+				if (d === 0 && (enePos.exist(to) || ownPos.exist(to) || footprints.exist(to))) continue; // Skip if the position is enemy position or own position or footprints)))
+				if (this.hashedPonds.exist(to)) continue; // Skip if the position is pond
+				if (this.hashedWalls.exist(to) && this.hashedWalls.read(to)!.side === eneSide) cost = 1.875;
+
+				totalCost = dist.read(from)! + cost;
+
+				if (!dist.exist(to) || totalCost < dist.read(to)!) {
+					dist.write(to, totalCost);
+					queue.enQueue(to, totalCost);
+				}
+			}
+
+			const ulurlllr = from.upperLeftUpperRightLowerLeftLowerRight();
+
+			for (const i in ulurlllr) {
+				const to = ulurlllr[i];
+				const cost = 1;
+				let totalCost = 0;
+
+				if (!this.isValidPosition(to)) continue; // Skip if the position is invalid
+				if (this.hashedWalls.exist(to) && this.hashedWalls.read(to)!.side === eneSide) continue; // Skip if the position is enemy wall
+				if (this.hashedPonds.exist(to)) continue; // Skip if the position is pond
+
+				totalCost = dist.read(from)! + cost;
+
+				if (!dist.exist(to) || totalCost < dist.read(to)!) {
+					dist.write(to, totalCost);
+					queue.enQueue(to, totalCost);
+				}
+			}
+		}
 	}
 }
