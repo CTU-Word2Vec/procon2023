@@ -44,6 +44,11 @@ export default function GameSettings({ open, onCancel }: GameSettingsProps) {
 			const res = await playerService.getTime();
 
 			const serverTime = new Date(res.time).getTime();
+
+			if (isNaN(serverTime)) {
+				throw new Error('Không thể lấy thời gian từ máy chủ');
+			}
+
 			const clientTime = new Date().getTime();
 
 			message.success({
@@ -57,9 +62,10 @@ export default function GameSettings({ open, onCancel }: GameSettingsProps) {
 
 	return (
 		<Modal
-			title='Setting'
+			title='Cấu hình'
 			open={open}
-			okText='Check'
+			okText='Ping'
+			cancelText='Đóng'
 			okButtonProps={{
 				icon: <CheckCircleOutlined />,
 			}}
@@ -79,7 +85,7 @@ export default function GameSettings({ open, onCancel }: GameSettingsProps) {
 					/>
 				</Form.Item>
 
-				<Form.Item label='API endpoint'>
+				<Form.Item label='Điểm cuối API'>
 					<Input
 						placeholder='https://api.procon2023.com/api'
 						value={apiEndpoint}
@@ -88,9 +94,9 @@ export default function GameSettings({ open, onCancel }: GameSettingsProps) {
 					/>
 				</Form.Item>
 
-				<Form.Item label='Replay deplay (ms)'>
+				<Form.Item label='Delay phát lại(ms)'>
 					<Input
-						placeholder='Replay deplay'
+						placeholder='Delay phát lại(ms)'
 						value={replayDelay}
 						type='number'
 						prefix={<ClockCircleOutlined />}

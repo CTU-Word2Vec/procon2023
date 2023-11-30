@@ -43,4 +43,10 @@ export default interface IHashedType<T> {
 	 * @returns - List of position data
 	 */
 	toList(): IPositionData<T>[];
+
+	/**
+	 * @description Copy this object
+	 * @returns New object copied from this
+	 */
+	clone(): IHashedType<T>;
 }

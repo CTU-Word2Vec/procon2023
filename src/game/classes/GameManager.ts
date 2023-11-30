@@ -461,4 +461,13 @@ export default class GameManager extends BaseGameManager implements IGameManager
 
 		return randomedGame;
 	}
+
+	/**
+	 * @description Check if position is valid
+	 * @param pos - Position
+	 * @returns True if position is valid
+	 */
+	protected isValidPosition(pos: Position): boolean {
+		return pos.isValid(this.width, this.height);
+	}
 }
