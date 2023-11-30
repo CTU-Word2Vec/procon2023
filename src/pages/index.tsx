@@ -20,7 +20,7 @@ const MainGame = () => {
 				{gameState ? (
 					<GameBoard state={gameState} action={currentAction} />
 				) : (
-					<Empty description='There are no games selected' />
+					<Empty description='Chưa có game nào được chọn' />
 				)}
 			</Suspense>
 		</GameBoardWrapper>
@@ -35,7 +35,7 @@ const GameDashboard = () => {
 			{gameState ? (
 				<GameScore state={gameState} />
 			) : (
-				<Empty description='Get game data to play' style={{ margin: '20px 0' }} />
+				<Empty description='Vui lòng nạp game để hiển thị thông tin' style={{ margin: '20px 0' }} />
 			)}
 		</Suspense>
 	);
@@ -67,7 +67,7 @@ function HomePage() {
 							label: (
 								<span>
 									<PlayCircleOutlined />
-									Play real
+									Chơi thật
 								</span>
 							),
 							key: 'play-real',
@@ -81,7 +81,7 @@ function HomePage() {
 							label: (
 								<span>
 									<BugOutlined />
-									Play test
+									Thử nghiệm
 								</span>
 							),
 							key: 'real-test',

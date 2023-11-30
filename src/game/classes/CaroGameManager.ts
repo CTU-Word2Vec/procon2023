@@ -1,4 +1,4 @@
-import { EBuildDestryParam, buildDestroyActionParams } from '@/constants/action-params';
+import { EBuildDestroyParam, buildDestroyActionParams } from '@/constants/action-params';
 import { ActionDto } from '@/services/player.service';
 import { HashedType } from '.';
 import { EWallSide } from '../enums/EWallSide';
@@ -76,13 +76,11 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 
 			// If the position is not valid, continue
 			if (!pos.isValid(this.width, this.height)) continue;
-			// If the position is going to, continue
-			if (this.goingTo.exist(pos)) continue;
 
-			if (this.canBuildOrDestroy(pos, craftmen.side)) return pos;
+			if (this.willBuildOrDestroy(pos, craftmen.side)) return pos;
 
 			// Else, push the next positions to the positions array
-			positions.push(...pos.upperLeftUpperRightLowerRightLowerLeft(), ...pos.topRightBottomLeft());
+			positions.push(...pos.upperLeftUpperRightLowerLeftLowerRight(), ...pos.topRightBottomLeft());
 		}
 
 		// If the craftsman can not go to any position, return null
@@ -159,7 +157,7 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 	 * @param side - Side of the player
 	 * @returns
 	 */
-	private getBuildActionParamFromCraftsmenPosition(craftsmen: CraftsmenPosition): EBuildDestryParam | null {
+	private getBuildActionParamFromCraftsmenPosition(craftsmen: CraftsmenPosition): EBuildDestroyParam | null {
 		// Get the positions around the position
 		const positions = craftsmen.topRightBottomLeft();
 
@@ -196,6 +194,12 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 
 		// Get the positions around the position
 		const [top, right, bottom, left, upperLeft, upperRight, lowerRight, lowerLeft] = pos.allNears();
+
+		const willBuildIfOtherSide = [[top, right, bottom, left]];
+
+		for (const groups of willBuildIfOtherSide) {
+			if (groups.every((pos) => !this.hashedWalls.exist(pos))) return true;
+		}
 
 		// If near castle, build
 		const topRightBottomLeft = [top, right, bottom, left];
@@ -241,7 +245,7 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 			// If the castle is the same side with the craftsman, continue
 			if (this.hashedSide.read(castle) === craftsmen.side) continue;
 			// If the craftsman can not build or destroy at the castle, continue
-			if (!this.canBuildOrDestroy(castle, craftsmen.side)) continue;
+			if (!this.willBuildOrDestroy(castle, craftsmen.side)) continue;
 
 			// Get the distance from the craftsman to the castle
 			const distance = craftsmen.distance(castle);
@@ -265,7 +269,7 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 	 * @param side - Side of the player
 	 * @returns Whether the craftsman can build or destroy at the position
 	 */
-	private canBuildOrDestroy(pos: Position, side: EWallSide): boolean {
+	private willBuildOrDestroy(pos: Position, side: EWallSide): boolean {
 		if (this.goingTo.exist(pos)) return false;
 
 		// Get the positions around the position
@@ -274,13 +278,27 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 		// Check whether the craftsman can build or destroy at the position
 		return positions.some((pos) => {
 			if (!pos.isValid(this.width, this.height)) return false;
-			if (this.hashedCraftmens.exist(pos)) return false;
-			if (this.hashedPonds.exist(pos)) return false;
-			if (this.hashedCastles.exist(pos)) return false;
-			if (this.hashedWalls.read(pos)?.side === side) return false;
+			if (this.willBeBuild(pos, side)) return true;
+			if (this.willBeDestroy(pos, side)) return true;
+			if (this.willSelfDestroy(pos, side)) return true;
 
-			return true;
+			return false;
 		});
+	}
+
+	/**
+	 * @description
+	 * @param pos - Position
+	 * @param side - Side of self team
+	 * @returns Boolean
+	 */
+	private willBeDestroy(pos: Position, side: EWallSide): boolean {
+		if (this.hashedCraftmens.exist(pos)) return false;
+		if (this.hashedPonds.exist(pos)) return false;
+		if (this.hashedCastles.exist(pos)) return false;
+		if (this.hashedWalls.read(pos)?.side === side) return false;
+
+		return true;
 	}
 
 	/**

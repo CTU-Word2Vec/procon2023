@@ -157,7 +157,7 @@ export default interface IPosition extends IBasePosition {
 	 * console.log(lowerRightPos); // { x: 2, y: 2 }
 	 * console.log(lowerLeftPos); // { x: 0, y: 2 }
 	 */
-	upperLeftUpperRightLowerRightLowerLeft(): [IPosition, IPosition, IPosition, IPosition];
+	upperLeftUpperRightLowerLeftLowerRight(): [IPosition, IPosition, IPosition, IPosition];
 
 	/**
 	 * @description Get 8 positions (top, right, bottom, left, upper left, upper right, lower right, lower left)
@@ -229,4 +229,9 @@ export default interface IPosition extends IBasePosition {
 	 * @param height - Height of the map
 	 */
 	x1xh1ywy(width: number, height: number): [IPosition, IPosition, IPosition, IPosition];
+
+	/**
+	 * @description Clone this object
+	 */
+	clone(): IPosition;
 }

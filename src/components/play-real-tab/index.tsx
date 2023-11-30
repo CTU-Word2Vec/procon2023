@@ -90,7 +90,7 @@ export default function PlayRealTab() {
 
 		try {
 			if (!gameId) {
-				throw new Error('Please provide the id of game');
+				throw new Error('Vui lòn nhập id game');
 			}
 
 			setCurrentAction(undefined);
@@ -98,7 +98,7 @@ export default function PlayRealTab() {
 			setIsLoadingGame(true);
 			messageApi.open({
 				key,
-				content: 'Loading game data',
+				content: 'Đang tải dữ liệu game',
 				type: 'loading',
 				duration: 0,
 			});
@@ -119,7 +119,7 @@ export default function PlayRealTab() {
 
 			messageApi.open({
 				key,
-				content: `Loaded game data: ${game.name}`,
+				content: `Đã tải game: ${game.name}`,
 				duration: 2,
 				type: 'success',
 			});
@@ -163,7 +163,7 @@ export default function PlayRealTab() {
 					{game && (
 						<>
 							<Button icon={<ReloadOutlined />} loading={isReplaying} onClick={handleReplay}>
-								Replay
+								Phát lại
 							</Button>
 							<Button
 								icon={<PauseOutlined />}
@@ -181,7 +181,7 @@ export default function PlayRealTab() {
 						htmlType='submit'
 						disabled={!gameId}
 					>
-						Load
+						Tải
 					</Button>
 				</Space.Compact>
 			</form>
@@ -190,19 +190,19 @@ export default function PlayRealTab() {
 				<Space direction='vertical' style={{ width: '100%', marginTop: 10 }}>
 					<Space wrap>
 						<Select
-							placeholder='Side'
+							placeholder='Đội'
 							value={side}
 							suffixIcon={<UserOutlined />}
 							onChange={setSide}
 							options={game.sides.map((e) => ({
 								value: e.side,
-								label: `Side ${e.side} - ${e.team_name}`,
+								label: `Đội ${e.side} - ${e.team_name}`,
 							}))}
 						/>
 
 						<Select
 							options={gameModes.map((mode) => ({ value: mode, label: mode }))}
-							placeholder='Game mode'
+							placeholder='Giải thuật'
 							value={gameMode}
 							onChange={(value) => setGameMode(value)}
 						/>
@@ -213,7 +213,7 @@ export default function PlayRealTab() {
 							loading={isPlaying}
 							onClick={handlePlayReal}
 						>
-							Play
+							Chơi
 						</Button>
 
 						<Button
@@ -227,7 +227,7 @@ export default function PlayRealTab() {
 
 					{!!waitTime && (
 						<Descriptions bordered>
-							<DescriptionsItem label='Waiting'>
+							<DescriptionsItem label='Đợi'>
 								<CountDown seconds={waitTime / 1000} />
 							</DescriptionsItem>
 						</Descriptions>
@@ -235,7 +235,7 @@ export default function PlayRealTab() {
 
 					{isShowCountDown && (
 						<Descriptions bordered column={1}>
-							<DescriptionsItem label='Count down'>
+							<DescriptionsItem label='Đếm ngược'>
 								<CountDown seconds={game.time_per_turn} />
 							</DescriptionsItem>
 						</Descriptions>
@@ -246,7 +246,7 @@ export default function PlayRealTab() {
 					<ActionList actions={currentGameActions} />
 				</Space>
 			) : (
-				<Empty description='Get game data to play' style={{ margin: '20px 0' }} />
+				<Empty description='Tải game để hiển thị' style={{ margin: '20px 0' }} />
 			)}
 		</>
 	);

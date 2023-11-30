@@ -17,7 +17,7 @@ export default function AppHeader() {
 				</div>
 
 				<Button icon={<SettingOutlined />} type='primary' onClick={() => setIsOpenSettingsModal(true)}>
-					Config
+					Cấu hình
 				</Button>
 			</div>
 
