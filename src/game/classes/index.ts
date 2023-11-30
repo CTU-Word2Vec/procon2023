@@ -4,6 +4,7 @@ export { default as BasePosition } from './BasePosition';
 export { default as BorderGameManager } from './BorderGameManager';
 export { default as CaroGameManager } from './CaroGameManager';
 export { default as CraftsmenPosition } from './CraftsmenPosition';
+export { default as DijktraGameManager } from './DijktraGameManager';
 export { default as GameManager } from './GameManager';
 export { default as GameStateData } from './GameStateData';
 export { default as HashedType } from './HashedType';

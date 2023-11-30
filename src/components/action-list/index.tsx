@@ -16,13 +16,13 @@ export default function ActionList({ actions }: ActionListProps) {
 	return (
 		<>
 			<h3 className={styles.title}>
-				<span>Actions</span>
+				<span>Hành động</span>
 
 				<Select
 					options={[
-						{ label: 'All', value: 'all' },
-						{ label: 'Side A', value: 'A' },
-						{ label: 'Side B', value: 'B' },
+						{ label: 'Tất cả', value: 'all' },
+						{ label: 'Đội A', value: 'A' },
+						{ label: 'Đội B', value: 'B' },
 					]}
 					defaultValue={'all'}
 					style={{ width: 128 }}

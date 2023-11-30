@@ -25,7 +25,7 @@ export default function GameScore({ state }: GameScoreProps) {
 			<div className={styles.scores}>
 				{sides.map((side) => (
 					<div key={side} className={clsx(styles.side, styles[side])}>
-						<div className={styles.heading}>Team {side}</div>
+						<div className={styles.heading}>Đội {side}</div>
 						<div className={styles.content}>
 							<div className={styles.total}>{state.scores[side].total}</div>
 							<Chart
@@ -41,12 +41,12 @@ export default function GameScore({ state }: GameScoreProps) {
 								column={1}
 								bordered
 								items={[
-									{ label: 'Walls', children: state.scores[side].walls },
+									{ label: 'Tường', children: state.scores[side].walls },
 									{
-										label: 'Territories',
+										label: 'Lãnh thổ',
 										children: state.scores[side].territories,
 									},
-									{ label: 'Castles', children: state.scores[side].castles },
+									{ label: 'Lâu đài', children: state.scores[side].castles },
 								]}
 							></Descriptions>
 						</div>
@@ -57,7 +57,7 @@ export default function GameScore({ state }: GameScoreProps) {
 			<Chart
 				type='line'
 				series={sides.map((side) => ({
-					name: 'Side ' + side,
+					name: 'Đội ' + side,
 					data: state.scoresHistory[side].map((score) => score.total),
 					color: colors[side],
 				}))}
