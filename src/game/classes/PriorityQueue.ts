@@ -26,7 +26,7 @@ export default class PriorityQueue<T> implements IPriorityQueue<T> {
 
 		for (let i = this.queue.length - 1; i >= 0; i--) {
 			if (this.queue[i].priority < priority) {
-				this.queue.splice(i, 0, { value, priority });
+				this.queue.splice(i + 1, 0, { value, priority });
 				isPushed = true;
 				break;
 			}
