@@ -138,7 +138,7 @@ $inner-border-color: #001eb3;
 
 .actionTooltip {
 	position: absolute;
-	top: -100%;
+	bottom: calc(100% + 5px);
 	left: 0;
 	background: #fff;
 	z-index: 99;
@@ -148,7 +148,7 @@ $inner-border-color: #001eb3;
 	border-style: solid;
 	align-items: center;
 	font-weight: bold;
-	box-shadow: 10px 10px 10px #00000040;
+	box-shadow: 5px 5px 5px #00000040;
 	opacity: 0;
 	transition: 0.2s ease;
 	transform: scale(0);
@@ -169,8 +169,9 @@ $inner-border-color: #001eb3;
 	}
 
 	& > div {
-		width: 24px;
+		width: 18px;
 		aspect-ratio: 1;
+		font-size: xx-small;
 		display: flex;
 		justify-content: center;
 		align-items: center;
