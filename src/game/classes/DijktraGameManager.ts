@@ -48,14 +48,17 @@ export default class DijktraGameManager extends GameManager {
 		for (let i = 0; i < this.width; i++) {
 			for (let j = 0; j < this.height; j++) {
 				const pos = new Position(i, j);
-				if (!this.hashedWalls.exist(pos) && !this.hashedCastles.read(pos) && !this.isInSide(pos, ownSide))
+				if (
+					!this.hashedWalls.exist(pos) && // Nếu không có tường
+					!this.hashedCastles.exist(pos) && // Nếu không có lâu đài
+					!this.hashedCraftmens.exist(pos) && // Nếu không có thợ xây
+					!this.isInSide(pos, ownSide) // Nếu không có trong lãnh thổ của mình
+				)
 					this.createMap.write(pos, true);
 				if (
-					this.hashedWalls.exist(pos) &&
-					((this.isInSide(pos, ownSide) &&
-						this.territory_coeff / 1.5 >
-							this.wall_coeff) /** If the distance of score of territory and wall too small, skip */ ||
-						this.hashedWalls.read(pos)!.side !== ownSide)
+					this.hashedWalls.exist(pos) && // Phải có tường mới có thể phá
+					((this.isInSide(pos, ownSide) && this.territory_coeff / 1.5 > this.wall_coeff) || // Nếu là tường của mình mà điểm cho lãnh thổ thấp quá thì cho cút
+						this.hashedWalls.read(pos)!.side !== ownSide) // Nếu là tường của đối phương thì phá luôn
 				)
 					this.breakMap.write(pos, true);
 			}
