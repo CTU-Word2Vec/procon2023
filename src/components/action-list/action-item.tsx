@@ -1,5 +1,11 @@
 import GameAction from '@/models/GameAction';
-import { DoubleRightOutlined, FormatPainterFilled, StopOutlined, UserOutlined } from '@ant-design/icons';
+import {
+	ArrowRightOutlined,
+	DoubleRightOutlined,
+	FormatPainterFilled,
+	StopOutlined,
+	UserOutlined,
+} from '@ant-design/icons';
 import { Descriptions } from 'antd';
 import clsx from 'clsx';
 import CraftsmenA from '../craftsmen-a';
@@ -39,12 +45,30 @@ export default function ActionItem({ action }: ActionItemProps) {
 					items={action.actions.map((action) => ({
 						label: action.craftsman_id,
 						children: (
-							<>
-								<strong>
-									{iconMap[action.action]} {action.action}
-								</strong>{' '}
-								{action.action_param}
-							</>
+							<div
+								style={{
+									display: 'flex',
+									gap: 10,
+								}}
+							>
+								<div
+									style={{
+										textDecoration: action.disabled ? 'line-through' : 'none',
+										opacity: action.disabled ? 0.5 : 1,
+										display: 'inline-block',
+									}}
+								>
+									<strong>
+										{iconMap[action.action]} {action.action}
+									</strong>{' '}
+									<span>{action.action_param}</span>
+								</div>
+								{action.disabled && (
+									<strong>
+										<ArrowRightOutlined /> STAY
+									</strong>
+								)}
+							</div>
 						),
 					}))}
 					column={1}
