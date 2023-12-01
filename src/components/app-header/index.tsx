@@ -1,12 +1,18 @@
 import logoCtu from '@/assets/logo-ctu.png';
-import { SettingOutlined } from '@ant-design/icons';
-import { Button } from 'antd';
+import { RootState } from '@/store';
+import { CodeOutlined, SettingOutlined } from '@ant-design/icons';
+import { Button, Space } from 'antd';
 import { useState } from 'react';
+import { useSelector } from 'react-redux';
+import GameJsonModal from '../game-json-modal';
 import GameSettings from '../game-settings';
 import styles from './index.module.scss';
 
 export default function AppHeader() {
 	const [isOpenSettingsModal, setIsOpenSettingsModal] = useState(false);
+	const [openJsonModal, setOpenJsonModal] = useState(false);
+
+	const gameState = useSelector((state: RootState) => state.gameState.gameState);
 
 	return (
 		<>
@@ -16,12 +22,21 @@ export default function AppHeader() {
 					<h2>CTU.Word2Vec</h2>
 				</div>
 
-				<Button icon={<SettingOutlined />} type='primary' onClick={() => setIsOpenSettingsModal(true)}>
-					Cấu hình
-				</Button>
+				<Space>
+					{gameState && (
+						<Button icon={<CodeOutlined />} onClick={() => setOpenJsonModal(true)}>
+							JSON
+						</Button>
+					)}
+					<Button icon={<SettingOutlined />} type='primary' onClick={() => setIsOpenSettingsModal(true)}>
+						Cấu hình
+					</Button>
+				</Space>
 			</div>
 
 			<GameSettings open={isOpenSettingsModal} onCancel={() => setIsOpenSettingsModal(false)} />
+
+			<GameJsonModal open={openJsonModal} gameState={gameState!} onClose={() => setOpenJsonModal(false)} />
 		</>
 	);
 }

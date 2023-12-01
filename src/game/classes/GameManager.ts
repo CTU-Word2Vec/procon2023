@@ -20,7 +20,26 @@ export default class GameManager extends BaseGameManager implements IGameManager
 	private prevTurnScoreUpdated: number = 0;
 
 	public toObject(): IGameStateData {
-		return JSON.parse(JSON.stringify(this));
+		const object = JSON.parse(JSON.stringify(this)) as IGameStateData;
+
+		return {
+			castle_coeff: object.castle_coeff,
+			castles: object.castles,
+			craftsmen: object.craftsmen,
+			height: object.height,
+			id: object.id,
+			lastTurn: object.lastTurn,
+			match_id: object.match_id,
+			name: object.name,
+			ponds: object.ponds,
+			scores: object.scores,
+			scoresHistory: object.scoresHistory,
+			sides: object.sides,
+			territory_coeff: object.territory_coeff,
+			wall_coeff: object.wall_coeff,
+			walls: object.walls,
+			width: object.width,
+		};
 	}
 
 	public addActions(actions: GameAction[]): void {
@@ -468,6 +487,19 @@ export default class GameManager extends BaseGameManager implements IGameManager
 	 * @returns True if position is valid
 	 */
 	protected isValidPosition(pos: Position): boolean {
-		return pos.isValid(this.width, this.height);
+		return !!pos?.isValid(this.width, this.height);
+	}
+
+	protected isInSide(pos: Position, side: EWallSide): boolean {
+		if (!this.isValidPosition(pos)) return false;
+		if (this.hashedSide.read(pos) === side) return true;
+		if (!this.hashedWalls.exist(pos)) return false;
+		return pos
+			.topRightBottomLeft()
+			.every(
+				(e) =>
+					this.hashedSide.read(e) === side ||
+					(this.hashedWalls.exist(e) && this.hashedWalls.read(e)!.side === side),
+			);
 	}
 }

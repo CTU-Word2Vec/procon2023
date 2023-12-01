@@ -33,7 +33,14 @@ export default class DijktraGameManager extends GameManager {
 
 	constructor(field: Field, numberOfTurns?: number) {
 		super(field, numberOfTurns);
-		this.ownMoveTo = this.castles.map((castle) => new Position(castle.x, castle.y));
+		this.ownMoveTo = this.craftsmen.map(() => new Position(-1, -1));
+		this.createMap = new HashedType<boolean>();
+		this.breakMap = new HashedType<boolean>();
+
+		this.prepareCreateAndBreakMap();
+	}
+
+	private prepareCreateAndBreakMap(ownSide: EWallSide = 'A') {
 		this.createMap = new HashedType<boolean>();
 		this.breakMap = new HashedType<boolean>();
 
@@ -41,13 +48,26 @@ export default class DijktraGameManager extends GameManager {
 		for (let i = 0; i < this.width; i++) {
 			for (let j = 0; j < this.height; j++) {
 				const pos = new Position(i, j);
-				if (!this.hashedWalls.exist(pos) && !this.hashedCastles.exist(pos)) this.createMap.write(pos, true);
-				if (this.hashedWalls.exist(pos)) this.breakMap.write(pos, true);
+				if (
+					!this.hashedWalls.exist(pos) && // Nếu không có tường
+					!this.hashedCastles.exist(pos) && // Nếu không có lâu đài
+					!this.hashedCraftmens.exist(pos) && // Nếu không có thợ xây
+					!this.isInSide(pos, ownSide) // Nếu không có trong lãnh thổ của mình
+				)
+					this.createMap.write(pos, true);
+				if (
+					this.hashedWalls.exist(pos) && // Phải có tường mới có thể phá
+					((this.isInSide(pos, ownSide) && this.territory_coeff / 1.5 > this.wall_coeff) || // Nếu là tường của mình mà điểm cho lãnh thổ thấp quá thì cho cút
+						this.hashedWalls.read(pos)!.side !== ownSide) // Nếu là tường của đối phương thì phá luôn
+				)
+					this.breakMap.write(pos, true);
 			}
 		}
 	}
 
 	private solverDijkstra(ownSide: EWallSide): ActionDto[] {
+		this.prepareCreateAndBreakMap(ownSide);
+
 		const eneSide: EWallSide = ownSide === 'A' ? 'B' : 'A';
 
 		const ownCrafts: CraftsmenPosition[] = this.craftsmen.filter((craftsmen) => craftsmen.side === ownSide);
