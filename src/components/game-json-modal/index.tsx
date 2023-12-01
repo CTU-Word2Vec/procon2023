@@ -36,7 +36,7 @@ export default function GameJsonModal({ open, gameState, onClose }: GameJsonModa
 
 	return (
 		<Modal
-			title='Thông tin game dạng Json'
+			title={`[${gameState?.name}] Thông tin game dạng Json`}
 			width={700}
 			okText='Tải về'
 			okButtonProps={{
