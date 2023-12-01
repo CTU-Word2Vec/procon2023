@@ -208,8 +208,8 @@ export default class GameManager extends BaseGameManager implements IGameManager
 	 * @returns Whether the craftsmen can build wall at position
 	 */
 	protected canCraftsmenBuildWall(pos: Position): boolean {
-		// Craftsmen can build wall if the position is valid and not a wall, a pond or a craftsmen
 		if (!pos.isValid(this.width, this.height)) return false;
+		if (this.hashedPonds.exist(pos)) return false;
 		if (this.hashedCraftmens.exist(pos)) return false;
 		if (this.hashedWalls.exist(pos)) return false;
 		if (this.hashedCastles.exist(pos)) return false;

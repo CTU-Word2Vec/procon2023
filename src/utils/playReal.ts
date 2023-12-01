@@ -3,7 +3,6 @@ import IGameStateData from '@/game/interfaces/IGameStateData';
 import Game from '@/models/Game';
 import GameAction from '@/models/GameAction';
 import playerService from '@/services/player.service';
-import { message } from 'antd';
 import { createGameManager } from '.';
 import wait from './wait';
 
@@ -47,6 +46,12 @@ export interface PlayRealOptions {
 	 * @returns Void
 	 */
 	onShowCountDownChange?: (showCountDown: boolean) => void;
+	/**
+	 * @description On post error
+	 * @param error - Error
+	 * @returns Void
+	 */
+	onPostError?: (error: Error) => void;
 }
 
 /**
@@ -71,6 +76,7 @@ export default async function playReal({
 	onShowCountDownChange,
 	onGameStateChange,
 	onGameActionsChange,
+	onPostError,
 }: PlayRealOptions) {
 	// Set playing state to true
 	playRealState.playing = true;
@@ -121,7 +127,7 @@ export default async function playReal({
 					turn: cur_turn + 1,
 					actions: gameManager.getNextActions(side),
 				})
-				.catch((error) => message.error(error.message));
+				.catch((error) => onPostError?.(error));
 		}
 
 		const { remaining } = await playerService.getGameStatus(game.id);

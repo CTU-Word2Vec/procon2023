@@ -52,7 +52,8 @@ export default class DijktraGameManager extends GameManager {
 					!this.hashedWalls.exist(pos) && // Nếu không có tường
 					!this.hashedCastles.exist(pos) && // Nếu không có lâu đài
 					!this.hashedCraftmens.exist(pos) && // Nếu không có thợ xây
-					!this.isInSide(pos, ownSide) // Nếu không có trong lãnh thổ của mình
+					!this.isInSide(pos, ownSide) && // Nếu không có trong lãnh thổ của mình
+					!this.hashedPonds.exist(pos) // Nếu không có ao
 				)
 					this.createMap.write(pos, true);
 				if (

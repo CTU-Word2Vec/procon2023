@@ -7,4 +7,5 @@ export default interface Action extends BaseModel {
 	action_param?: EActionParam;
 	craftsman_id: string;
 	action_id: number;
+	disabled?: boolean;
 }
