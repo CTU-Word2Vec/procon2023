@@ -44,6 +44,7 @@ export default class GameManager extends BaseGameManager implements IGameManager
 			width: object.width,
 			buildPositions: object.buildPositions,
 			destroyPositions: object.destroyPositions,
+			targetPositions: object.targetPositions,
 		};
 	}
 
@@ -252,33 +253,47 @@ export default class GameManager extends BaseGameManager implements IGameManager
 	protected getActionToGoToPosition(craftmen: CraftsmenPosition, targetPos: Position): ActionDto | null {
 		const queue = new PriorityQueue<{ from: Position; to: Position; direction: EMoveParam }>();
 		const visited = new HashedType<boolean>();
+		const dist = new HashedType<number>();
 
 		const nears = craftmen.allNears();
 
 		for (const i in nears) {
 			queue.enQueue({ from: nears[i], to: nears[i], direction: moveParams[i] }, 1);
+			dist.write(nears[i], 1);
 		}
+
+		let minDist = Infinity;
+		let finalAction: ActionDto | null = null;
 
 		while (!queue.isEmpty()) {
 			const top = queue.deQueue();
 			const pos = top.value.to;
+			const d = top.priority;
+
+			if (d >= minDist) continue;
 
 			if (!this.isValidPosition(pos)) continue;
 			if (this.hashedPonds.exist(pos)) continue;
 			if (this.hashedCraftmens.exist(pos)) continue;
 			if (this.hashedWalls.exist(pos) && this.hashedWalls.read(pos)!.side !== craftmen.side) continue;
 
-			if (pos.isEquals(targetPos)) return craftmen.getMoveAction(top.value.direction);
+			if (pos.isEquals(targetPos)) {
+				if (top.priority + 1 < minDist) {
+					minDist = d + 1;
+					finalAction = craftmen.getMoveAction(top.value.direction);
+				}
+			}
 
 			if (visited.exist(pos)) continue;
 			visited.write(pos, true);
 
 			for (const near of pos.allNears()) {
-				queue.enQueue({ from: top.value.from, to: near, direction: top.value.direction }, top.priority + 1);
+				queue.enQueue({ from: top.value.from, to: near, direction: top.value.direction }, d + 1);
+				if (!dist.exist(near) || dist.read(near)! > d + 1) dist.write(near, d + 1);
 			}
 		}
 
-		return null;
+		return finalAction;
 	}
 
 	/**

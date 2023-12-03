@@ -99,4 +99,9 @@ export default interface IGameStateData {
 	 * @description Những điểm có thể phá hủy
 	 */
 	destroyPositions: IPositionData<boolean>[];
+
+	/**
+	 * @description Những điểm cần đi đến
+	 */
+	targetPositions: IPosition[];
 }
