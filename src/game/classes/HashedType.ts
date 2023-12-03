@@ -14,10 +14,16 @@ export default class HashedType<T> implements IHashedType<T> {
 	private data: IHashedDataType<T>;
 
 	/**
+	 * @description Number of elements;
+	 */
+	private elements: number;
+
+	/**
 	 * @description Hashed type
 	 */
 	constructor(initialData?: Position[], initElement?: T) {
 		this.data = {};
+		this.elements = 0;
 
 		if (!initialData) return;
 		if (!initElement) throw new Error('initElement is required when initialData is provided');
@@ -44,6 +50,10 @@ export default class HashedType<T> implements IHashedType<T> {
 			this.data[pos.x] = {};
 		}
 
+		if (!this.data[pos.x]![pos.y]) {
+			this.elements++;
+		}
+
 		this.data[pos.x]![pos.y] = t;
 	}
 
@@ -51,6 +61,7 @@ export default class HashedType<T> implements IHashedType<T> {
 		// If the x position does not exist, do nothing
 		if (!this.exist(pos)) return;
 
+		this.elements--;
 		this.data[pos.x]![pos.y] = null;
 	}
 
@@ -94,5 +105,13 @@ export default class HashedType<T> implements IHashedType<T> {
 		clonedObject.data = data;
 
 		return clonedObject;
+	}
+
+	public isEmpty(): boolean {
+		return !this.elements;
+	}
+
+	public someExist(positions: Position[]): boolean {
+		return positions.some((pos) => this.exist(pos));
 	}
 }
