@@ -33,8 +33,8 @@ export default function PlayTestTab() {
 	const [isPlayingTest, setIsPlayingTest] = useState(false);
 	const [randomedField, setRandomedField] = useState<Field>();
 	const [numberOfTurns, setNumberOfTurns] = useState(100);
-	const [sideAMode, setSideAMode] = useState<EGameMode>('Dijktra');
-	const [sideBMode, setSideBMode] = useState<EGameMode>('Border');
+	const [sideAMode, setSideAMode] = useState<EGameMode>('Dijkstra+');
+	const [sideBMode, setSideBMode] = useState<EGameMode>('Dijkstra');
 	const [isRandoming, setIsRandoming] = useState(false);
 
 	const gameState = useSelector((state: RootState) => state.gameState.gameState);

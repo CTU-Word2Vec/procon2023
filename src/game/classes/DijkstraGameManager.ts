@@ -15,10 +15,10 @@ import GameManager from './GameManager';
 import PriorityQueue from './PriorityQueue';
 
 /**
- * @description Dijktra game manager
+ * @description Dijkstra game manager
  * @extends GameManager
  */
-export default class DijktraGameManager extends GameManager {
+export default class DijkstraGameManager extends GameManager {
 	public override getNextActions(side: EWallSide): ActionDto[] {
 		return this.solverDijkstra(side);
 	}
