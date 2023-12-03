@@ -1,3 +1,5 @@
+import { EMoveParam } from '@/constants';
+import { moveParams } from '@/constants/action-params';
 import Action from '@/models/Action';
 import GameAction from '@/models/GameAction';
 import { ActionDto } from '@/services/player.service';
@@ -10,6 +12,7 @@ import BaseGameManager from './BaseGameManager';
 import CraftsmenPosition from './CraftsmenPosition';
 import HashedType from './HashedType';
 import Position from './Position';
+import PriorityQueue from './PriorityQueue';
 import WallPosition from './WallPosition';
 
 /**
@@ -230,36 +233,50 @@ export default class GameManager extends BaseGameManager implements IGameManager
 		switch (action.action) {
 			case 'STAY':
 				return true;
-			case 'MOVE': {
+			case 'MOVE':
 				return this.canCraftsmenMove(craftmen, nextPos);
-			}
-			case 'BUILD': {
+			case 'BUILD':
 				return this.canCraftsmenBuildWall(nextPos);
-			}
-			case 'DESTROY': {
+			case 'DESTROY':
 				return this.canCraftsmenDestroy(nextPos);
-			}
 		}
 	}
 
 	/**
 	 * @description Get action to go to position
 	 * @param craftmen - Craftsmen
-	 * @param pos - Position
+	 * @param targetPos - Position
 	 * @returns Action to go to position or null
 	 */
-	protected getActionToGoToPosition(craftmen: CraftsmenPosition, pos: Position): ActionDto | null {
-		// Get next actions to go to position
-		const nextActions = craftmen.getNextActionsToGoToPosition(pos);
+	protected getActionToGoToPosition(craftmen: CraftsmenPosition, targetPos: Position): ActionDto | null {
+		const queue = new PriorityQueue<{ from: Position; to: Position; direction: EMoveParam }>();
+		const visited = new HashedType<boolean>();
 
-		// Check if the craftsmen can do action
-		for (const action of nextActions) {
-			if (this.canCrafsmenDoAction(craftmen, action)) {
-				return action;
+		const nears = craftmen.allNears();
+
+		for (const i in nears) {
+			queue.enQueue({ from: nears[i], to: nears[i], direction: moveParams[i] }, 1);
+		}
+
+		while (!queue.isEmpty()) {
+			const top = queue.deQueue();
+			const pos = top.value.to;
+
+			if (!this.isValidPosition(pos)) continue;
+			if (this.hashedPonds.exist(pos)) continue;
+			if (this.hashedCraftmens.exist(pos)) continue;
+			if (this.hashedWalls.exist(pos) && this.hashedWalls.read(pos)!.side !== craftmen.side) continue;
+
+			if (pos.isEquals(targetPos)) return craftmen.getMoveAction(top.value.direction);
+
+			if (visited.exist(pos)) continue;
+			visited.write(pos, true);
+
+			for (const near of pos.allNears()) {
+				queue.enQueue({ from: top.value.from, to: near, direction: top.value.direction }, top.priority + 1);
 			}
 		}
 
-		// If the craftsmen cannot do action, then return null
 		return null;
 	}
 

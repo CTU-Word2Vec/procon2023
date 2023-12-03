@@ -1,5 +1,11 @@
-import { AStarGameManager, CaroGameManager, DijktraGameManager, GameManager } from '@/game/classes';
-import BorderGameManager from '@/game/classes/BorderGameManager';
+import {
+	AStarGameManager,
+	BorderGameManager,
+	CaroGameManager,
+	DijkstraGameManager,
+	DijkstraPlusGameManager,
+	GameManager,
+} from '@/game/classes';
 import { EGameMode } from '@/game/enums';
 import Field from '@/models/Field';
 
@@ -18,7 +24,9 @@ export default function createGameManager(field: Field, numberOfTurns: number, g
 			return new AStarGameManager(field, numberOfTurns);
 		case 'Border':
 			return new BorderGameManager(field, numberOfTurns);
-		case 'Dijktra':
-			return new DijktraGameManager(field, numberOfTurns);
+		case 'Dijkstra':
+			return new DijkstraGameManager(field, numberOfTurns);
+		case 'Dijkstra+':
+			return new DijkstraPlusGameManager(field, numberOfTurns);
 	}
 }
