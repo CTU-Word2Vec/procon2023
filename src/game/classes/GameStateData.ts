@@ -1,6 +1,6 @@
 import { EWallSide } from '../enums/EWallSide';
 import IGameStateData from '../interfaces/IGameStateData';
-import IPositionData from '../interfaces/IPositionData';
+import { default as IPositionData, default as PositionData } from '../interfaces/IPositionData';
 import IScores from '../interfaces/IScores';
 import CraftsmenPosition from './CraftsmenPosition';
 import HashedType from './HashedType';
@@ -12,6 +12,9 @@ import WallPosition from './WallPosition';
  * @implements IGameStateData
  */
 export default class GameStateData implements IGameStateData {
+	public buildPositions: PositionData<number>[];
+	public destroyPositions: IPositionData<boolean>[];
+
 	/**
 	 * @description Game state data constructor
 	 * @param id - The game id
@@ -72,6 +75,9 @@ export default class GameStateData implements IGameStateData {
 			[side: string]: IScores[];
 		},
 	) {
+		this.buildPositions = [];
+		this.destroyPositions = [];
+
 		// Call the first hashing
 		this.firstHashing();
 	}
