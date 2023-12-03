@@ -89,4 +89,14 @@ export default interface IGameStateData {
 	scoresHistory: {
 		[side: string]: IScores[];
 	};
+
+	/**
+	 * @description Những điểm có thể xây dựng
+	 */
+	buildPositions: IPositionData<number>[];
+
+	/**
+	 * @description Những điểm có thể phá hủy
+	 */
+	destroyPositions: IPositionData<boolean>[];
 }

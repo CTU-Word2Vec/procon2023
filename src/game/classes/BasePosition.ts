@@ -16,7 +16,7 @@ export default class BasePosition implements IBasePosition {
 	 * const pos = new BasePosition(1, 1);
 	 */
 	constructor(x: number, y: number) {
-		this.x = x;
-		this.y = y;
+		this.x = Math.floor(x);
+		this.y = Math.floor(y);
 	}
 }

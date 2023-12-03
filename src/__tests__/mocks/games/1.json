@@ -1,0 +1,1259 @@
+{
+	"castle_coeff": 20,
+	"castles": [
+		{
+			"x": 3,
+			"y": 3
+		}
+	],
+	"craftsmen": [
+		{
+			"x": 1,
+			"y": 1,
+			"id": "0",
+			"side": "A"
+		},
+		{
+			"x": 1,
+			"y": 2,
+			"id": "1",
+			"side": "B"
+		}
+	],
+	"height": 5,
+	"id": 0,
+	"lastTurn": 0,
+	"match_id": 0,
+	"name": "Random Field",
+	"ponds": [
+		{
+			"x": 2,
+			"y": 2
+		}
+	],
+	"scores": {
+		"A": {
+			"castles": 0,
+			"territories": 0,
+			"total": 0,
+			"walls": 0
+		},
+		"B": {
+			"castles": 0,
+			"territories": 0,
+			"total": 0,
+			"walls": 0
+		}
+	},
+	"scoresHistory": {
+		"A": [
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			}
+		],
+		"B": [
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			},
+			{
+				"castles": 0,
+				"territories": 0,
+				"total": 0,
+				"walls": 0
+			}
+		]
+	},
+	"sides": [],
+	"territory_coeff": 5,
+	"wall_coeff": 1,
+	"walls": [],
+	"width": 5
+}

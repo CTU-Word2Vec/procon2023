@@ -42,6 +42,8 @@ export default class GameManager extends BaseGameManager implements IGameManager
 			wall_coeff: object.wall_coeff,
 			walls: object.walls,
 			width: object.width,
+			buildPositions: object.buildPositions,
+			destroyPositions: object.destroyPositions,
 		};
 	}
 
@@ -169,11 +171,10 @@ export default class GameManager extends BaseGameManager implements IGameManager
 		// Get nearby positions of new wall and update side
 		const positions = pos.topRightBottomLeft();
 
-		const visited = new HashedType<boolean>();
 		const filled = new HashedType<boolean>();
 
 		for (const position of positions) {
-			this.updateSideFromPosition(position, this.hashedSide.read(position) || side, visited, filled);
+			this.updateSideFromPosition(position, this.hashedSide.read(position) || side, filled);
 		}
 
 		this.hashedSide.remove(pos);
@@ -316,10 +317,8 @@ export default class GameManager extends BaseGameManager implements IGameManager
 		if (this.hashedWalls.exist(pos)) {
 			// If the position is a wall and the current side is null, then return side of the wall
 			if (!currentSide) return this.hashedWalls.read(pos)!.side;
-			// If the position is a wall and the side of the wall is not equal to current side, then return null
-			if (currentSide !== this.hashedWalls.read(pos)!.side) return null;
-			// If the position is a wall and the side of the wall is equal to current side, then return current side
-			return currentSide;
+			// If the position is a wall and the side of wall is not equal to current side, then return null
+			if (this.hashedWalls.read(pos)!.side === currentSide) return currentSide;
 		}
 
 		// Mark the position as visited
@@ -397,14 +396,13 @@ export default class GameManager extends BaseGameManager implements IGameManager
 	private updateSideFromPosition(
 		pos: Position,
 		initSide: EWallSide | null = null,
-		visited: HashedType<boolean> = new HashedType<boolean>(),
 		filled: HashedType<boolean> = new HashedType<boolean>(),
 	): void {
 		// Get side of position
-		const updateSide = this.sideOf(pos, initSide, visited);
+		const updatedSide = this.sideOf(pos, initSide, new HashedType<boolean>());
 
 		// Fill side of position and nearby positions
-		this.fillSide(pos, updateSide, filled);
+		this.fillSide(pos, updatedSide, filled);
 
 		// Update sides from hashed side
 		this.sides = this.hashedSide.toList();

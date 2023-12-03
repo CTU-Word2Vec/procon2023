@@ -6,6 +6,7 @@ export { default as ICaroGameManager } from './ICaroGameManager';
 export { default as ICraftsmenPosition } from './ICraftsmenPosition';
 export { default as IGameManager } from './IGameManager';
 export { default as IGameStateData } from './IGameStateData';
+export { default as IHashedCounter } from './IHashedCounter';
 export { default as IHashedDataType } from './IHashedDataType';
 export { default as IHashedType } from './IHashedType';
 export { default as IPosition } from './IPosition';
