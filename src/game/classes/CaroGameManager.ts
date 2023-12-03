@@ -63,13 +63,13 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 	private getNextPosition(craftmen: CraftsmenPosition): Position | null {
 		// Initialize positions array, use this like a queue
 		const position = new Position(craftmen.x, craftmen.y);
-		const positions: Position[] = [];
-		positions.push(position);
+		const queue: Position[] = [];
+		queue.push(position);
 		const visited = new HashedType<boolean>();
 
-		while (positions.length) {
+		while (queue.length) {
 			// Get the first position in the positions array and remove it from the array
-			const pos = positions.shift() as Position;
+			const pos = queue.shift()!;
 
 			if (visited.exist(pos)) continue;
 			visited.write(pos, true);
@@ -80,7 +80,7 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 			if (this.willBuildOrDestroy(pos, craftmen.side)) return pos;
 
 			// Else, push the next positions to the positions array
-			positions.push(...pos.upperLeftUpperRightLowerLeftLowerRight(), ...pos.topRightBottomLeft());
+			queue.push(...pos.upperLeftUpperRightLowerLeftLowerRight(), ...pos.topRightBottomLeft());
 		}
 
 		// If the craftsman can not go to any position, return null
@@ -293,10 +293,9 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 	 * @returns Boolean
 	 */
 	private willBeDestroy(pos: Position, side: EWallSide): boolean {
-		if (this.hashedCraftmens.exist(pos)) return false;
-		if (this.hashedPonds.exist(pos)) return false;
-		if (this.hashedCastles.exist(pos)) return false;
+		if (!this.hashedWalls.exist(pos)) return false;
 		if (this.hashedWalls.read(pos)?.side === side) return false;
+		if (this.hashedCraftmens.exist(pos)) return false;
 
 		return true;
 	}
