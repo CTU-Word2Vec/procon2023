@@ -1,12 +1,32 @@
 import { buildDestroyActionParams } from '@/constants/action-params';
 import { ActionDto } from '@/services/player.service';
-import { HashedType } from '.';
 import { EWallSide } from '../enums/EWallSide';
 import ICaroGameManager from '../interfaces/ICaroGameManager';
 import CraftsmenPosition from './CraftsmenPosition';
 import GameManager from './GameManager';
+import HashedCounter from './HashedCounter';
+import HashedType from './HashedType';
 import Position from './Position';
 import PriorityQueue from './PriorityQueue';
+
+const BUILD_TEMPLATE = [
+	[false, false, true, false, false],
+	[false, true, false, true, false],
+	[true, false, false, false, true],
+	[false, true, false, true, false],
+	[false, false, true, false, false],
+];
+
+const TEMPLATE_WIDTH = BUILD_TEMPLATE[0].length;
+const TEMPLATE_HEIGHT = BUILD_TEMPLATE.length;
+
+const HASHED_BUILD_TEMPLATE = new HashedType<boolean>();
+for (const x in BUILD_TEMPLATE) {
+	for (const y in BUILD_TEMPLATE[x]) {
+		if (!BUILD_TEMPLATE[x][y]) continue;
+		HASHED_BUILD_TEMPLATE.write(new Position(+x, +y), true);
+	}
+}
 
 /**
  * @description Caro game manager
@@ -14,32 +34,63 @@ import PriorityQueue from './PriorityQueue';
  * @implements ICaroGameManager
  */
 export default class CaroGameManager extends GameManager implements ICaroGameManager {
-	private createPositions: HashedType<boolean> = new HashedType<boolean>();
-	private destroyPositions: HashedType<boolean> = new HashedType<boolean>();
+	private hashedBuildPositions: HashedType<boolean> = new HashedType<boolean>();
+	private hashedDestroyPositions: HashedType<boolean> = new HashedType<boolean>();
+	private scoreCounter: HashedCounter = new HashedCounter();
 
 	private prepareCreatePositions(side: EWallSide = 'A') {
-		this.createPositions = new HashedType<boolean>();
-		this.destroyPositions = new HashedType<boolean>();
+		this.hashedBuildPositions = new HashedType<boolean>();
+		this.hashedDestroyPositions = new HashedType<boolean>();
+		this.scoreCounter = new HashedCounter();
 
 		for (let x = 0; x < this.width; x++) {
 			for (let y = 0; y < this.height; y++) {
 				const pos = new Position(x, y);
 				{
-					// Check create scoped
-					if (this.checkCreate(pos, side)) this.createPositions.write(pos, true);
+					// Nếu có thể xây, thì xây
+					if (this.checkCreate(pos, side)) this.hashedBuildPositions.write(pos, true);
+					// Nếu không thể xây, thì tăng điểm
+					else this.scoreCounter.increase(new Position(pos.x / TEMPLATE_WIDTH, pos.y / TEMPLATE_HEIGHT), 2);
 				}
 				{
 					// Check destroy scoped
-					if (this.checkDestroy(pos, side)) this.destroyPositions.write(pos, true);
+					if (this.checkDestroy(pos, side)) this.hashedDestroyPositions.write(pos, true);
 				}
 			}
 		}
+
+		for (const castle of this.castles) {
+			for (const pos of castle.topRightBottomLeft()) {
+				if (this.hashedWalls.exist(pos)) continue;
+				if (this.hashedCastles.exist(pos)) continue;
+				if (this.hashedPonds.exist(pos)) continue;
+
+				this.hashedBuildPositions.write(pos, true);
+			}
+		}
+
+		this.buildPositions = this.hashedBuildPositions.toList().map((pos) => ({
+			...pos,
+			data: this.scoreCounter.read(new Position(pos.x / TEMPLATE_WIDTH, pos.y / TEMPLATE_HEIGHT)),
+		}));
+
+		this.destroyPositions = this.hashedDestroyPositions.toList();
 	}
 
 	private checkCreate(pos: Position, ownSide: EWallSide): boolean {
-		const needCondition = (pos.x + pos.y) % 2 === 0;
+		const needCondition =
+			HASHED_BUILD_TEMPLATE.exist(new Position(pos.x % (TEMPLATE_WIDTH - 1), pos.y % (TEMPLATE_HEIGHT - 1))) ||
+			pos.x == this.width - 1 ||
+			pos.y == this.height - 1;
 
 		if (!needCondition) return false;
+
+		if (
+			pos
+				.topRightBottomLeft()
+				.some((pos) => this.hashedCraftmens.exist(pos) && this.hashedCraftmens.read(pos)!.side !== ownSide)
+		)
+			return false;
 		if (this.hashedWalls.exist(pos)) return false;
 		if (this.hashedCastles.exist(pos)) return false;
 		if (this.hashedPonds.exist(pos)) return false;
@@ -51,10 +102,16 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 
 	private checkDestroy(pos: Position, ownSide: EWallSide): boolean {
 		if (!this.hashedWalls.exist(pos)) return false;
+		if (this.hashedCraftmens.exist(pos)) return false;
+		if (
+			pos
+				.topRightBottomLeft()
+				.some((pos) => this.hashedCraftmens.exist(pos) && this.hashedCraftmens.read(pos)!.side !== ownSide)
+		)
+			return false;
 		if (this.hashedWalls.read(pos)!.side !== ownSide) return true;
-		if (!this.isInSide(pos, ownSide)) return false;
 
-		return this.territory_coeff / this.wall_coeff > 3;
+		return false;
 	}
 
 	public getNextActions(side: EWallSide): ActionDto[] {
@@ -83,7 +140,6 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 
 		// If the craftsman can go to the position, go to it
 		const nextAction = this.getActionToGoToPosition(craftmen, pos);
-
 		if (!nextAction) return craftmen.getStayAction();
 
 		this.goingTo.write(pos, pos);
@@ -99,14 +155,26 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 	 */
 	private getNextPosition(craftmen: CraftsmenPosition): Position | null {
 		const closestCastle = this.findClosestCastle(craftmen);
-		if (closestCastle) return closestCastle;
+		if (closestCastle) {
+			for (const pos of closestCastle.topRightBottomLeft()) {
+				this.hashedBuildPositions.remove(pos);
+			}
+
+			return closestCastle;
+		}
 
 		// Initialize positions array, use this like a queue
-		const position = new Position(craftmen.x, craftmen.y);
 		const queue = new PriorityQueue<Position>();
 		const visited = new HashedType<boolean>();
 
-		queue.enQueue(position, 0);
+		const allNears = craftmen.allNears();
+
+		for (const near of allNears) {
+			queue.enQueue(
+				near,
+				-this.scoreCounter.read(new Position(near.x / TEMPLATE_WIDTH, near.y / TEMPLATE_HEIGHT)),
+			);
+		}
 
 		while (!queue.isEmpty()) {
 			// Get the first position in the positions array and remove it from the array
@@ -119,69 +187,40 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 			// If the position is not valid, continue
 			if (!pos.isValid(this.width, this.height)) continue;
 			if (this.hashedPonds.exist(pos)) continue;
-			if (this.hashedWalls.exist(pos) && this.hashedWalls.read(pos)!.side === craftmen.side) continue;
+			if (this.hashedWalls.exist(pos) && this.hashedWalls.read(pos)!.side !== craftmen.side) continue;
 
 			const trbl = pos.topRightBottomLeft();
 
-			if (trbl.some((p) => this.createPositions.exist(p) || this.destroyPositions.exist(p))) return pos;
+			for (const near of trbl) {
+				if (this.hashedBuildPositions.exist(near)) {
+					this.hashedBuildPositions.remove(near);
+
+					pos.topRightBottomLeft().forEach((pos) => this.hashedBuildPositions.remove(pos));
+
+					return pos;
+				}
+
+				// if (this.hashedDestroyPositions.exist(near)) {
+				// 	this.hashedDestroyPositions.remove(near);
+				// 	return pos;
+				// }
+			}
 
 			const allNears = pos.allNears();
 
 			for (const near of allNears) {
-				queue.enQueue(near, top.priority + 1);
+				queue.enQueue(
+					near,
+					craftmen.distance(near) -
+						this.scoreCounter.read(new Position(near.x / TEMPLATE_WIDTH, near.y / TEMPLATE_HEIGHT)),
+				);
 			}
 		}
 
+		console.log('Cannot find next position for the craftsman', craftmen);
+
 		// If the craftsman can not go to any position, return null
 		return null;
-	}
-
-	/**
-	 * @description Get craftsmen self-destroy action
-	 * @param craftsmen - Craftsmen
-	 * @returns Destroy action (can be null)
-	 */
-	private getSeflDestroyAction(craftsmen: CraftsmenPosition): ActionDto | null {
-		// Get all nears of the position
-		const nears = craftsmen.topRightBottomLeft();
-
-		for (const index in nears) {
-			const near = nears[index];
-			const actionParam = buildDestroyActionParams[index];
-
-			// If the craftsman can not destroy a wall at the position, continue
-			if (!this.willSelfDestroy(near, craftsmen.side)) continue;
-
-			this.goingTo.write(craftsmen, craftsmen);
-
-			return craftsmen.getDestroyAction(actionParam);
-		}
-
-		return null;
-	}
-
-	/**
-	 * @description Check if can destroy
-	 * @param pos - Position to destroy
-	 * @param side - Side of current team
-	 * @returns - Destroy action (can be null)
-	 */
-	private willSelfDestroy(pos: Position, side: EWallSide) {
-		if (!this.hashedWalls.exist(pos)) return false;
-
-		const [top, right, bottom, left] = pos.topRightBottomLeft();
-
-		const willDestroyGroups = [[top, bottom, left, right]];
-
-		for (const group of willDestroyGroups) {
-			const valid = group.every(
-				(pos) => this.hashedSide.read(pos) === side || this.hashedWalls.read(pos)?.side === side,
-			);
-
-			if (valid) return true;
-		}
-
-		return false;
 	}
 
 	/**
@@ -195,9 +234,9 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 		for (const i in trbl) {
 			const pos = trbl[i];
 
-			if (!this.createPositions.exist(pos)) continue;
+			if (!this.hashedBuildPositions.exist(pos)) continue;
 
-			this.createPositions.remove(pos);
+			this.hashedBuildPositions.remove(pos);
 			return craftmen.getBuildAction(buildDestroyActionParams[i]);
 		}
 
@@ -215,13 +254,8 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 		let closestCastle: Position | null = null;
 
 		for (const castle of this.castles) {
-			// If have already gone to the castle, continue
-			if (this.goingTo.exist(castle)) continue;
-			// If the castle is the same side with the craftsman, continue
-			if (this.hashedCraftmens.exist(castle) && !craftsmen.isEquals(castle)) continue;
-			// If the castle is the same side with the craftsman, continue
-			if (this.hashedSide.read(castle) === craftsmen.side) continue;
-			// Get the distance from the craftsman to the castle
+			if (!castle.topRightBottomLeft().some((pos) => this.hashedBuildPositions.exist(pos))) continue;
+
 			const distance = craftsmen.distance(castle);
 			// If the distance is 0, return null
 			if (distance === 0) return null;
@@ -243,10 +277,6 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 	 * @returns Action to go to the position
 	 */
 	private getDestroyAction(craftsmen: CraftsmenPosition): ActionDto | null {
-		// If have self destroy action, return it
-		const selfDestroyAction = this.getSeflDestroyAction(craftsmen);
-		if (selfDestroyAction) return selfDestroyAction;
-
 		// Get the destroy action from the position, if it does not exist, return null
 		const positions = craftsmen.topRightBottomLeft();
 
@@ -254,12 +284,9 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 			const pos = positions[i];
 			const param = buildDestroyActionParams[i];
 
-			// If the craftsman can not destroy a wall at the position, continue
-			if (!this.hashedWalls.exist(pos)) continue;
-			// If the craftsman can not destroy a wall at the position, continue
-			if (this.hashedWalls.read(pos)!.side === craftsmen.side) continue;
+			if (!this.hashedDestroyPositions.exist(pos)) continue;
 
-			this.destroyPositions.remove(pos);
+			this.hashedDestroyPositions.remove(pos);
 			// Return the destroy action
 			return craftsmen.getDestroyAction(param);
 		}

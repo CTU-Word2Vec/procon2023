@@ -225,6 +225,31 @@ export default function GameBoard({ state, action }: GameBoardProps) {
 						</div>
 					);
 				})}
+
+				{state.buildPositions.map((pos) => (
+					<div
+						key={`${pos.x}-${pos.y}`}
+						className={clsx(styles.position)}
+						style={{
+							transform: `translate(${pos.x * 33}px, ${pos.y * 33}px)`,
+						}}
+					>
+						{pos.data}
+					</div>
+				))}
+
+				{state.destroyPositions.map((pos) => (
+					<div
+						key={`${pos.x}-${pos.y}`}
+						className={clsx(styles.position)}
+						style={{
+							transform: `translate(${pos.x * 33}px, ${pos.y * 33 - 3}px)`,
+							zIndex: state.height,
+						}}
+					>
+						<StopOutlined />
+					</div>
+				))}
 				<div
 					className={styles.mask}
 					style={{ zIndex: state.height }}
