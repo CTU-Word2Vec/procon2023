@@ -46,4 +46,10 @@ export default class PriorityQueue<T> implements IPriorityQueue<T> {
 	public isEmpty(): boolean {
 		return this.queue.length === 0;
 	}
+
+	public front(): IPriorityQueueResult<T> {
+		if (this.isEmpty()) throw new Error('Queue is empty');
+
+		return this.queue[0];
+	}
 }
