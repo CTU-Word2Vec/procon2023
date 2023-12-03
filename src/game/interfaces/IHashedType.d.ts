@@ -1,3 +1,4 @@
+import { IPosition } from '.';
 import IPositionData from './IPositionData';
 
 /**
@@ -49,4 +50,14 @@ export default interface IHashedType<T> {
 	 * @returns New object copied from this
 	 */
 	clone(): IHashedType<T>;
+
+	/**
+	 * @description Check if the hash have element
+	 */
+	isEmpty(): boolean;
+
+	/**
+	 * @description Return true if some pos exist
+	 */
+	someExist(positions: IPosition[]): boolean;
 }

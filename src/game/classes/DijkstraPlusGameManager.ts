@@ -8,10 +8,22 @@ import {
 } from '@/constants/action-params';
 import Field from '@/models/Field';
 import { ActionDto } from '@/services';
-import { CraftsmenPosition, HashedType, Position } from '.';
 import { EWallSide } from '../enums';
+import CraftsmenPosition from './CraftsmenPosition';
 import GameManager from './GameManager';
+import HashedType from './HashedType';
+import Position from './Position';
 import PriorityQueue from './PriorityQueue';
+
+const hashedHack = new HashedType<boolean>();
+hashedHack.write(new Position(0, 2), true);
+hashedHack.write(new Position(1, 1), true);
+hashedHack.write(new Position(1, 3), true);
+hashedHack.write(new Position(2, 0), true);
+hashedHack.write(new Position(2, 4), true);
+hashedHack.write(new Position(3, 1), true);
+hashedHack.write(new Position(3, 3), true);
+hashedHack.write(new Position(4, 2), true);
 
 /**
  * @description Dijkstra game manager
@@ -26,33 +38,30 @@ export default class DijkstraPlusGameManager extends GameManager {
 		return this.getNextActions(side);
 	}
 
-	private ownMoveTo: Position[];
 	private createMap: HashedType<boolean>;
 	private breakMap: HashedType<boolean>;
 
 	constructor(field: Field, numberOfTurns?: number) {
 		super(field, numberOfTurns);
-		this.ownMoveTo = this.craftsmen.map(() => new Position(-1, -1));
 		this.createMap = new HashedType<boolean>();
 		this.breakMap = new HashedType<boolean>();
-
-		this.prepareCreateAndBreakMap();
 	}
 
 	private prepareCreateAndBreakMap(ownSide: EWallSide = 'A') {
-		this.createMap = new HashedType<boolean>();
 		this.breakMap = new HashedType<boolean>();
+		this.createMap = new HashedType<boolean>();
 
 		// Init create map and break map
 		for (let i = 0; i < this.width; i++) {
 			for (let j = 0; j < this.height; j++) {
 				const pos = new Position(i, j);
+
 				if (
 					!this.hashedWalls.exist(pos) && // Nếu không có tường
 					!this.hashedCastles.exist(pos) && // Nếu không có lâu đài
 					!this.hashedCraftmens.exist(pos) && // Nếu không có thợ xây
 					!this.isInSide(pos, ownSide) && // Nếu không có trong lãnh thổ của mình
-					!this.hashedPonds.exist(pos) // Nếu không có ao
+					!this.hashedPonds.exist(pos) // Nếu không có
 				)
 					this.createMap.write(pos, true);
 				if (
@@ -133,7 +142,7 @@ export default class DijkstraPlusGameManager extends GameManager {
 
 								if (!this.isValidPosition(nextPos)) continue;
 
-								if (nextPos.isEquals(currentCraft) && d == 1) {
+								if (nextPos.isEquals(currentCraft) && d == 1 && !this.hashedCraftmens.exist(from)) {
 									getAnswerFlag = true;
 									to = from;
 									act = currentCraft.getMoveAction(reverseMoveParams[moveParams[+i + 4]]);
@@ -213,12 +222,7 @@ export default class DijkstraPlusGameManager extends GameManager {
 
 		for (const i in maxHands) {
 			const act: ActionDto = maxHands[i];
-			const from: Position = maxFromPositions[i];
 			const to: Position = maxToPositions[i];
-
-			if (act.action === 'MOVE' && this.ownMoveTo[i].isEquals(from)) {
-				this.ownMoveTo[i] = new Position(-1, -1); // If the position is the first position, reset the position
-			}
 
 			if (act.action === 'BUILD') {
 				this.createMap.remove(to);
@@ -275,9 +279,9 @@ export default class DijkstraPlusGameManager extends GameManager {
 				if (createMap.exist(to)) {
 					if (d !== 0 || !enePos.exist(to))
 						// Skip if the position is not the first position and the position is enemy position
-						return { from, to: to, direction: buildDestroyActionParams[i] };
+						return { from, to, direction: buildDestroyActionParams[i] };
 				}
-				if (breakMap.exist(to)) return { from, to: to, direction: buildDestroyActionParams[i] }; // If can break wall, return the position
+				if (breakMap.exist(to)) return { from, to, direction: buildDestroyActionParams[i] }; // If can break wall, return the position
 				if (d === 0 && (enePos.exist(to) || ownPos.exist(to) || footprints.exist(to))) continue; // Skip if the position is enemy position or own position or footprints)))
 				if (this.hashedPonds.exist(to)) continue; // Skip if the position is pond
 				if (this.hashedWalls.exist(to) && this.hashedWalls.read(to)!.side === eneSide) cost = 1.875;
