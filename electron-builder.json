@@ -9,10 +9,6 @@
 	"buildVersion": "v${version}-electron",
 	"files": ["dist", "dist-electron"],
 	"icon": "dist/android-chrome-512x512.png",
-	"releaseInfo": {
-		"releaseName": "Word2Vec Procon 2023 ${version}",
-		"releaseDate": "${now}"
-	},
 	"mac": {
 		"target": ["dmg"],
 		"artifactName": "${productName}-Mac-${version}-Installer.${ext}"
