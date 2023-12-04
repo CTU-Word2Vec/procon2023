@@ -70,20 +70,27 @@ export default async function playTest({
 	const delayTime = settingService.replayDelay;
 
 	const actions: GameAction[] = [];
-	const sideAgameManager = createGameManager(field, numberOfTurns, sideAMode);
-	const sideBgameManager = createGameManager(field, numberOfTurns, sideBMode);
+	const sideAgameManager = createGameManager(field, numberOfTurns, sideAMode); // * Khởi tạo GameManager cho Side A
+	const sideBgameManager = createGameManager(field, numberOfTurns, sideBMode); // * Khởi tạo GameManager cho Side B
 
 	const gameManagerMap = {
-		A: sideAgameManager,
-		B: sideBgameManager,
+		A: sideAgameManager, // * Map GameManager cho Side A
+		B: sideBgameManager, // * Map GameManager cho Side B
 	};
 
 	for (let i = 1; i <= numberOfTurns && playTestState.playing; i++) {
-		const turnOf: EWallSide = i % 2 !== 0 ? 'A' : 'B';
+		const turnOf: EWallSide = i % 2 !== 0 ? 'A' : 'B'; // * Lấy lượt đi của Side A hoặc Side B
+
+		const start = new Date().getTime();
 
 		const action = (await gameManagerMap[turnOf].getNextActionsAsync(turnOf)) as unknown as Action[];
 
+		const end = new Date().getTime();
+
+		console.log(`[${gameManagerMap[turnOf].name}] Turn ${i} took ${end - start}ms`);
+
 		actions.push({
+			//! Hack
 			actions: action,
 			turn: i + 1,
 			created_time: new Date().toISOString(),
