@@ -1,34 +1,94 @@
 {
-	"castle_coeff": 20,
+	"castle_coeff": 10,
 	"castles": [
 		{
-			"x": 3,
-			"y": 3
+			"x": 12,
+			"y": 6
+		},
+		{
+			"x": 8,
+			"y": 7
+		},
+		{
+			"x": 2,
+			"y": 8
 		}
 	],
 	"craftsmen": [
 		{
-			"x": 1,
+			"x": 5,
 			"y": 1,
 			"id": "0",
 			"side": "A"
 		},
 		{
-			"x": 1,
-			"y": 2,
+			"x": 12,
+			"y": 4,
 			"id": "1",
+			"side": "A"
+		},
+		{
+			"x": 6,
+			"y": 13,
+			"id": "2",
+			"side": "A"
+		},
+		{
+			"x": 9,
+			"y": 7,
+			"id": "3",
+			"side": "A"
+		},
+		{
+			"x": 12,
+			"y": 5,
+			"id": "4",
+			"side": "B"
+		},
+		{
+			"x": 12,
+			"y": 1,
+			"id": "5",
+			"side": "B"
+		},
+		{
+			"x": 7,
+			"y": 7,
+			"id": "6",
+			"side": "B"
+		},
+		{
+			"x": 3,
+			"y": 13,
+			"id": "7",
 			"side": "B"
 		}
 	],
-	"height": 5,
+	"height": 15,
 	"id": 0,
 	"lastTurn": 0,
 	"match_id": 0,
 	"name": "Random Field",
 	"ponds": [
 		{
+			"x": 13,
+			"y": 7
+		},
+		{
 			"x": 2,
-			"y": 2
+			"y": 5
+		},
+		{
+			"x": 11,
+			"y": 3
+		},
+		{
+			"x": 10,
+			"y": 5
+		},
+		{
+			"x": 6,
+			"y": 8
 		}
 	],
 	"scores": {
@@ -1252,8 +1312,12 @@
 		]
 	},
 	"sides": [],
-	"territory_coeff": 5,
+	"territory_coeff": 1,
 	"wall_coeff": 1,
 	"walls": [],
-	"width": 5
+	"width": 15,
+	"buildPositions": [],
+	"destroyPositions": [],
+	"targetPositions": [],
+	"scorePositions": []
 }
