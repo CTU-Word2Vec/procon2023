@@ -193,15 +193,15 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 		if (this.hashedCraftmens.exist(pos)) return true;
 		if (this.isInSide(pos, ownSide)) return true;
 
-		// * Nếu sẽ xây gần chỗ đó thì thôi không xây nữa
-		const nearInBuild = pos
-			.topRightBottomLeft()
-			.some(
-				(p) =>
-					this.hashedBuildPositions.exist(p) ||
-					(this.hashedWalls.exist(p) && this.hashedWalls.read(p)!.side === ownSide),
-			);
-		if (nearInBuild) return true;
+		// // * Nếu sẽ xây gần chỗ đó thì thôi không xây nữa
+		// const nearInBuild = pos
+		// 	.topRightBottomLeft()
+		// 	.some(
+		// 		(p) =>
+		// 			this.hashedBuildPositions.exist(p) ||
+		// 			(this.hashedWalls.exist(p) && this.hashedWalls.read(p)!.side === ownSide),
+		// 	);
+		// if (nearInBuild) return true;
 
 		// * Nếu ở gần đối phương thì chạy
 		const nearEne = pos
