@@ -44,93 +44,113 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 	private hashedDestroyPositions: HashedType<boolean> = new HashedType<boolean>();
 	private scoreCounter: HashedCounter = new HashedCounter();
 
-	private prepareCreatePositions(side: EWallSide = 'A') {
+	public override getNextActions(side: EWallSide): ActionDto[] {
+		this.prepareGetNextActions(side);
+		return super.getNextActions(side);
+	}
+
+	public override getNextActionsAsync(side: EWallSide): Promise<ActionDto[]> {
+		this.prepareGetNextActions(side);
+		return super.getNextActionsAsync(side);
+	}
+
+	/**
+	 * @description Hàm này khởi tạo các giá trị sau: vị trí xây, vị trí phá, điểm của các vị trí và các vị trí đang cần đến
+	 * @param side - Team mình
+	 */
+	private prepareGetNextActions(side: EWallSide = 'A') {
 		this.targetPositions = [];
 		this.hashedBuildPositions = new HashedType<boolean>();
 		this.hashedDestroyPositions = new HashedType<boolean>();
 		this.scoreCounter = new HashedCounter();
 
+		// Đoạn này khởi tạo các vị trí xây và phá với điều kiện cơ bản
 		for (let x = 0; x < this.width; x++) {
 			for (let y = 0; y < this.height; y++) {
 				const pos = new Position(x, y);
-				{
-					// Nếu có thể xây, thì xây
-					if (this.checkCreate(pos, side)) this.hashedBuildPositions.write(pos, true);
-				}
-				{
-					// Check destroy scoped
-					if (this.checkDestroy(pos, side)) this.hashedDestroyPositions.write(pos, true);
-				}
+				// Nếu có thể xây, thì xây
+				if (this.checkCreate(pos, side)) this.hashedBuildPositions.write(pos, true);
+				// Check destroy scoped
+				if (this.checkDestroy(pos, side)) this.hashedDestroyPositions.write(pos, true);
 			}
 		}
 
+		// Đoạn này khởi tạo các vị trí xây và phá với điều kiện đặc biệt
+		// Nếu có lâu đài thì xây xung quanh lâu đài với điều kiện lâu đài không được bao vây và không có đối phương ở gần đó
 		for (const castle of this.castles) {
 			for (const pos of castle.topRightBottomLeft()) {
-				if (this.hashedWalls.exist(pos)) continue;
-				if (this.hashedCastles.exist(pos)) continue;
-				if (this.hashedPonds.exist(pos)) continue;
-				if (this.hashedCraftmens.exist(pos)) continue;
-
+				if (this.checkNotCreate(pos, side)) continue;
 				this.hashedBuildPositions.write(pos, true);
 			}
 		}
 
+		// Nếu có ao thì xây xung quanh ao với điều kiện ao không được bao vây và không có đối phương ở gần đó
 		for (const pond of this.ponds) {
 			for (const pos of pond.topRightBottomLeft()) {
-				if (this.hashedWalls.exist(pos)) continue;
-				if (this.hashedCastles.exist(pos)) continue;
-				if (this.hashedPonds.exist(pos)) continue;
-				if (this.hashedCraftmens.exist(pos)) continue;
-
+				if (this.checkNotCreate(pos, side)) continue;
 				this.hashedBuildPositions.write(pos, true);
 			}
 		}
 
+		// Khúc này gán trọng số cho các vị trí có thể đi qua để xây
 		for (let x = 0; x < this.width; x++) {
 			for (let y = 0; y < this.height; y++) {
 				const pos = new Position(x, y);
 
-				if (this.hashedBuildPositions.exist(pos)) continue;
-				if (this.hashedWalls.exist(pos)) continue;
-				if (this.hashedPonds.exist(pos)) continue;
-				if (this.hashedSide.exist(pos) && this.hashedSide.read(pos) === side) continue;
+				if (this.hashedBuildPositions.exist(pos)) continue; // Nếu vị trí này có thể xây thì bỏ qua
+				if (this.hashedWalls.exist(pos)) continue; // Nếu vị trí này có tường thì bỏ qua
+				if (this.hashedPonds.exist(pos)) continue; // Nếu vị trí này có ao thì bỏ qua
+				if (this.hashedSide.exist(pos) && this.hashedSide.read(pos) === side) continue; // Nếu vị trí này có bên mình thì bỏ qua
 
-				const trbl = pos.topRightBottomLeft();
-				let builds = 0;
+				const trbl = pos.topRightBottomLeft(); // Lấy các vị trí xung quanh
+				let builds = 0; // Đếm số lượng vị trí có thể xây xung quanh
 
 				for (const p of trbl) {
-					if (this.hashedBuildPositions.exist(p)) builds++;
+					if (this.hashedBuildPositions.exist(p)) builds++; // Nếu vị trí xung quanh có thể xây thì tăng biến đếm
+
 					if (this.hashedWalls.exist(p) && this.hashedWalls.read(p)!.side !== side)
+						// Nếu vị trí xung quanh có tường của đối phương thì tăng điểm
 						this.scoreCounter.increase(pos, 0.25);
+
 					if (this.hashedCraftmens.exist(pos) && this.hashedCraftmens.read(pos)!.side !== side)
+						//  Nếu vị trí xung quanh có thợ thì giảm điểm
 						this.scoreCounter.decrease(pos, 0.25);
 				}
 
+				// * Cái này chỉ mang tính tương đối
 				switch (builds) {
-					case 1:
+					case 1: // Nếu có 1 vị trí xây xung quanh thì xem như là sẽ tạo thành một vùng khép kín (+1.5 điểm)
 						this.scoreCounter.write(new Position(x, y), 1.5);
 						break;
-					case 2:
+					case 2: // Nếu có 2 vị trí xây xung quanh thì xem như đã có tường ở khu vực đó (+1.25 điểm)
 						this.scoreCounter.write(new Position(x, y), 1.25);
 						break;
-					case 3:
+					case 3: // Nếu có 3 vị trí xây xung quanh thì có nghĩa là chưa có tường ở khu vực đó (+1 điểm)
 						this.scoreCounter.write(new Position(x, y), 1);
 						break;
 					case 0:
 						break;
-					default:
+					default: // Mặc định thì không biết được nên bonus luôn (+0.5 điểm)
 						this.scoreCounter.write(new Position(x, y), 0.5);
 				}
 
+				// Nếu có lâu đài thì ưu tiên xây xung quanh lâu đài
 				if (this.hashedCastles.exist(pos)) this.scoreCounter.increase(pos, 1);
 			}
 		}
 
+		// Khúc này chuyển thành mảng để sử dụng bên ngoài
 		this.buildPositions = this.hashedBuildPositions.toList();
 		this.destroyPositions = this.hashedDestroyPositions.toList();
 		this.scorePositions = this.scoreCounter.toList();
 	}
 
+	/**
+	 * @description Hàm này kiểm tra xem có thể xây tường ở vị trí pos không
+	 * @param pos - Vị trí cần kiểm tra
+	 * @param ownSide - Bên mình
+	 * @returns True nếu có thể xây, false nếu không thể xây
+	 */
 	private checkCreate(pos: Position, ownSide: EWallSide): boolean {
 		const needCondition =
 			HASHED_BUILD_TEMPLATE.exist(new Position(pos.x % (TEMPLATE_WIDTH - 1), pos.y % (TEMPLATE_HEIGHT - 1))) ||
@@ -139,12 +159,12 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 
 		if (!needCondition) return false;
 
-		if (
-			pos
-				.topRightBottomLeft()
-				.some((pos) => this.hashedCraftmens.exist(pos) && this.hashedCraftmens.read(pos)!.side !== ownSide)
-		)
-			return false;
+		// * Nếu ở gần đối phương thì chạy
+		const nearEne = pos
+			.topRightBottomLeft()
+			.some((pos) => this.hashedCraftmens.exist(pos) && this.hashedCraftmens.read(pos)!.side !== ownSide);
+
+		if (nearEne) return false;
 		if (this.hashedWalls.exist(pos)) return false;
 		if (this.hashedCastles.exist(pos)) return false;
 		if (this.hashedPonds.exist(pos)) return false;
@@ -154,6 +174,44 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 		return true;
 	}
 
+	/**
+	 * @description Hàm này kiểm tra xem có thể xây tường ở vị trí pos không
+	 * @param pos - Vị trí cần kiểm tra
+	 * @param ownSide - Bên mình
+	 * @returns True nếu không thể xây, false nếu có thể xây
+	 */
+	private checkNotCreate(pos: Position, ownSide: EWallSide): boolean {
+		if (this.hashedWalls.exist(pos)) return true;
+		if (this.hashedCastles.exist(pos)) return true;
+		if (this.hashedPonds.exist(pos)) return true;
+		if (this.hashedCraftmens.exist(pos)) return true;
+		if (this.isInSide(pos, ownSide)) return true;
+
+		// * Nếu sẽ xây gần chỗ đó thì thôi không xây nữa
+		const nearInBuild = pos
+			.topRightBottomLeft()
+			.some(
+				(p) =>
+					this.hashedBuildPositions.exist(p) ||
+					(this.hashedWalls.exist(p) && this.hashedWalls.read(p)!.side === ownSide),
+			);
+		if (nearInBuild) return true;
+
+		// * Nếu ở gần đối phương thì chạy
+		const nearEne = pos
+			.topRightBottomLeft()
+			.some((pos) => this.hashedCraftmens.exist(pos) && this.hashedCraftmens.read(pos)!.side !== ownSide);
+		if (nearEne) return true;
+
+		return false;
+	}
+
+	/**
+	 * @description Hàm này kiểm tra xem có thể phá tường ở vị trí pos không
+	 * @param pos - Vị trí cần kiểm tra
+	 * @param ownSide - Bên mình
+	 * @returns True nếu có thể phá, false nếu không thể phá
+	 */
 	private checkDestroy(pos: Position, ownSide: EWallSide): boolean {
 		if (!this.hashedWalls.exist(pos)) return false;
 		if (this.hashedCraftmens.exist(pos)) return false;
@@ -166,17 +224,6 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 		if (this.hashedWalls.read(pos)!.side !== ownSide) return true;
 
 		return false;
-	}
-
-	public getNextActions(side: EWallSide): ActionDto[] {
-		this.prepareCreatePositions(side);
-
-		return super.getNextActions(side);
-	}
-
-	public getNextActionsAsync(side: EWallSide): Promise<ActionDto[]> {
-		this.prepareCreatePositions(side);
-		return super.getNextActionsAsync(side);
 	}
 
 	protected override getNextCraftsmenAction(craftmen: CraftsmenPosition): ActionDto {
@@ -327,7 +374,7 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 	// 		}
 	// 	}
 
-	// 	// Return the closest castle (can be null)
+	// // Return the closest castle (can be null)
 	// 	return closestCastle;
 	// }
 
