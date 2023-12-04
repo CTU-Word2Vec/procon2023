@@ -9,6 +9,7 @@ import {
 	ArrowUpOutlined,
 	DoubleRightOutlined,
 	FormatPainterFilled,
+	PlusOutlined,
 	StopOutlined,
 	UserOutlined,
 } from '@ant-design/icons';
@@ -131,7 +132,8 @@ export default function GameBoard({ state, action }: GameBoardProps) {
 		const hashed: {
 			[id: string]: Action | null;
 		} = {};
-		for (const act of action.actions) {
+
+		for (const act of action.actions ?? []) {
 			hashed[act.craftsman_id] = act;
 		}
 
@@ -228,19 +230,20 @@ export default function GameBoard({ state, action }: GameBoardProps) {
 
 				{state.buildPositions.map((pos) => (
 					<div
-						key={`${pos.x}-${pos.y}`}
+						key={`build:${pos.x}-${pos.y}`}
 						className={clsx(styles.position)}
 						style={{
 							transform: `translate(${pos.x * 33}px, ${pos.y * 33}px)`,
+							fontSize: 10,
 						}}
 					>
-						{pos.data}
+						<PlusOutlined />
 					</div>
 				))}
 
 				{state.destroyPositions.map((pos) => (
 					<div
-						key={`${pos.x}-${pos.y}`}
+						key={`destroy:${pos.x}-${pos.y}`}
 						className={clsx(styles.position)}
 						style={{
 							transform: `translate(${pos.x * 33}px, ${pos.y * 33 - 3}px)`,
@@ -250,6 +253,35 @@ export default function GameBoard({ state, action }: GameBoardProps) {
 						<StopOutlined />
 					</div>
 				))}
+
+				{state.targetPositions.map((pos, i) => (
+					<div
+						key={`target:${i}`}
+						className={clsx(styles.position)}
+						style={{
+							transform: `translate(${pos.x * 33}px, ${pos.y * 33}px)`,
+							zIndex: state.height,
+							border: '2px solid red',
+						}}
+					></div>
+				))}
+
+				{state.scorePositions.map((pos, i) => (
+					<div
+						key={`score:${i}`}
+						className={clsx(styles.position)}
+						style={{
+							transform: `translate(${pos.x * 33}px, ${pos.y * 33}px)`,
+							zIndex: state.height,
+							fontSize: 10,
+							fontWeight: 'normal',
+							// color: 'blue',
+						}}
+					>
+						{pos.data.toFixed(1)}
+					</div>
+				))}
+
 				<div
 					className={styles.mask}
 					style={{ zIndex: state.height }}

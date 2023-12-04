@@ -97,7 +97,7 @@ export default async function playReal({
 	if (now >= startTime) {
 		waitTime = game.time_per_turn * 1000 - ((now - startTime) % (game.time_per_turn * 1000));
 	} else {
-		waitTime = startTime - now / 1000;
+		waitTime = startTime - now;
 	}
 
 	onWaitTimeChange?.(waitTime);
@@ -130,8 +130,6 @@ export default async function playReal({
 
 		await wait(remaining * 1000);
 	}
-
-	onShowCountDownChange?.(false);
 
 	// Set playing state to false
 	playRealState.playing = false;

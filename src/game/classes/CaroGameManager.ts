@@ -17,6 +17,12 @@ const BUILD_TEMPLATE = [
 	[false, false, true, false, false],
 ];
 
+// const BUILD_TEMPLATE = [
+// 	[false, true, false],
+// 	[true, false, true],
+// 	[false, true, false],
+// ];
+
 const TEMPLATE_WIDTH = BUILD_TEMPLATE[0].length;
 const TEMPLATE_HEIGHT = BUILD_TEMPLATE.length;
 
@@ -39,6 +45,7 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 	private scoreCounter: HashedCounter = new HashedCounter();
 
 	private prepareCreatePositions(side: EWallSide = 'A') {
+		this.targetPositions = [];
 		this.hashedBuildPositions = new HashedType<boolean>();
 		this.hashedDestroyPositions = new HashedType<boolean>();
 		this.scoreCounter = new HashedCounter();
@@ -49,8 +56,6 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 				{
 					// Nếu có thể xây, thì xây
 					if (this.checkCreate(pos, side)) this.hashedBuildPositions.write(pos, true);
-					// Nếu không thể xây, thì tăng điểm
-					else this.scoreCounter.increase(new Position(pos.x / TEMPLATE_WIDTH, pos.y / TEMPLATE_HEIGHT), 2);
 				}
 				{
 					// Check destroy scoped
@@ -64,17 +69,66 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 				if (this.hashedWalls.exist(pos)) continue;
 				if (this.hashedCastles.exist(pos)) continue;
 				if (this.hashedPonds.exist(pos)) continue;
+				if (this.hashedCraftmens.exist(pos)) continue;
 
 				this.hashedBuildPositions.write(pos, true);
 			}
 		}
 
-		this.buildPositions = this.hashedBuildPositions.toList().map((pos) => ({
-			...pos,
-			data: this.scoreCounter.read(new Position(pos.x / TEMPLATE_WIDTH, pos.y / TEMPLATE_HEIGHT)),
-		}));
+		for (const pond of this.ponds) {
+			for (const pos of pond.topRightBottomLeft()) {
+				if (this.hashedWalls.exist(pos)) continue;
+				if (this.hashedCastles.exist(pos)) continue;
+				if (this.hashedPonds.exist(pos)) continue;
+				if (this.hashedCraftmens.exist(pos)) continue;
 
+				this.hashedBuildPositions.write(pos, true);
+			}
+		}
+
+		for (let x = 0; x < this.width; x++) {
+			for (let y = 0; y < this.height; y++) {
+				const pos = new Position(x, y);
+
+				if (this.hashedBuildPositions.exist(pos)) continue;
+				if (this.hashedWalls.exist(pos)) continue;
+				if (this.hashedPonds.exist(pos)) continue;
+				if (this.hashedSide.exist(pos) && this.hashedSide.read(pos) === side) continue;
+
+				const trbl = pos.topRightBottomLeft();
+				let builds = 0;
+
+				for (const p of trbl) {
+					if (this.hashedBuildPositions.exist(p)) builds++;
+					if (this.hashedWalls.exist(p) && this.hashedWalls.read(p)!.side !== side)
+						this.scoreCounter.increase(pos, 0.25);
+					if (this.hashedCraftmens.exist(pos) && this.hashedCraftmens.read(pos)!.side !== side)
+						this.scoreCounter.decrease(pos, 0.25);
+				}
+
+				switch (builds) {
+					case 1:
+						this.scoreCounter.write(new Position(x, y), 1.5);
+						break;
+					case 2:
+						this.scoreCounter.write(new Position(x, y), 1.25);
+						break;
+					case 3:
+						this.scoreCounter.write(new Position(x, y), 1);
+						break;
+					case 0:
+						break;
+					default:
+						this.scoreCounter.write(new Position(x, y), 0.5);
+				}
+
+				if (this.hashedCastles.exist(pos)) this.scoreCounter.increase(pos, 1);
+			}
+		}
+
+		this.buildPositions = this.hashedBuildPositions.toList();
 		this.destroyPositions = this.hashedDestroyPositions.toList();
+		this.scorePositions = this.scoreCounter.toList();
 	}
 
 	private checkCreate(pos: Position, ownSide: EWallSide): boolean {
@@ -142,7 +196,7 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 		const nextAction = this.getActionToGoToPosition(craftmen, pos);
 		if (!nextAction) return craftmen.getStayAction();
 
-		this.goingTo.write(pos, pos);
+		this.targetPositions.push(pos);
 
 		// If the craftsman can not do anything, stay
 		return nextAction;
@@ -154,27 +208,23 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 	 * @returns Next position for the craftsman
 	 */
 	private getNextPosition(craftmen: CraftsmenPosition): Position | null {
-		const closestCastle = this.findClosestCastle(craftmen);
-		if (closestCastle) {
-			for (const pos of closestCastle.topRightBottomLeft()) {
-				this.hashedBuildPositions.remove(pos);
-			}
+		// const closestCastle = this.findClosestCastle(craftmen);
+		// if (closestCastle) {
+		// 	for (const pos of closestCastle.topRightBottomLeft()) {
+		// 		this.hashedBuildPositions.remove(pos);
+		// 	}
 
-			return closestCastle;
-		}
+		// 	return closestCastle;
+		// }
 
 		// Initialize positions array, use this like a queue
 		const queue = new PriorityQueue<Position>();
 		const visited = new HashedType<boolean>();
 
-		const allNears = craftmen.allNears();
+		queue.enQueue(craftmen, 0);
 
-		for (const near of allNears) {
-			queue.enQueue(
-				near,
-				-this.scoreCounter.read(new Position(near.x / TEMPLATE_WIDTH, near.y / TEMPLATE_HEIGHT)),
-			);
-		}
+		let bestScore = Infinity;
+		let bestPos: Position | null = null;
 
 		while (!queue.isEmpty()) {
 			// Get the first position in the positions array and remove it from the array
@@ -186,41 +236,51 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 
 			// If the position is not valid, continue
 			if (!pos.isValid(this.width, this.height)) continue;
+			// if (pos.distance(craftmen) > 15 && bestPos) break;
 			if (this.hashedPonds.exist(pos)) continue;
-			if (this.hashedWalls.exist(pos) && this.hashedWalls.read(pos)!.side !== craftmen.side) continue;
+			// if (this.hashedWalls.exist(pos) && this.hashedWalls.read(pos)!.side !== craftmen.side) continue;
 
 			const trbl = pos.topRightBottomLeft();
 
 			for (const near of trbl) {
+				// Nếu xung quanh có con nào là con của mình thì bỏ qua
+				const haveOwnCraftmen = near
+					.topRightBottomLeft()
+					.some((p) => this.hashedCraftmens.exist(p) && this.hashedCraftmens.read(p)!.side === craftmen.side);
+				if (haveOwnCraftmen) continue;
+
 				if (this.hashedBuildPositions.exist(near)) {
-					this.hashedBuildPositions.remove(near);
-
-					pos.topRightBottomLeft().forEach((pos) => this.hashedBuildPositions.remove(pos));
-
-					return pos;
+					if (top.priority < bestScore) {
+						bestScore = top.priority;
+						bestPos = pos;
+					}
 				}
 
-				// if (this.hashedDestroyPositions.exist(near)) {
-				// 	this.hashedDestroyPositions.remove(near);
-				// 	return pos;
-				// }
+				if (this.hashedDestroyPositions.exist(near)) {
+					if (top.priority < bestScore) {
+						bestScore = top.priority;
+						bestPos = pos;
+					}
+				}
 			}
 
 			const allNears = pos.allNears();
 
 			for (const near of allNears) {
-				queue.enQueue(
-					near,
-					craftmen.distance(near) -
-						this.scoreCounter.read(new Position(near.x / TEMPLATE_WIDTH, near.y / TEMPLATE_HEIGHT)),
-				);
+				queue.enQueue(near, craftmen.distance(near) - this.scoreCounter.read(near));
 			}
 		}
 
 		console.log('Cannot find next position for the craftsman', craftmen);
 
+		// Khúc này xóa mark để mấy con khác không đi vào
+		for (const pos of bestPos?.topRightBottomLeft() ?? []) {
+			this.hashedBuildPositions.remove(pos);
+			this.hashedDestroyPositions.remove(pos);
+		}
+
 		// If the craftsman can not go to any position, return null
-		return null;
+		return bestPos;
 	}
 
 	/**
