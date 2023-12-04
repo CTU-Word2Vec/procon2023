@@ -19,16 +19,16 @@ export default function GameInfo({ game, currentTurn }: GameInfoProps) {
 	return (
 		<Descriptions bordered layout='vertical' column={2}>
 			<DescriptionsItem label='Game Id'>{game.id}</DescriptionsItem>
-			<DescriptionsItem label='Dimension'>
+			<DescriptionsItem label='Chiều map'>
 				{game.field.width}x{game.field.height}
 			</DescriptionsItem>
-			<DescriptionsItem label='Time per turn'>{game.time_per_turn} secs</DescriptionsItem>
-			<DescriptionsItem label='Number of turns'>{game.num_of_turns}</DescriptionsItem>
-			<DescriptionsItem label='Start time'>
+			<DescriptionsItem label='Thời gian mỗi lượt (s)'>{game.time_per_turn} secs</DescriptionsItem>
+			<DescriptionsItem label='Tổng số lượt'>{game.num_of_turns}</DescriptionsItem>
+			<DescriptionsItem label='Thời gian bắt đầu'>
 				{dayjs(game.start_time).format('DD/MM/YYYY HH:mm:ss')}
 			</DescriptionsItem>
 
-			<DescriptionsItem label='Status'>{tag}</DescriptionsItem>
+			<DescriptionsItem label='Trạng thái'>{tag}</DescriptionsItem>
 		</Descriptions>
 	);
 }

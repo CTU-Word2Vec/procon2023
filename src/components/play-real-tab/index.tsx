@@ -10,9 +10,9 @@ import { setCurrentAction, setGameState } from '@/store/gameState';
 import playReal, { playRealState } from '@/utils/playReal';
 import replay, { replayState } from '@/utils/replay';
 import { PauseOutlined, PlayCircleOutlined, ReloadOutlined, SearchOutlined, UserOutlined } from '@ant-design/icons';
-import { Button, Descriptions, Empty, Input, Select, Space, message } from 'antd';
+import { Alert, Button, Descriptions, Empty, Input, Select, Space, message } from 'antd';
 import DescriptionsItem from 'antd/es/descriptions/Item';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import ActionList from '../action-list';
 import CountDown from '../count-down';
@@ -23,6 +23,7 @@ export interface PlayRealTabProps {}
 export default function PlayRealTab() {
 	const [gameId, setGameId] = useState('');
 	const [game, setGame] = useState<Game>();
+	const [postErrorCount, setPostErrorCount] = useState(0);
 
 	const [side, setSide] = useState<EWallSide>('A');
 	const [gameMode, setGameMode] = useState<EGameMode>('Caro');
@@ -45,6 +46,7 @@ export default function PlayRealTab() {
 	const handlePlayReal = useCallback(async () => {
 		try {
 			setIsPlaying(true);
+			setPostErrorCount(0);
 			await playReal({
 				game: game!,
 				side,
@@ -56,11 +58,16 @@ export default function PlayRealTab() {
 					setCurrentGameActions(actions);
 					dispatch(setCurrentAction({ ...actions[actions.length - 1] }));
 				},
+				onPostError(error) {
+					message.error(error.message);
+					setPostErrorCount((prev) => prev + 1);
+				},
 			});
 		} catch (error: any) {
 			message.error(error.message);
 		} finally {
 			setIsPlaying(false);
+			setIsShowCountDown(false);
 			dispatch(setCurrentAction(undefined));
 		}
 	}, [dispatch, game, side, gameMode]);
@@ -90,7 +97,7 @@ export default function PlayRealTab() {
 
 		try {
 			if (!gameId) {
-				throw new Error('Please provide the id of game');
+				throw new Error('Vui lòng nhập id game');
 			}
 
 			setCurrentAction(undefined);
@@ -98,7 +105,7 @@ export default function PlayRealTab() {
 			setIsLoadingGame(true);
 			messageApi.open({
 				key,
-				content: 'Loading game data',
+				content: 'Đang tải dữ liệu game',
 				type: 'loading',
 				duration: 0,
 			});
@@ -119,7 +126,7 @@ export default function PlayRealTab() {
 
 			messageApi.open({
 				key,
-				content: `Loaded game data: ${game.name}`,
+				content: `Đã tải game: ${game.name}`,
 				duration: 2,
 				type: 'success',
 			});
@@ -143,6 +150,14 @@ export default function PlayRealTab() {
 		playRealState.playing = false;
 	};
 
+	const canPlay = useMemo(
+		() =>
+			game
+				? new Date(game.start_time).getTime() + game.num_of_turns * game.time_per_turn * 1000 > Date.now()
+				: false,
+		[game],
+	);
+
 	return (
 		<>
 			{contextHolder}
@@ -163,7 +178,7 @@ export default function PlayRealTab() {
 					{game && (
 						<>
 							<Button icon={<ReloadOutlined />} loading={isReplaying} onClick={handleReplay}>
-								Replay
+								Phát lại
 							</Button>
 							<Button
 								icon={<PauseOutlined />}
@@ -181,53 +196,64 @@ export default function PlayRealTab() {
 						htmlType='submit'
 						disabled={!gameId}
 					>
-						Load
+						Tải
 					</Button>
 				</Space.Compact>
 			</form>
 
 			{game ? (
 				<Space direction='vertical' style={{ width: '100%', marginTop: 10 }}>
-					<Space wrap>
-						<Select
-							placeholder='Side'
-							value={side}
-							suffixIcon={<UserOutlined />}
-							onChange={setSide}
-							options={game.sides.map((e) => ({
-								value: e.side,
-								label: `Side ${e.side} - ${e.team_name}`,
-							}))}
+					{postErrorCount > 0 && (
+						<Alert
+							showIcon
+							message={<strong>{`Lỗi khi [POST]: ${postErrorCount}`}</strong>}
+							description='Số lần gửi action thất bại'
+							type='error'
 						/>
+					)}
 
-						<Select
-							options={gameModes.map((mode) => ({ value: mode, label: mode }))}
-							placeholder='Game mode'
-							value={gameMode}
-							onChange={(value) => setGameMode(value)}
-						/>
+					{canPlay && (
+						<Space wrap>
+							<Select
+								placeholder='Đội'
+								value={side}
+								suffixIcon={<UserOutlined />}
+								onChange={setSide}
+								options={game.sides.map((e) => ({
+									value: e.side,
+									label: `Đội ${e.side} - ${e.team_name}`,
+								}))}
+							/>
 
-						<Button
-							icon={<PlayCircleOutlined />}
-							type='primary'
-							loading={isPlaying}
-							onClick={handlePlayReal}
-						>
-							Play
-						</Button>
+							<Select
+								options={gameModes.map((mode) => ({ value: mode, label: mode }))}
+								placeholder='Giải thuật'
+								value={gameMode}
+								onChange={(value) => setGameMode(value)}
+							/>
 
-						<Button
-							icon={<PauseOutlined />}
-							danger
-							type='primary'
-							disabled={!isPlaying}
-							onClick={stopPlaying}
-						></Button>
-					</Space>
+							<Button
+								icon={<PlayCircleOutlined />}
+								type='primary'
+								loading={isPlaying}
+								onClick={handlePlayReal}
+							>
+								Chơi
+							</Button>
+
+							<Button
+								icon={<PauseOutlined />}
+								danger
+								type='primary'
+								disabled={!isPlaying}
+								onClick={stopPlaying}
+							></Button>
+						</Space>
+					)}
 
 					{!!waitTime && (
 						<Descriptions bordered>
-							<DescriptionsItem label='Waiting'>
+							<DescriptionsItem label='Đợi'>
 								<CountDown seconds={waitTime / 1000} />
 							</DescriptionsItem>
 						</Descriptions>
@@ -235,7 +261,7 @@ export default function PlayRealTab() {
 
 					{isShowCountDown && (
 						<Descriptions bordered column={1}>
-							<DescriptionsItem label='Count down'>
+							<DescriptionsItem label='Đếm ngược'>
 								<CountDown seconds={game.time_per_turn} />
 							</DescriptionsItem>
 						</Descriptions>
@@ -246,7 +272,7 @@ export default function PlayRealTab() {
 					<ActionList actions={currentGameActions} />
 				</Space>
 			) : (
-				<Empty description='Get game data to play' style={{ margin: '20px 0' }} />
+				<Empty description='Tải game để hiển thị' style={{ margin: '20px 0' }} />
 			)}
 		</>
 	);

@@ -42,7 +42,7 @@ export const sideChartOptions: ApexCharts.ApexOptions = {
 		show: false,
 	},
 	subtitle: {
-		text: 'Scores',
+		text: 'Điểm',
 		align: 'center',
 		margin: 0,
 		offsetY: 10,
@@ -76,7 +76,7 @@ export const mainChartOptions: ApexCharts.ApexOptions = {
 		},
 	},
 	subtitle: {
-		text: 'Total score',
+		text: 'Tổng điểm',
 		align: 'center',
 		margin: 0,
 		offsetY: 10,

@@ -1,4 +1,4 @@
-import { EBuildDestryParam, EMoveParam } from '@/constants';
+import { EBuildDestroyParam, EMoveParam } from '@/constants';
 import { ActionDto } from '@/services';
 import { EWallSide } from '../enums/EWallSide';
 import IPosition from './IPosition';
@@ -96,7 +96,7 @@ export default interface ICraftsmenPosition extends IPosition {
 	 * @param param - Build action param
 	 * @returns Build action
 	 */
-	getBuildAction(param: EBuildDestryParam): ActionDto;
+	getBuildAction(param: EBuildDestroyParam): ActionDto;
 
 	/**
 	 * @description Get move action
@@ -110,7 +110,7 @@ export default interface ICraftsmenPosition extends IPosition {
 	 * @param param - Destroy action param
 	 * @returns Destroy action
 	 */
-	getDestroyAction(param: EBuildDestryParam): ActionDto;
+	getDestroyAction(param: EBuildDestroyParam): ActionDto;
 
 	/**
 	 * @description Get all actions

@@ -1,3 +1,5 @@
+import { EMoveParam } from '@/constants';
+import { moveParams } from '@/constants/action-params';
 import Action from '@/models/Action';
 import GameAction from '@/models/GameAction';
 import { ActionDto } from '@/services/player.service';
@@ -10,6 +12,7 @@ import BaseGameManager from './BaseGameManager';
 import CraftsmenPosition from './CraftsmenPosition';
 import HashedType from './HashedType';
 import Position from './Position';
+import PriorityQueue from './PriorityQueue';
 import WallPosition from './WallPosition';
 
 /**
@@ -20,7 +23,30 @@ export default class GameManager extends BaseGameManager implements IGameManager
 	private prevTurnScoreUpdated: number = 0;
 
 	public toObject(): IGameStateData {
-		return JSON.parse(JSON.stringify(this));
+		const object = JSON.parse(JSON.stringify(this)) as IGameStateData;
+
+		return {
+			castle_coeff: object.castle_coeff,
+			castles: object.castles,
+			craftsmen: object.craftsmen,
+			height: object.height,
+			id: object.id,
+			lastTurn: object.lastTurn,
+			match_id: object.match_id,
+			name: object.name,
+			ponds: object.ponds,
+			scores: object.scores,
+			scoresHistory: object.scoresHistory,
+			sides: object.sides,
+			territory_coeff: object.territory_coeff,
+			wall_coeff: object.wall_coeff,
+			walls: object.walls,
+			width: object.width,
+			buildPositions: object.buildPositions,
+			destroyPositions: object.destroyPositions,
+			targetPositions: object.targetPositions,
+			scorePositions: object.scorePositions,
+		};
 	}
 
 	public addActions(actions: GameAction[]): void {
@@ -147,11 +173,8 @@ export default class GameManager extends BaseGameManager implements IGameManager
 		// Get nearby positions of new wall and update side
 		const positions = pos.topRightBottomLeft();
 
-		const visited = new HashedType<boolean>();
-		const filled = new HashedType<boolean>();
-
 		for (const position of positions) {
-			this.updateSideFromPosition(position, this.hashedSide.read(position) || side, visited, filled);
+			this.updateSideFromPosition(position, this.hashedSide.read(position) || side);
 		}
 
 		this.hashedSide.remove(pos);
@@ -189,11 +212,10 @@ export default class GameManager extends BaseGameManager implements IGameManager
 	 * @returns Whether the craftsmen can build wall at position
 	 */
 	protected canCraftsmenBuildWall(pos: Position): boolean {
-		// Craftsmen can build wall if the position is valid and not a wall, a pond or a craftsmen
 		if (!pos.isValid(this.width, this.height)) return false;
+		if (this.hashedPonds.exist(pos)) return false;
 		if (this.hashedCraftmens.exist(pos)) return false;
 		if (this.hashedWalls.exist(pos)) return false;
-		if (this.hashedPonds.exist(pos)) return false;
 		if (this.hashedCastles.exist(pos)) return false;
 
 		return true;
@@ -212,37 +234,65 @@ export default class GameManager extends BaseGameManager implements IGameManager
 		switch (action.action) {
 			case 'STAY':
 				return true;
-			case 'MOVE': {
+			case 'MOVE':
 				return this.canCraftsmenMove(craftmen, nextPos);
-			}
-			case 'BUILD': {
+			case 'BUILD':
 				return this.canCraftsmenBuildWall(nextPos);
-			}
-			case 'DESTROY': {
+			case 'DESTROY':
 				return this.canCraftsmenDestroy(nextPos);
-			}
 		}
 	}
 
 	/**
 	 * @description Get action to go to position
 	 * @param craftmen - Craftsmen
-	 * @param pos - Position
+	 * @param targetPos - Position
 	 * @returns Action to go to position or null
 	 */
-	protected getActionToGoToPosition(craftmen: CraftsmenPosition, pos: Position): ActionDto | null {
-		// Get next actions to go to position
-		const nextActions = craftmen.getNextActionsToGoToPosition(pos);
+	protected getActionToGoToPosition(craftmen: CraftsmenPosition, targetPos: Position): ActionDto | null {
+		const queue = new PriorityQueue<{ from: Position; to: Position; direction: EMoveParam }>();
+		const visited = new HashedType<boolean>();
+		const dist = new HashedType<number>();
 
-		// Check if the craftsmen can do action
-		for (const action of nextActions) {
-			if (this.canCrafsmenDoAction(craftmen, action)) {
-				return action;
+		const nears = craftmen.allNears();
+
+		for (const i in nears) {
+			queue.enQueue({ from: nears[i], to: nears[i], direction: moveParams[i] }, 1);
+			dist.write(nears[i], 1);
+		}
+
+		let minDist = Infinity;
+		let finalAction: ActionDto | null = null;
+
+		while (!queue.isEmpty()) {
+			const top = queue.deQueue();
+			const pos = top.value.to;
+			const d = top.priority;
+
+			if (d >= minDist) continue;
+
+			if (!this.isValidPosition(pos)) continue;
+			if (this.hashedPonds.exist(pos)) continue;
+			if (this.hashedCraftmens.exist(pos)) continue;
+			if (this.hashedWalls.exist(pos) && this.hashedWalls.read(pos)!.side !== craftmen.side) continue;
+
+			if (pos.isEquals(targetPos)) {
+				if (top.priority + 1 < minDist) {
+					minDist = d + 1;
+					finalAction = craftmen.getMoveAction(top.value.direction);
+				}
+			}
+
+			if (visited.exist(pos)) continue;
+			visited.write(pos, true);
+
+			for (const near of pos.allNears()) {
+				queue.enQueue({ from: top.value.from, to: near, direction: top.value.direction }, d + 1);
+				if (!dist.exist(near) || dist.read(near)! > d + 1) dist.write(near, d + 1);
 			}
 		}
 
-		// If the craftsmen cannot do action, then return null
-		return null;
+		return finalAction;
 	}
 
 	/**
@@ -281,10 +331,8 @@ export default class GameManager extends BaseGameManager implements IGameManager
 		if (this.hashedWalls.exist(pos)) {
 			// If the position is a wall and the current side is null, then return side of the wall
 			if (!currentSide) return this.hashedWalls.read(pos)!.side;
-			// If the position is a wall and the side of the wall is not equal to current side, then return null
-			if (currentSide !== this.hashedWalls.read(pos)!.side) return null;
-			// If the position is a wall and the side of the wall is equal to current side, then return current side
-			return currentSide;
+			// If the position is a wall and the side of wall is not equal to current side, then return null
+			if (this.hashedWalls.read(pos)!.side === currentSide) return currentSide;
 		}
 
 		// Mark the position as visited
@@ -359,17 +407,12 @@ export default class GameManager extends BaseGameManager implements IGameManager
 	 * @param visited - Visited positions
 	 * @param filled - Filled positions
 	 */
-	private updateSideFromPosition(
-		pos: Position,
-		initSide: EWallSide | null = null,
-		visited: HashedType<boolean> = new HashedType<boolean>(),
-		filled: HashedType<boolean> = new HashedType<boolean>(),
-	): void {
+	private updateSideFromPosition(pos: Position, initSide: EWallSide | null = null): void {
 		// Get side of position
-		const updateSide = this.sideOf(pos, initSide, visited);
+		const updatedSide = this.sideOf(pos, initSide, new HashedType<boolean>());
 
 		// Fill side of position and nearby positions
-		this.fillSide(pos, updateSide, filled);
+		this.fillSide(pos, updatedSide, new HashedType<boolean>());
 
 		// Update sides from hashed side
 		this.sides = this.hashedSide.toList();
@@ -461,5 +504,27 @@ export default class GameManager extends BaseGameManager implements IGameManager
 		const randomedGame = new GameManager(randomedField, numberOfTurns);
 
 		return randomedGame;
+	}
+
+	/**
+	 * @description Check if position is valid
+	 * @param pos - Position
+	 * @returns True if position is valid
+	 */
+	protected isValidPosition(pos: Position): boolean {
+		return !!pos?.isValid(this.width, this.height);
+	}
+
+	protected isInSide(pos: Position, side: EWallSide): boolean {
+		if (!this.isValidPosition(pos)) return false;
+		if (this.hashedSide.read(pos) === side) return true;
+		if (!this.hashedWalls.exist(pos)) return false;
+		return pos
+			.topRightBottomLeft()
+			.every(
+				(e) =>
+					this.hashedSide.read(e) === side ||
+					(this.hashedWalls.exist(e) && this.hashedWalls.read(e)!.side === side),
+			);
 	}
 }

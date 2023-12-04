@@ -1,4 +1,4 @@
-import { EBuildDestryParam, EMoveParam, buildDestroyActionParams, moveParams } from '@/constants/action-params';
+import { EBuildDestroyParam, EMoveParam, buildDestroyActionParams, moveParams } from '@/constants/action-params';
 import { ActionDto } from '@/services/player.service';
 import { EWallSide } from '../enums/EWallSide';
 import ICraftsmenPosition from '../interfaces/ICraftsmenPosition';
@@ -75,7 +75,7 @@ export default class CraftsmenPosition extends Position implements ICraftsmenPos
 
 	public getNextActionsToGoToPosition(pos: Position): ActionDto[] {
 		// Get all move actions
-		const [up, down, left, right, upperLeft, upperRight, lowerLeft, lowerRight] = this.getAllMoveActions();
+		const [up, right, down, left, upperLeft, upperRight, lowerLeft, lowerRight] = this.getAllMoveActions();
 
 		if (pos.x === this.x) {
 			if (pos.y < this.y) {
@@ -131,7 +131,7 @@ export default class CraftsmenPosition extends Position implements ICraftsmenPos
 		};
 	}
 
-	public getBuildAction(param: EBuildDestryParam): ActionDto {
+	public getBuildAction(param: EBuildDestroyParam): ActionDto {
 		return {
 			craftsman_id: this.id,
 			action: 'BUILD',
@@ -147,7 +147,7 @@ export default class CraftsmenPosition extends Position implements ICraftsmenPos
 		};
 	}
 
-	public getDestroyAction(param: EBuildDestryParam): ActionDto {
+	public getDestroyAction(param: EBuildDestroyParam): ActionDto {
 		return {
 			craftsman_id: this.id,
 			action: 'DESTROY',

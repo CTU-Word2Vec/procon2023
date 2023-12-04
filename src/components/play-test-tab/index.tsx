@@ -34,7 +34,7 @@ export default function PlayTestTab() {
 	const [randomedField, setRandomedField] = useState<Field>();
 	const [numberOfTurns, setNumberOfTurns] = useState(100);
 	const [sideAMode, setSideAMode] = useState<EGameMode>('Caro');
-	const [sideBMode, setSideBMode] = useState<EGameMode>('Border');
+	const [sideBMode, setSideBMode] = useState<EGameMode>('Dijkstra');
 	const [isRandoming, setIsRandoming] = useState(false);
 
 	const gameState = useSelector((state: RootState) => state.gameState.gameState);
@@ -101,40 +101,40 @@ export default function PlayTestTab() {
 								initialValues={initialRandomFieldOptions}
 								labelAlign='left'
 								labelCol={{ xs: 12 }}
-								onFinish={handleRandomField}
 								size='middle'
 								disabled={isRandoming}
+								onFinish={handleRandomField}
 							>
-								<FormItem label='Width' name='width'>
-									<InputNumber placeholder='Width' name='width' />
+								<FormItem label='Chiều rộng' name='width'>
+									<InputNumber placeholder='Chiều rộng' name='width' />
 								</FormItem>
 
-								<FormItem label='Height' name='height'>
-									<InputNumber placeholder='Height' name='height' />
+								<FormItem label='Chiều cao' name='height'>
+									<InputNumber placeholder='Chiều cao' name='height' />
 								</FormItem>
 
-								<FormItem label='Number of castles' name='numOfCastles'>
-									<InputNumber placeholder='Number of castles' name='numOfCastles' />
+								<FormItem label='Số lâu đài' name='numOfCastles'>
+									<InputNumber placeholder='Số lâu đài' name='numOfCastles' />
 								</FormItem>
 
-								<FormItem label='Number of craftsments' name='numOfCraftsmens'>
-									<InputNumber placeholder='Number of craftsments' name='numOfCraftsmens' />
+								<FormItem label='Số thợ xây' name='numOfCraftsmens'>
+									<InputNumber placeholder='Số thợ xây' name='numOfCraftsmens' />
 								</FormItem>
 
-								<FormItem label='Number of ponds' name='numOfPonds'>
-									<InputNumber placeholder='Number of ponds' />
+								<FormItem label='Số ao' name='numOfPonds'>
+									<InputNumber placeholder='Số ao' />
 								</FormItem>
 
-								<FormItem label='Coeff of castles' name='castle_coeff'>
-									<InputNumber placeholder='Coeff of castles' name='castle_coeff' />
+								<FormItem label='Điểm cho lâu đài' name='castle_coeff'>
+									<InputNumber placeholder='Điểm cho lâu đài' name='castle_coeff' />
 								</FormItem>
 
-								<FormItem label='Coeff of territory' name='territory_coeff'>
-									<InputNumber placeholder='Coeff of territory' name='territory_coeff' />
+								<FormItem label='Điểm cho lãnh thổ' name='territory_coeff'>
+									<InputNumber placeholder='Điểm cho lãnh thổ' name='territory_coeff' />
 								</FormItem>
 
-								<FormItem label='Coeff of wall' name='wall_coeff'>
-									<InputNumber placeholder='Coeff of wall' name='wall_coeff' />
+								<FormItem label='Điểm cho tường' name='wall_coeff'>
+									<InputNumber placeholder='Điểm cho tường' name='wall_coeff' />
 								</FormItem>
 
 								<Button
@@ -155,19 +155,19 @@ export default function PlayTestTab() {
 
 			{randomedField && gameState ? (
 				<>
-					<Form component={Card} title='Select algorithms'>
-						<Form.Item label='Side A'>
+					<Form component={Card} title='Chọn giải thủật'>
+						<Form.Item label='Đội A'>
 							<Select
-								placeholder='Select game mode'
+								placeholder='Chọn giải thuật cho đội A'
 								style={{ width: '100%' }}
 								options={gameModes.map((mode) => ({ label: mode, value: mode }))}
 								value={sideAMode}
 								onChange={setSideAMode}
 							/>
 						</Form.Item>
-						<Form.Item label='Side B'>
+						<Form.Item label='Đội B'>
 							<Select
-								placeholder='Select game mode'
+								placeholder='Chọn giải thuật cho đội B'
 								style={{ width: '100%' }}
 								options={gameModes.map((mode) => ({ label: mode, value: mode }))}
 								value={sideBMode}
@@ -177,7 +177,7 @@ export default function PlayTestTab() {
 
 						<Space style={{ width: '100%' }}>
 							<InputNumber
-								placeholder='Number of turns'
+								placeholder='Tổng số lượt'
 								value={numberOfTurns}
 								onChange={(value) => setNumberOfTurns(value!)}
 							/>
@@ -188,7 +188,7 @@ export default function PlayTestTab() {
 								loading={isPlayingTest}
 								onClick={handlePlayTest}
 							>
-								{isPlayingTest ? 'Playing test...' : 'Play test'}
+								{isPlayingTest ? 'Đang chạy thử...' : 'Chạy thử'}
 							</Button>
 
 							<Button
@@ -202,7 +202,7 @@ export default function PlayTestTab() {
 					</Form>
 
 					<Descriptions>
-						<DescriptionsItem label='Turn'>
+						<DescriptionsItem label='Lượt'>
 							<Progress
 								percent={(gameState.lastTurn / numberOfTurns) * 100}
 								showInfo
@@ -214,7 +214,7 @@ export default function PlayTestTab() {
 					<ActionList actions={actions} />
 				</>
 			) : (
-				<Empty description='Get game data to play' style={{ margin: '20px 0' }} />
+				<Empty description='Tải game để hiện thị' style={{ margin: '20px 0' }} />
 			)}
 		</Space>
 	);

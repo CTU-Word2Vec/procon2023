@@ -1,8 +1,11 @@
 import { buildDestroyActionParams } from '@/constants';
 import { ActionDto } from '@/services';
-import { CraftsmenPosition, GameManager, HashedType, Position } from '.';
 import { EWallSide } from '../enums';
 import { IBorderGameManager } from '../interfaces';
+import CraftsmenPosition from './CraftsmenPosition';
+import GameManager from './GameManager';
+import HashedType from './HashedType';
+import Position from './Position';
 
 /**
  * @description Border game manager

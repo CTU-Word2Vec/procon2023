@@ -14,10 +14,23 @@ export default class HashedType<T> implements IHashedType<T> {
 	private data: IHashedDataType<T>;
 
 	/**
+	 * @description Number of elements;
+	 */
+	private elements: number;
+
+	/**
 	 * @description Hashed type
 	 */
-	constructor() {
+	constructor(initialData?: Position[], initElement?: T) {
 		this.data = {};
+		this.elements = 0;
+
+		if (!initialData) return;
+		if (!initElement) throw new Error('initElement is required when initialData is provided');
+
+		for (const pos of initialData) {
+			this.write(pos, initElement);
+		}
 	}
 
 	public exist(pos: Position): boolean {
@@ -37,6 +50,10 @@ export default class HashedType<T> implements IHashedType<T> {
 			this.data[pos.x] = {};
 		}
 
+		if (!this.data[pos.x]![pos.y]) {
+			this.elements++;
+		}
+
 		this.data[pos.x]![pos.y] = t;
 	}
 
@@ -44,6 +61,7 @@ export default class HashedType<T> implements IHashedType<T> {
 		// If the x position does not exist, do nothing
 		if (!this.exist(pos)) return;
 
+		this.elements--;
 		this.data[pos.x]![pos.y] = null;
 	}
 
@@ -78,5 +96,22 @@ export default class HashedType<T> implements IHashedType<T> {
 		}
 
 		return result;
+	}
+
+	public clone(): HashedType<T> {
+		const data = JSON.parse(JSON.stringify(this.data));
+
+		const clonedObject = new HashedType<T>();
+		clonedObject.data = data;
+
+		return clonedObject;
+	}
+
+	public isEmpty(): boolean {
+		return !this.elements;
+	}
+
+	public someExist(positions: Position[]): boolean {
+		return positions.some((pos) => this.exist(pos));
 	}
 }
