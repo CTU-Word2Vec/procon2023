@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.3](https://github.com/CTU-Word2Vec/procon2023/compare/v0.0.1...v0.0.3) (2023-12-04)
+
+### Features
+
+-   add dijkstra ([8f73cc8](https://github.com/CTU-Word2Vec/procon2023/commits/8f73cc824f1c7b13b494295704c9711ad5d9c63d))
+-   add dijkstra + (remove permutation) ([0c4ec20](https://github.com/CTU-Word2Vec/procon2023/commits/0c4ec20e93c0f135ba15b0b062eb9fbb4613760e))
+-   add dijstra ([8a8d363](https://github.com/CTU-Word2Vec/procon2023/commits/8a8d3639d8b766c7ed195cf8a69f4293c39a27cb))
+-   clone game data func ([2a302d6](https://github.com/CTU-Word2Vec/procon2023/commits/2a302d6ef95d35c60ddfd070ec82f60d1713662b))
+-   export json ([e3bd130](https://github.com/CTU-Word2Vec/procon2023/commits/e3bd13026375976a52d08a5dbdeb7058b00e013f))
+-   implement dijkstra to caro ([895502d](https://github.com/CTU-Word2Vec/procon2023/commits/895502d00bc432cf7040a3dddf977830164b087a))
+-   show times of POST action failed ([3657a12](https://github.com/CTU-Word2Vec/procon2023/commits/3657a1207f82a038815c4b76c8b26c0a10f2e6f6))
+-   translate to VN ([688d7d8](https://github.com/CTU-Word2Vec/procon2023/commits/688d7d89271ee4880424133d0b35db8cf8b6b166))
+-   update dijkstra ([c6bcb82](https://github.com/CTU-Word2Vec/procon2023/commits/c6bcb829c9ec824d7a3b0cf271443479152e221b))
+-   upgrade caro algrithm ([4e3b969](https://github.com/CTU-Word2Vec/procon2023/commits/4e3b969d11fb300d4aed622caed9028adae85c88))
+
+### Bug Fixes
+
+-   cannot build at position has pond ([4e035f6](https://github.com/CTU-Word2Vec/procon2023/commits/4e035f6699546ca357c2e3148518318b41ed65b0))
+-   fix create map ([95be14a](https://github.com/CTU-Word2Vec/procon2023/commits/95be14a1b27418f350ed2fccbe0b26ee79314e2d))
+-   fix dijkstra ([557f97d](https://github.com/CTU-Word2Vec/procon2023/commits/557f97de36485a992c191f8d798b2899251e07fd))
+-   fix dijkstra algrithm ([89bf503](https://github.com/CTU-Word2Vec/procon2023/commits/89bf5030ab9043f29cf079d7731a40fe49794603))
+-   update weight of positions ([c61ad4b](https://github.com/CTU-Word2Vec/procon2023/commits/c61ad4bc905a42b112225493503af5815493e8f7))
+
 ### [0.0.2](https://github.com/CTU-Word2Vec/procon2023/compare/v0.0.1...v0.0.2) (2023-12-04)
 
 ### Features
