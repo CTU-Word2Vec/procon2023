@@ -134,6 +134,12 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 						this.scoreCounter.write(new Position(x, y), 0.5);
 				}
 
+				for (const p of pos.upperLeftUpperRightLowerLeftLowerRight()) {
+					if (this.hashedWalls.exist(p) && this.hashedWalls.read(p)!.side == side) {
+						this.scoreCounter.increase(pos, 0.25);
+					}
+				}
+
 				// Nếu có lâu đài thì ưu tiên xây xung quanh lâu đài
 				if (this.hashedCastles.exist(pos)) this.scoreCounter.increase(pos, 1);
 			}
@@ -153,8 +159,8 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 	 */
 	private checkCreate(pos: Position, ownSide: EWallSide): boolean {
 		const needCondition =
-			HASHED_BUILD_TEMPLATE.exist(new Position(pos.x % (TEMPLATE_WIDTH - 1), pos.y % (TEMPLATE_HEIGHT - 1))) ||
-			pos.x == this.width - 1 ||
+			HASHED_BUILD_TEMPLATE.exist(new Position(pos.x % (TEMPLATE_WIDTH - 1), pos.y % (TEMPLATE_HEIGHT - 1))) || // * Chia chia gì đó, thử đi rồi biết
+			pos.x == this.width - 1 || // * Nếu ở gần biên thì xây luôn
 			pos.y == this.height - 1;
 
 		if (!needCondition) return false;
@@ -187,15 +193,15 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 		if (this.hashedCraftmens.exist(pos)) return true;
 		if (this.isInSide(pos, ownSide)) return true;
 
-		// * Nếu sẽ xây gần chỗ đó thì thôi không xây nữa
-		const nearInBuild = pos
-			.topRightBottomLeft()
-			.some(
-				(p) =>
-					this.hashedBuildPositions.exist(p) ||
-					(this.hashedWalls.exist(p) && this.hashedWalls.read(p)!.side === ownSide),
-			);
-		if (nearInBuild) return true;
+		// // * Nếu sẽ xây gần chỗ đó thì thôi không xây nữa
+		// const nearInBuild = pos
+		// 	.topRightBottomLeft()
+		// 	.some(
+		// 		(p) =>
+		// 			this.hashedBuildPositions.exist(p) ||
+		// 			(this.hashedWalls.exist(p) && this.hashedWalls.read(p)!.side === ownSide),
+		// 	);
+		// if (nearInBuild) return true;
 
 		// * Nếu ở gần đối phương thì chạy
 		const nearEne = pos
