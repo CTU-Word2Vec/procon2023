@@ -69,6 +69,7 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 				if (this.hashedWalls.exist(pos)) continue;
 				if (this.hashedCastles.exist(pos)) continue;
 				if (this.hashedPonds.exist(pos)) continue;
+				if (this.hashedCraftmens.exist(pos)) continue;
 
 				this.hashedBuildPositions.write(pos, true);
 			}
@@ -79,6 +80,7 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 				if (this.hashedWalls.exist(pos)) continue;
 				if (this.hashedCastles.exist(pos)) continue;
 				if (this.hashedPonds.exist(pos)) continue;
+				if (this.hashedCraftmens.exist(pos)) continue;
 
 				this.hashedBuildPositions.write(pos, true);
 			}
@@ -94,7 +96,15 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 				if (this.hashedSide.exist(pos) && this.hashedSide.read(pos) === side) continue;
 
 				const trbl = pos.topRightBottomLeft();
-				const builds = trbl.reduce((acc, pos) => acc + (this.hashedBuildPositions.exist(pos) ? 1 : 0), 0);
+				let builds = 0;
+
+				for (const p of trbl) {
+					if (this.hashedBuildPositions.exist(p)) builds++;
+					if (this.hashedWalls.exist(p) && this.hashedWalls.read(p)!.side !== side)
+						this.scoreCounter.increase(pos, 0.25);
+					if (this.hashedCraftmens.exist(pos) && this.hashedCraftmens.read(pos)!.side !== side)
+						this.scoreCounter.decrease(pos, 0.25);
+				}
 
 				switch (builds) {
 					case 1:
@@ -111,11 +121,6 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 					default:
 						this.scoreCounter.write(new Position(x, y), 0.5);
 				}
-
-				trbl.forEach((p) => {
-					if (this.hashedWalls.exist(p) && this.hashedWalls.read(p)!.side !== side)
-						this.scoreCounter.increase(pos, 0.25);
-				});
 
 				if (this.hashedCastles.exist(pos)) this.scoreCounter.increase(pos, 1);
 			}
@@ -238,15 +243,11 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 			const trbl = pos.topRightBottomLeft();
 
 			for (const near of trbl) {
-				// if (
-				// 	near
-				// 		.topRightBottomLeft()
-				// 		.some(
-				// 			(p) =>
-				// 				this.hashedCraftmens.exist(p) && this.hashedCraftmens.read(p)!.side === craftmen.side,
-				// 		)
-				// )
-				// 	continue;
+				// Nếu xung quanh có con nào là con của mình thì bỏ qua
+				const haveOwnCraftmen = near
+					.topRightBottomLeft()
+					.some((p) => this.hashedCraftmens.exist(p) && this.hashedCraftmens.read(p)!.side === craftmen.side);
+				if (haveOwnCraftmen) continue;
 
 				if (this.hashedBuildPositions.exist(near)) {
 					if (top.priority < bestScore) {

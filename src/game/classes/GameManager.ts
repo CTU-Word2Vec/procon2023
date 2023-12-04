@@ -173,10 +173,8 @@ export default class GameManager extends BaseGameManager implements IGameManager
 		// Get nearby positions of new wall and update side
 		const positions = pos.topRightBottomLeft();
 
-		const filled = new HashedType<boolean>();
-
 		for (const position of positions) {
-			this.updateSideFromPosition(position, this.hashedSide.read(position) || side, filled);
+			this.updateSideFromPosition(position, this.hashedSide.read(position) || side);
 		}
 
 		this.hashedSide.remove(pos);
@@ -409,16 +407,12 @@ export default class GameManager extends BaseGameManager implements IGameManager
 	 * @param visited - Visited positions
 	 * @param filled - Filled positions
 	 */
-	private updateSideFromPosition(
-		pos: Position,
-		initSide: EWallSide | null = null,
-		filled: HashedType<boolean> = new HashedType<boolean>(),
-	): void {
+	private updateSideFromPosition(pos: Position, initSide: EWallSide | null = null): void {
 		// Get side of position
 		const updatedSide = this.sideOf(pos, initSide, new HashedType<boolean>());
 
 		// Fill side of position and nearby positions
-		this.fillSide(pos, updatedSide, filled);
+		this.fillSide(pos, updatedSide, new HashedType<boolean>());
 
 		// Update sides from hashed side
 		this.sides = this.hashedSide.toList();
