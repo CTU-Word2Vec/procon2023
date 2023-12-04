@@ -44,6 +44,8 @@ export default class GameManager extends BaseGameManager implements IGameManager
 			width: object.width,
 			buildPositions: object.buildPositions,
 			destroyPositions: object.destroyPositions,
+			targetPositions: object.targetPositions,
+			scorePositions: object.scorePositions,
 		};
 	}
 
@@ -171,10 +173,8 @@ export default class GameManager extends BaseGameManager implements IGameManager
 		// Get nearby positions of new wall and update side
 		const positions = pos.topRightBottomLeft();
 
-		const filled = new HashedType<boolean>();
-
 		for (const position of positions) {
-			this.updateSideFromPosition(position, this.hashedSide.read(position) || side, filled);
+			this.updateSideFromPosition(position, this.hashedSide.read(position) || side);
 		}
 
 		this.hashedSide.remove(pos);
@@ -252,33 +252,47 @@ export default class GameManager extends BaseGameManager implements IGameManager
 	protected getActionToGoToPosition(craftmen: CraftsmenPosition, targetPos: Position): ActionDto | null {
 		const queue = new PriorityQueue<{ from: Position; to: Position; direction: EMoveParam }>();
 		const visited = new HashedType<boolean>();
+		const dist = new HashedType<number>();
 
 		const nears = craftmen.allNears();
 
 		for (const i in nears) {
 			queue.enQueue({ from: nears[i], to: nears[i], direction: moveParams[i] }, 1);
+			dist.write(nears[i], 1);
 		}
+
+		let minDist = Infinity;
+		let finalAction: ActionDto | null = null;
 
 		while (!queue.isEmpty()) {
 			const top = queue.deQueue();
 			const pos = top.value.to;
+			const d = top.priority;
+
+			if (d >= minDist) continue;
 
 			if (!this.isValidPosition(pos)) continue;
 			if (this.hashedPonds.exist(pos)) continue;
 			if (this.hashedCraftmens.exist(pos)) continue;
 			if (this.hashedWalls.exist(pos) && this.hashedWalls.read(pos)!.side !== craftmen.side) continue;
 
-			if (pos.isEquals(targetPos)) return craftmen.getMoveAction(top.value.direction);
+			if (pos.isEquals(targetPos)) {
+				if (top.priority + 1 < minDist) {
+					minDist = d + 1;
+					finalAction = craftmen.getMoveAction(top.value.direction);
+				}
+			}
 
 			if (visited.exist(pos)) continue;
 			visited.write(pos, true);
 
 			for (const near of pos.allNears()) {
-				queue.enQueue({ from: top.value.from, to: near, direction: top.value.direction }, top.priority + 1);
+				queue.enQueue({ from: top.value.from, to: near, direction: top.value.direction }, d + 1);
+				if (!dist.exist(near) || dist.read(near)! > d + 1) dist.write(near, d + 1);
 			}
 		}
 
-		return null;
+		return finalAction;
 	}
 
 	/**
@@ -393,16 +407,12 @@ export default class GameManager extends BaseGameManager implements IGameManager
 	 * @param visited - Visited positions
 	 * @param filled - Filled positions
 	 */
-	private updateSideFromPosition(
-		pos: Position,
-		initSide: EWallSide | null = null,
-		filled: HashedType<boolean> = new HashedType<boolean>(),
-	): void {
+	private updateSideFromPosition(pos: Position, initSide: EWallSide | null = null): void {
 		// Get side of position
 		const updatedSide = this.sideOf(pos, initSide, new HashedType<boolean>());
 
 		// Fill side of position and nearby positions
-		this.fillSide(pos, updatedSide, filled);
+		this.fillSide(pos, updatedSide, new HashedType<boolean>());
 
 		// Update sides from hashed side
 		this.sides = this.hashedSide.toList();

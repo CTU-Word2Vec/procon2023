@@ -12,8 +12,10 @@ import WallPosition from './WallPosition';
  * @implements IGameStateData
  */
 export default class GameStateData implements IGameStateData {
-	public buildPositions: PositionData<number>[];
-	public destroyPositions: IPositionData<boolean>[];
+	public buildPositions: PositionData<boolean>[];
+	public destroyPositions: PositionData<boolean>[];
+	public targetPositions: Position[];
+	public scorePositions: IPositionData<number>[];
 
 	/**
 	 * @description Game state data constructor
@@ -77,6 +79,8 @@ export default class GameStateData implements IGameStateData {
 	) {
 		this.buildPositions = [];
 		this.destroyPositions = [];
+		this.targetPositions = [];
+		this.scorePositions = [];
 
 		// Call the first hashing
 		this.firstHashing();

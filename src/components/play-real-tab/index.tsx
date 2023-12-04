@@ -67,6 +67,7 @@ export default function PlayRealTab() {
 			message.error(error.message);
 		} finally {
 			setIsPlaying(false);
+			setIsShowCountDown(false);
 			dispatch(setCurrentAction(undefined));
 		}
 	}, [dispatch, game, side, gameMode]);
