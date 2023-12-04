@@ -93,7 +93,7 @@ export default interface IGameStateData {
 	/**
 	 * @description Những điểm có thể xây dựng
 	 */
-	buildPositions: IPositionData<number>[];
+	buildPositions: IPositionData<boolean>[];
 
 	/**
 	 * @description Những điểm có thể phá hủy
@@ -104,4 +104,9 @@ export default interface IGameStateData {
 	 * @description Những điểm cần đi đến
 	 */
 	targetPositions: IPosition[];
+
+	/**
+	 * @description Trọng số của các vị trí
+	 */
+	scorePositions: IPositionData<number>[];
 }

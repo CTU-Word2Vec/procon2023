@@ -9,6 +9,7 @@ import {
 	ArrowUpOutlined,
 	DoubleRightOutlined,
 	FormatPainterFilled,
+	PlusOutlined,
 	StopOutlined,
 	UserOutlined,
 } from '@ant-design/icons';
@@ -131,7 +132,8 @@ export default function GameBoard({ state, action }: GameBoardProps) {
 		const hashed: {
 			[id: string]: Action | null;
 		} = {};
-		for (const act of action.actions) {
+
+		for (const act of action.actions ?? []) {
 			hashed[act.craftsman_id] = act;
 		}
 
@@ -235,7 +237,7 @@ export default function GameBoard({ state, action }: GameBoardProps) {
 							fontSize: 10,
 						}}
 					>
-						{pos.data}
+						<PlusOutlined />
 					</div>
 				))}
 
@@ -262,6 +264,22 @@ export default function GameBoard({ state, action }: GameBoardProps) {
 							border: '2px solid red',
 						}}
 					></div>
+				))}
+
+				{state.scorePositions.map((pos, i) => (
+					<div
+						key={`score:${i}`}
+						className={clsx(styles.position)}
+						style={{
+							transform: `translate(${pos.x * 33}px, ${pos.y * 33}px)`,
+							zIndex: state.height,
+							fontSize: 10,
+							fontWeight: 'normal',
+							// color: 'blue',
+						}}
+					>
+						{pos.data.toFixed(1)}
+					</div>
 				))}
 
 				<div

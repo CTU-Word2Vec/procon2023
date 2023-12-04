@@ -56,8 +56,6 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 				{
 					// Nếu có thể xây, thì xây
 					if (this.checkCreate(pos, side)) this.hashedBuildPositions.write(pos, true);
-					// Nếu không thể xây, thì tăng điểm
-					else this.scoreCounter.increase(new Position(pos.x / TEMPLATE_WIDTH, pos.y / TEMPLATE_HEIGHT), 2);
 				}
 				{
 					// Check destroy scoped
@@ -86,12 +84,46 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 			}
 		}
 
-		this.buildPositions = this.hashedBuildPositions.toList().map((pos) => ({
-			...pos,
-			data: this.scoreCounter.read(new Position(pos.x / TEMPLATE_WIDTH, pos.y / TEMPLATE_HEIGHT)),
-		}));
+		for (let x = 0; x < this.width; x++) {
+			for (let y = 0; y < this.height; y++) {
+				const pos = new Position(x, y);
 
+				if (this.hashedBuildPositions.exist(pos)) continue;
+				if (this.hashedWalls.exist(pos)) continue;
+				if (this.hashedPonds.exist(pos)) continue;
+				if (this.hashedSide.exist(pos) && this.hashedSide.read(pos) === side) continue;
+
+				const trbl = pos.topRightBottomLeft();
+				const builds = trbl.reduce((acc, pos) => acc + (this.hashedBuildPositions.exist(pos) ? 1 : 0), 0);
+
+				switch (builds) {
+					case 1:
+						this.scoreCounter.write(new Position(x, y), 1.5);
+						break;
+					case 2:
+						this.scoreCounter.write(new Position(x, y), 1.25);
+						break;
+					case 3:
+						this.scoreCounter.write(new Position(x, y), 1);
+						break;
+					case 0:
+						break;
+					default:
+						this.scoreCounter.write(new Position(x, y), 0.5);
+				}
+
+				trbl.forEach((p) => {
+					if (this.hashedWalls.exist(p) && this.hashedWalls.read(p)!.side !== side)
+						this.scoreCounter.increase(pos, 0.25);
+				});
+
+				if (this.hashedCastles.exist(pos)) this.scoreCounter.increase(pos, 1);
+			}
+		}
+
+		this.buildPositions = this.hashedBuildPositions.toList();
 		this.destroyPositions = this.hashedDestroyPositions.toList();
+		this.scorePositions = this.scoreCounter.toList();
 	}
 
 	private checkCreate(pos: Position, ownSide: EWallSide): boolean {
@@ -199,7 +231,7 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 
 			// If the position is not valid, continue
 			if (!pos.isValid(this.width, this.height)) continue;
-			if (pos.distance(craftmen) > 15 && bestPos) break;
+			// if (pos.distance(craftmen) > 15 && bestPos) break;
 			if (this.hashedPonds.exist(pos)) continue;
 			// if (this.hashedWalls.exist(pos) && this.hashedWalls.read(pos)!.side !== craftmen.side) continue;
 
@@ -217,8 +249,6 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 				// 	continue;
 
 				if (this.hashedBuildPositions.exist(near)) {
-					// this.hashedBuildPositions.remove(near);
-
 					if (top.priority < bestScore) {
 						bestScore = top.priority;
 						bestPos = pos;
@@ -236,15 +266,17 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 			const allNears = pos.allNears();
 
 			for (const near of allNears) {
-				queue.enQueue(
-					near,
-					craftmen.distance(near) -
-						this.scoreCounter.read(new Position(near.x / TEMPLATE_WIDTH, near.y / TEMPLATE_HEIGHT)),
-				);
+				queue.enQueue(near, craftmen.distance(near) - this.scoreCounter.read(near));
 			}
 		}
 
 		console.log('Cannot find next position for the craftsman', craftmen);
+
+		// Khúc này xóa mark để mấy con khác không đi vào
+		for (const pos of bestPos?.topRightBottomLeft() ?? []) {
+			this.hashedBuildPositions.remove(pos);
+			this.hashedDestroyPositions.remove(pos);
+		}
 
 		// If the craftsman can not go to any position, return null
 		return bestPos;

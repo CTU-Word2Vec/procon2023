@@ -45,6 +45,7 @@ export default class GameManager extends BaseGameManager implements IGameManager
 			buildPositions: object.buildPositions,
 			destroyPositions: object.destroyPositions,
 			targetPositions: object.targetPositions,
+			scorePositions: object.scorePositions,
 		};
 	}
 
