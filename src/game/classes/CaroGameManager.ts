@@ -303,33 +303,33 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 		return null;
 	}
 
-	/**
-	 * @description Find the closest castle from the craftsman
-	 * @param craftsmen - Craftsmen position
-	 * @returns Closest castle
-	 */
-	private findClosestCastle(craftsmen: CraftsmenPosition): Position | null {
-		// Initialize min distance and closest castle
-		let min = Infinity;
-		let closestCastle: Position | null = null;
+	// /**
+	//  * @description Find the closest castle from the craftsman
+	//  * @param craftsmen - Craftsmen position
+	//  * @returns Closest castle
+	//  */
+	// private findClosestCastle(craftsmen: CraftsmenPosition): Position | null {
+	// 	// Initialize min distance and closest castle
+	// 	let min = Infinity;
+	// 	let closestCastle: Position | null = null;
 
-		for (const castle of this.castles) {
-			if (!castle.topRightBottomLeft().some((pos) => this.hashedBuildPositions.exist(pos))) continue;
+	// 	for (const castle of this.castles) {
+	// 		if (!castle.topRightBottomLeft().some((pos) => this.hashedBuildPositions.exist(pos))) continue;
 
-			const distance = craftsmen.distance(castle);
-			// If the distance is 0, return null
-			if (distance === 0) return null;
+	// 		const distance = craftsmen.distance(castle);
+	// 		// If the distance is 0, return null
+	// 		if (distance === 0) return null;
 
-			// Update the min distance and closest castle
-			if (distance < min) {
-				min = distance;
-				closestCastle = castle;
-			}
-		}
+	// 		// Update the min distance and closest castle
+	// 		if (distance < min) {
+	// 			min = distance;
+	// 			closestCastle = castle;
+	// 		}
+	// 	}
 
-		// Return the closest castle (can be null)
-		return closestCastle;
-	}
+	// 	// Return the closest castle (can be null)
+	// 	return closestCastle;
+	// }
 
 	/**
 	 * @description Get action to go to the position
