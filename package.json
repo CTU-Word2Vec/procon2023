@@ -1,7 +1,7 @@
 {
 	"name": "procon2023",
 	"private": true,
-	"version": "0.0.3",
+	"version": "0.0.5",
 	"type": "module",
 	"description": "Procon 2023 - Castles game",
 	"author": {

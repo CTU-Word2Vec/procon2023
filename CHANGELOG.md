@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.5](https://github.com/CTU-Word2Vec/procon2023/compare/v0.0.3...v0.0.5) (2023-12-04)
+
+### [0.0.4](https://github.com/CTU-Word2Vec/procon2023/compare/v0.0.3...v0.0.4) (2023-12-04)
+
 ### [0.0.3](https://github.com/CTU-Word2Vec/procon2023/compare/v0.0.1...v0.0.3) (2023-12-04)
 
 ### Features
