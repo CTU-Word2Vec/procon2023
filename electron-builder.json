@@ -6,7 +6,6 @@
 	"directories": {
 		"output": "release/${version}"
 	},
-	"buildVersion": "v${version}-electron",
 	"files": ["dist", "dist-electron"],
 	"icon": "dist/android-chrome-512x512.png",
 	"mac": {
