@@ -155,7 +155,7 @@ export default function PlayTestTab() {
 
 			{randomedField && gameState ? (
 				<>
-					<Form component={Card} title='Chọn giải thủật'>
+					<Form component={Card} title='Chọn giải thuật'>
 						<Form.Item label='Đội A'>
 							<Select
 								placeholder='Chọn giải thuật cho đội A'

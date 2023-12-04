@@ -49,7 +49,7 @@ export default class GameManager extends BaseGameManager implements IGameManager
 		};
 	}
 
-	public addActions(actions: GameAction[]): void {
+	public addActions(actions: GameAction[], maxTurn: number = Infinity): void {
 		// If there is no action, do nothing
 		if (!actions.length) return;
 
@@ -57,6 +57,8 @@ export default class GameManager extends BaseGameManager implements IGameManager
 		const startTime = Date.now();
 
 		for (let i = 0; i < actions.length; i++) {
+			if (actions[i].turn > maxTurn) break; //  Nếu turn của action lớn hơn maxTurn thì cút
+
 			if (actions[i].turn <= this.lastTurn) {
 				// If the turn is less than or equal to the last turn, then do nothing
 				continue;
