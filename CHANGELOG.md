@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.10](https://github.com/CTU-Word2Vec/procon2023/compare/v0.0.9...v0.0.10) (2023-12-04)
+
+### Bug Fixes
+
+-   fix play real bug ([8d3b631](https://github.com/CTU-Word2Vec/procon2023/commits/8d3b631a9f48ebf11ff9b3ad5320bfc51720318e))
+
 ### [0.0.9](https://github.com/CTU-Word2Vec/procon2023/compare/v0.0.8-electron...v0.0.9) (2023-12-04)
 
 ### [0.0.8](https://github.com/CTU-Word2Vec/procon2023/compare/v0.0.7...v0.0.8) (2023-12-04)
