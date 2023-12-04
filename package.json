@@ -1,7 +1,7 @@
 {
 	"name": "procon2023",
 	"private": true,
-	"version": "0.0.6",
+	"version": "0.0.7",
 	"type": "commonjs",
 	"description": "Procon 2023 - Castles game",
 	"main": "dist-electron/main.js",
