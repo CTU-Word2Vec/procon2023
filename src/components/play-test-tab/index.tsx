@@ -38,6 +38,8 @@ export default function PlayTestTab() {
 	const [isRandoming, setIsRandoming] = useState(false);
 
 	const gameState = useSelector((state: RootState) => state.gameState.gameState);
+	const willMoveTo = useSelector((state: RootState) => state.willMoveTo);
+
 	const dispatch = useDispatch();
 
 	const handleRandomField = useCallback(
@@ -68,6 +70,7 @@ export default function PlayTestTab() {
 				field: randomedField!,
 				sideAMode,
 				sideBMode,
+				willMoveTo,
 				onGameStateChange: (gameState) => dispatch(setGameState(gameState)),
 				onGameActionsChange: (actions) => {
 					setActions(actions);
@@ -81,7 +84,7 @@ export default function PlayTestTab() {
 			setIsPlayingTest(false);
 			dispatch(setCurrentAction(undefined));
 		}
-	}, [dispatch, numberOfTurns, randomedField, sideAMode, sideBMode]);
+	}, [dispatch, numberOfTurns, randomedField, sideAMode, sideBMode, willMoveTo]);
 
 	const stopPlayTest = () => {
 		playTestState.playing = false;

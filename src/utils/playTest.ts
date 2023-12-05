@@ -1,5 +1,6 @@
 import { EGameMode } from '@/game/enums';
 import { EWallSide } from '@/game/enums/EWallSide';
+import { IPosition } from '@/game/interfaces';
 import IGameStateData from '@/game/interfaces/IGameStateData';
 import Action from '@/models/Action';
 import Field from '@/models/Field';
@@ -28,6 +29,10 @@ export interface PlayTestOptions {
 	 * @description Side B mode
 	 */
 	sideBMode?: EGameMode;
+	/**
+	 * @description Will move to
+	 */
+	willMoveTo?: IPosition[];
 	/**
 	 * @description On game state change
 	 * @param gameState - Game state
@@ -61,6 +66,7 @@ export default async function playTest({
 	field,
 	sideAMode = 'Caro',
 	sideBMode = 'Border',
+	willMoveTo = [],
 	onGameStateChange,
 	onGameActionsChange,
 }: PlayTestOptions) {
@@ -83,7 +89,7 @@ export default async function playTest({
 
 		const start = new Date().getTime();
 
-		const action = (await gameManagerMap[turnOf].getNextActionsAsync(turnOf)) as unknown as Action[];
+		const action = (await gameManagerMap[turnOf].getNextActionsAsync(turnOf, willMoveTo)) as unknown as Action[];
 
 		const end = new Date().getTime();
 

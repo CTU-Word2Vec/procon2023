@@ -1,5 +1,6 @@
 import GameAction from '@/models/GameAction';
 import { ActionDto } from '@/services';
+import { IPosition } from '.';
 import { EWallSide } from '../enums';
 import IBaseGameManager from './IBaseGameManager';
 import IGameStateData from './IGameStateData';
@@ -26,7 +27,7 @@ export default interface IGameManager extends IBaseGameManager {
 	 * @param side - Side of team
 	 * @returns List of actions
 	 */
-	getNextActions(side: EWallSide): ActionDto[];
+	getNextActions(side: EWallSide, willMoveTo?: IPosition[]): ActionDto[];
 
 	/**
 	 * @description Get next actions
@@ -34,5 +35,5 @@ export default interface IGameManager extends IBaseGameManager {
 	 * @returns List of actions
 	 * @async
 	 */
-	getNextActionsAsync(side: EWallSide): Promise<ActionDto[]>;
+	getNextActionsAsync(side: EWallSide, willMoveTo?: IPosition[]): Promise<ActionDto[]>;
 }

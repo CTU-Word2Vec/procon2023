@@ -2,6 +2,8 @@ import { ICraftsmenPosition } from '@/game/interfaces';
 import IGameStateData from '@/game/interfaces/IGameStateData';
 import Action from '@/models/Action';
 import GameAction from '@/models/GameAction';
+import { RootState } from '@/store';
+import { addPosition } from '@/store/willMoveTo';
 import {
 	ArrowDownOutlined,
 	ArrowLeftOutlined,
@@ -14,7 +16,8 @@ import {
 	UserOutlined,
 } from '@ant-design/icons';
 import clsx from 'clsx';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import Castle from '../castle';
 import CraftsmenA from '../craftsmen-a';
 import CraftsmenB from '../craftsmen-b';
@@ -81,6 +84,8 @@ interface MapProps {
 }
 
 function Map({ width, height }: MapProps) {
+	const dispatch = useDispatch();
+
 	const rows = useMemo(() => {
 		const rows = [];
 
@@ -89,7 +94,13 @@ function Map({ width, height }: MapProps) {
 
 			for (let x = 0; x < width; x++) {
 				cols.push(
-					<td key={x}>
+					<td
+						key={x}
+						className={styles.tableCell}
+						onClick={() => {
+							dispatch(addPosition({ x, y }));
+						}}
+					>
 						<div className={styles.placeholder}></div>
 					</td>,
 				);
@@ -105,7 +116,7 @@ function Map({ width, height }: MapProps) {
 		}
 
 		return rows;
-	}, [width, height]);
+	}, [height, width, dispatch]);
 
 	return (
 		<table>
@@ -119,10 +130,10 @@ function Map({ width, height }: MapProps) {
 }
 
 export default function GameBoard({ state, action }: GameBoardProps) {
-	const [startX, setStartX] = useState(0);
-	const [startY, setStartY] = useState(0);
-	const [translateX, setTranslateX] = useState(0);
-	const [translateY, setTranslateY] = useState(0);
+	// const [startX, setStartX] = useState(0);
+	// const [startY, setStartY] = useState(0);
+	// const [translateX, setTranslateX] = useState(0);
+	// const [translateY, setTranslateY] = useState(0);
 
 	// Hashed actions
 	const hashedActions = useMemo(() => {
@@ -140,16 +151,18 @@ export default function GameBoard({ state, action }: GameBoardProps) {
 		return hashed;
 	}, [action]);
 
+	const willMoveTo = useSelector((state: RootState) => state.willMoveTo);
+
 	return (
 		<div className={clsx(styles.wrapper, styles[state.lastTurn % 2 ? 'B' : 'A'])}>
 			<div
 				className={styles.inner}
-				style={{
-					transform: `translate(${translateX}px, ${translateY}px)`,
-				}}
+				style={
+					{
+						// transform: `translate(${translateX}px, ${translateY}px)`,
+					}
+				}
 			>
-				<Map width={state.width} height={state.height} />
-
 				{state.ponds.map((pond, index) => (
 					<div
 						key={index}
@@ -197,6 +210,18 @@ export default function GameBoard({ state, action }: GameBoardProps) {
 					>
 						<Castle />
 					</div>
+				))}
+
+				{willMoveTo.map((pos, i) => (
+					<div
+						className={styles.position}
+						key={`move:${i}`}
+						style={{
+							transform: `translate(${pos.x * 33 + 1}px, ${pos.y * 33 + 1}px)`,
+							zIndex: pos.y,
+							background: '#fff',
+						}}
+					></div>
 				))}
 
 				{state.craftsmen.map((craftsmen) => {
@@ -282,7 +307,7 @@ export default function GameBoard({ state, action }: GameBoardProps) {
 					</div>
 				))}
 
-				<div
+				{/* <div
 					className={styles.mask}
 					style={{ zIndex: state.height }}
 					draggable
@@ -298,7 +323,9 @@ export default function GameBoard({ state, action }: GameBoardProps) {
 						setTranslateX(event.clientX - startX);
 						setTranslateY(event.clientY - startY);
 					}}
-				></div>
+				></div> */}
+
+				<Map width={state.width} height={state.height} />
 			</div>
 		</div>
 	);

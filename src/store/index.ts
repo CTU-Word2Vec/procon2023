@@ -1,9 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit';
 import gameStateReducer from './gameState';
+import willMoveToReducer from './willMoveTo';
 
 const store = configureStore({
 	reducer: {
 		gameState: gameStateReducer,
+		willMoveTo: willMoveToReducer,
 	},
 });
 

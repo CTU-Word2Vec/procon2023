@@ -1,6 +1,7 @@
 import { buildDestroyActionParams } from '@/constants/action-params';
 import { ActionDto } from '@/services/player.service';
 import { EWallSide } from '../enums/EWallSide';
+import { IPosition } from '../interfaces';
 import ICaroGameManager from '../interfaces/ICaroGameManager';
 import CraftsmenPosition from './CraftsmenPosition';
 import GameManager from './GameManager';
@@ -44,13 +45,39 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 	private hashedDestroyPositions: HashedType<boolean> = new HashedType<boolean>();
 	private scoreCounter: HashedCounter = new HashedCounter();
 
-	public override getNextActions(side: EWallSide): ActionDto[] {
-		this.prepareGetNextActions(side);
+	public override getNextActions(side: EWallSide, willMoveTo: IPosition[] = []): ActionDto[] {
+		if (willMoveTo.length) {
+			this.hashedBuildPositions = new HashedType<boolean>();
+			this.hashedDestroyPositions = new HashedType<boolean>();
+
+			for (const pos of willMoveTo.map((p) => new Position(p.x, p.y))) {
+				const trbl = pos.topRightBottomLeft();
+
+				for (const p of trbl) {
+					if (this.checkCreate(p, side)) this.hashedBuildPositions.write(p, true);
+					if (this.checkDestroy(p, side)) this.hashedDestroyPositions.write(p, true);
+				}
+			}
+		} else this.prepareGetNextActions(side);
+
 		return super.getNextActions(side);
 	}
 
-	public override getNextActionsAsync(side: EWallSide): Promise<ActionDto[]> {
-		this.prepareGetNextActions(side);
+	public override getNextActionsAsync(side: EWallSide, willMoveTo: IPosition[] = []): Promise<ActionDto[]> {
+		if (willMoveTo.length) {
+			this.hashedBuildPositions = new HashedType<boolean>();
+			this.hashedDestroyPositions = new HashedType<boolean>();
+
+			for (const pos of willMoveTo.map((p) => new Position(p.x, p.y))) {
+				const trbl = pos.topRightBottomLeft();
+
+				for (const p of trbl) {
+					if (this.checkCreate(p, side)) this.hashedBuildPositions.write(p, true);
+					if (this.checkDestroy(p, side)) this.hashedDestroyPositions.write(p, true);
+				}
+			}
+		} else this.prepareGetNextActions(side);
+
 		return super.getNextActionsAsync(side);
 	}
 
@@ -58,37 +85,50 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 	 * @description Hàm này khởi tạo các giá trị sau: vị trí xây, vị trí phá, điểm của các vị trí và các vị trí đang cần đến
 	 * @param side - Team mình
 	 */
-	private prepareGetNextActions(side: EWallSide = 'A') {
+	private prepareGetNextActions(side: EWallSide = 'A', willMoveTo: IPosition[] = []) {
 		this.targetPositions = [];
 		this.hashedBuildPositions = new HashedType<boolean>();
 		this.hashedDestroyPositions = new HashedType<boolean>();
 		this.scoreCounter = new HashedCounter();
 
-		// Đoạn này khởi tạo các vị trí xây và phá với điều kiện cơ bản
-		for (let x = 0; x < this.width; x++) {
-			for (let y = 0; y < this.height; y++) {
-				const pos = new Position(x, y);
-				// Nếu có thể xây, thì xây
-				if (this.checkCreate(pos, side)) this.hashedBuildPositions.write(pos, true);
-				// Check destroy scoped
-				if (this.checkDestroy(pos, side)) this.hashedDestroyPositions.write(pos, true);
-			}
-		}
+		// * Nếu có lệnh xây từ bên ngoài thì xây theo lệnh đó
+		if (willMoveTo.length) {
+			for (const pos of willMoveTo.map((p) => new Position(p.x, p.y))) {
+				const trbl = pos.topRightBottomLeft();
 
-		// Đoạn này khởi tạo các vị trí xây và phá với điều kiện đặc biệt
-		// Nếu có lâu đài thì xây xung quanh lâu đài với điều kiện lâu đài không được bao vây và không có đối phương ở gần đó
-		for (const castle of this.castles) {
-			for (const pos of castle.topRightBottomLeft()) {
-				if (this.checkNotCreate(pos, side)) continue;
-				this.hashedBuildPositions.write(pos, true);
+				for (const p of trbl) {
+					if (this.checkCreate(p, side)) this.hashedBuildPositions.write(p, true);
+					if (this.checkDestroy(p, side)) this.hashedDestroyPositions.write(p, true);
+				}
 			}
-		}
+			// * Nếu từ bên ngoài truyền vào thì không cần khởi tạo các vị trí xây và phá
+		} else {
+			// Đoạn này khởi tạo các vị trí xây và phá với điều kiện cơ bản
+			for (let x = 0; x < this.width; x++) {
+				for (let y = 0; y < this.height; y++) {
+					const pos = new Position(x, y);
+					// Nếu có thể xây, thì xây
+					if (this.checkCreate(pos, side)) this.hashedBuildPositions.write(pos, true);
+					// Check destroy scoped
+					if (this.checkDestroy(pos, side)) this.hashedDestroyPositions.write(pos, true);
+				}
+			}
 
-		// Nếu có ao thì xây xung quanh ao với điều kiện ao không được bao vây và không có đối phương ở gần đó
-		for (const pond of this.ponds) {
-			for (const pos of pond.topRightBottomLeft()) {
-				if (this.checkNotCreate(pos, side)) continue;
-				this.hashedBuildPositions.write(pos, true);
+			// Đoạn này khởi tạo các vị trí xây và phá với điều kiện đặc biệt
+			// Nếu có lâu đài thì xây xung quanh lâu đài với điều kiện lâu đài không được bao vây và không có đối phương ở gần đó
+			for (const castle of this.castles) {
+				for (const pos of castle.topRightBottomLeft()) {
+					if (this.checkNotCreate(pos, side)) continue;
+					this.hashedBuildPositions.write(pos, true);
+				}
+			}
+
+			// Nếu có ao thì xây xung quanh ao với điều kiện ao không được bao vây và không có đối phương ở gần đó
+			for (const pond of this.ponds) {
+				for (const pos of pond.topRightBottomLeft()) {
+					if (this.checkNotCreate(pos, side)) continue;
+					this.hashedBuildPositions.write(pos, true);
+				}
 			}
 		}
 

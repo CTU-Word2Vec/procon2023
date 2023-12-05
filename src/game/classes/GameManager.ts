@@ -6,6 +6,7 @@ import { ActionDto } from '@/services/player.service';
 import randomField, { RandomFieldOptions } from '@/utils/randomField';
 import sortActions from '@/utils/sortActions';
 import { EWallSide } from '../enums/EWallSide';
+import { IPosition } from '../interfaces';
 import IGameManager from '../interfaces/IGameManager';
 import IGameStateData from '../interfaces/IGameStateData';
 import BaseGameManager from './BaseGameManager';
@@ -460,7 +461,8 @@ export default class GameManager extends BaseGameManager implements IGameManager
 		}
 	}
 
-	public getNextActions(side: EWallSide): ActionDto[] {
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	public getNextActions(side: EWallSide, _willMoveTo?: IPosition[]): ActionDto[] {
 		this.goingTo = new HashedType<Position>();
 
 		const craftmens = this.getCraftsmansBySide(side);
@@ -480,7 +482,8 @@ export default class GameManager extends BaseGameManager implements IGameManager
 		return craftsmen.getStayAction();
 	}
 
-	public async getNextActionsAsync(side: EWallSide): Promise<ActionDto[]> {
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	public async getNextActionsAsync(side: EWallSide, _willMoveTo: IPosition[] = []): Promise<ActionDto[]> {
 		this.goingTo = new HashedType<Position>();
 
 		const craftmens = this.getCraftsmansBySide(side);
