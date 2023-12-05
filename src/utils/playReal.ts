@@ -88,7 +88,9 @@ export default async function playReal({
 
 	onGameStateChange(gameManager.toObject()); // * Cập nhật lại game state
 
-	const now = new Date().getTime(); // * Lấy thời gian hiện tại
+	const status = await playerService.getTime(); // * Lấy thời gian hiện tại của server
+
+	const now = new Date(status.time).getTime(); // * Lấy thời gian hiện tại
 	const startTime = new Date(game.start_time).getTime(); // * Lấy thời gian bắt đầu game
 
 	let waitTime = 0; // * Thời gian chờ
