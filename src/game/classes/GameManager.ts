@@ -391,10 +391,14 @@ export default class GameManager extends BaseGameManager implements IGameManager
 		// Mark the position as filled
 		filled.write(pos, true);
 
-		// If the side is not null, then hash the side to hashed side
-		if (side) this.hashedSide.write(pos, side);
-		// Else remove the position from hashed side
-		else this.hashedSide.remove(pos);
+		if (this.hashedSide.exist(pos)) {
+			if (side && side !== this.hashedSide.read(pos)) this.hashedSide.write(pos, 'AB');
+		} else {
+			// If the side is not null, then hash the side to hashed side
+			if (side) this.hashedSide.write(pos, side);
+			// Else remove the position from hashed side
+			else this.hashedSide.remove(pos);
+		}
 
 		// Get nearby positions and fill side of them
 		const positions = pos.topRightBottomLeft();
@@ -442,7 +446,7 @@ export default class GameManager extends BaseGameManager implements IGameManager
 
 			// Calculate score of territories
 			this.scores[side].territories = this.sides.reduce((prev, currentSide) => {
-				if (currentSide.data !== side) return prev;
+				if (currentSide.data !== side && currentSide.data !== 'AB') return prev;
 
 				return prev + this.territory_coeff;
 			}, 0);
