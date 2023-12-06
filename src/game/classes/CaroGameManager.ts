@@ -1,4 +1,5 @@
 import { buildDestroyActionParams } from '@/constants/action-params';
+import Field from '@/models/Field';
 import { ActionDto } from '@/services/player.service';
 import { EWallSide } from '../enums/EWallSide';
 import ICaroGameManager from '../interfaces/ICaroGameManager';
@@ -17,22 +18,11 @@ const BUILD_TEMPLATE = [
 	[false, false, true, false, false],
 ];
 
-// const BUILD_TEMPLATE = [
-// 	[false, true, false],
-// 	[true, false, true],
-// 	[false, true, false],
-// ];
-
-const TEMPLATE_WIDTH = BUILD_TEMPLATE[0].length;
-const TEMPLATE_HEIGHT = BUILD_TEMPLATE.length;
-
-const HASHED_BUILD_TEMPLATE = new HashedType<boolean>();
-for (const x in BUILD_TEMPLATE) {
-	for (const y in BUILD_TEMPLATE[x]) {
-		if (!BUILD_TEMPLATE[x][y]) continue;
-		HASHED_BUILD_TEMPLATE.write(new Position(+x, +y), true);
-	}
-}
+const BUILD_TEMPLATE_15x15 = [
+	[false, true, false],
+	[true, false, true],
+	[false, true, false],
+];
 
 /**
  * @description Caro game manager
@@ -43,6 +33,27 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 	private hashedBuildPositions: HashedType<boolean> = new HashedType<boolean>();
 	private hashedDestroyPositions: HashedType<boolean> = new HashedType<boolean>();
 	private scoreCounter: HashedCounter = new HashedCounter();
+	private HASHED_BUILD_TEMPLATE: HashedType<boolean>;
+	private TEMPLATE_WIDTH: number;
+	private TEMPLATE_HEIGHT: number;
+
+	constructor(field: Field, numberOfTurns: number) {
+		super(field, numberOfTurns);
+
+		this.HASHED_BUILD_TEMPLATE = new HashedType<boolean>();
+
+		const _BUILD_TEMPLATE = this.width >= 16 ? BUILD_TEMPLATE : BUILD_TEMPLATE_15x15;
+
+		for (const x in BUILD_TEMPLATE) {
+			for (const y in _BUILD_TEMPLATE[x]) {
+				if (!_BUILD_TEMPLATE[x][y]) continue;
+				this.HASHED_BUILD_TEMPLATE.write(new Position(+x, +y), true);
+			}
+		}
+
+		this.TEMPLATE_WIDTH = _BUILD_TEMPLATE[0].length;
+		this.TEMPLATE_HEIGHT = _BUILD_TEMPLATE.length;
+	}
 
 	public override getNextActions(side: EWallSide): ActionDto[] {
 		this.prepareGetNextActions(side);
@@ -143,11 +154,14 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 				// Nếu có lâu đài thì ưu tiên xây xung quanh lâu đài
 				if (this.hashedCastles.exist(pos)) this.scoreCounter.increase(pos, 1.5);
 
-				for (let i = x - 4; i < x + 4; i++) {
-					for (let j = y - 4; j < y + 4; j++) {
+				const distance = this.TEMPLATE_WIDTH - 1;
+
+				for (let i = x - distance; i < x + distance; i++) {
+					for (let j = y - distance; j < y + distance; j++) {
 						const p = new Position(i, j);
-						if (this.hashedWalls.exist(p) && this.hashedWalls.read(p)!.side === side)
-							this.scoreCounter.increase(pos, 0.25);
+						if (!this.hashedWalls.exist(p)) continue;
+						if (this.hashedWalls.read(p)!.side === side) this.scoreCounter.increase(pos, 0.125);
+						else this.scoreCounter.decrease(pos, 0.125);
 					}
 				}
 			}
@@ -167,7 +181,9 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 	 */
 	private checkCreate(pos: Position, ownSide: EWallSide): boolean {
 		const needCondition =
-			HASHED_BUILD_TEMPLATE.exist(new Position(pos.x % (TEMPLATE_WIDTH - 1), pos.y % (TEMPLATE_HEIGHT - 1))) || // * Chia chia gì đó, thử đi rồi biết
+			this.HASHED_BUILD_TEMPLATE.exist(
+				new Position(pos.x % (this.TEMPLATE_WIDTH - 1), pos.y % (this.TEMPLATE_HEIGHT - 1)),
+			) || // * Chia chia gì đó, thử đi rồi biết
 			pos.x == this.width - 1 || // * Nếu ở gần biên thì xây luôn
 			pos.y == this.height - 1;
 

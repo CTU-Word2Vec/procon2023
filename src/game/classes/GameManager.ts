@@ -445,7 +445,7 @@ export default class GameManager extends BaseGameManager implements IGameManager
 
 			// Calculate score of territories
 			this.scores[side].territories = this.sides.reduce((prev, currentSide) => {
-				if (currentSide.data !== side) return prev;
+				if (currentSide.data !== side && currentSide.data !== 'AB') return prev;
 
 				return prev + this.territory_coeff;
 			}, 0);
