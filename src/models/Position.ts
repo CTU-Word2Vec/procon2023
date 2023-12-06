@@ -1,3 +1,5 @@
+import { EWallSide } from '@/game/enums';
+
 export default interface Position {
 	x: number;
 	y: number;
@@ -5,5 +7,5 @@ export default interface Position {
 
 export interface CraftsmenPosition extends Position {
 	id: string;
-	side: 'A' | 'B';
+	side: EWallSide;
 }
