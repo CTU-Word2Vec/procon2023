@@ -15,6 +15,7 @@ const sides: EWallSide[] = ['A', 'B'];
 const colors = {
 	A: '#06619e',
 	B: '#009c15',
+	AB: '#000000',
 };
 
 const keys = ['walls', 'territories', 'castles'];
