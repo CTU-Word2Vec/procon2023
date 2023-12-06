@@ -3,12 +3,14 @@ import IGameStateData from '@/game/interfaces/IGameStateData';
 import Action from '@/models/Action';
 import GameAction from '@/models/GameAction';
 import { RootState } from '@/store';
-import { addPosition } from '@/store/willMoveTo';
+import { addBuildPosition } from '@/store/willBuildOn';
+import { addMovePosition } from '@/store/willMoveTo';
 import {
 	ArrowDownOutlined,
 	ArrowLeftOutlined,
 	ArrowRightOutlined,
 	ArrowUpOutlined,
+	BorderlessTableOutlined,
 	DoubleRightOutlined,
 	FormatPainterFilled,
 	PlusOutlined,
@@ -98,7 +100,11 @@ function Map({ width, height }: MapProps) {
 						key={x}
 						className={styles.tableCell}
 						onClick={() => {
-							dispatch(addPosition({ x, y }));
+							dispatch(addMovePosition({ x, y }));
+						}}
+						onContextMenu={(event) => {
+							event.preventDefault();
+							dispatch(addBuildPosition({ x, y }));
 						}}
 					>
 						<div className={styles.placeholder}></div>
@@ -152,11 +158,12 @@ export default function GameBoard({ state, action }: GameBoardProps) {
 	}, [action]);
 
 	const willMoveTo = useSelector((state: RootState) => state.willMoveTo);
+	const willBuildOn = useSelector((state: RootState) => state.willBuildOn);
 
 	return (
 		<div className={clsx(styles.wrapper, styles[state.lastTurn % 2 ? 'B' : 'A'])}>
 			<div
-				className={styles.inner}
+				className={clsx(styles.inner)}
 				style={
 					{
 						// transform: `translate(${translateX}px, ${translateY}px)`,
@@ -222,6 +229,20 @@ export default function GameBoard({ state, action }: GameBoardProps) {
 							background: '#fff',
 						}}
 					></div>
+				))}
+
+				{willBuildOn.map((pos, i) => (
+					<div
+						className={styles.position}
+						key={`build:${i}`}
+						style={{
+							transform: `translate(${pos.x * 33 + 1}px, ${pos.y * 33 + 1}px)`,
+							zIndex: pos.y,
+							background: '#00000050',
+						}}
+					>
+						<BorderlessTableOutlined />
+					</div>
 				))}
 
 				{state.craftsmen.map((craftsmen) => {

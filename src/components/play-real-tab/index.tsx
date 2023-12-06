@@ -8,7 +8,8 @@ import GameAction from '@/models/GameAction';
 import playerService from '@/services/player.service';
 import { RootState } from '@/store';
 import { setCurrentAction, setGameState } from '@/store/gameState';
-import { removePosition } from '@/store/willMoveTo';
+import { resetBuildPosition } from '@/store/willBuildOn';
+import { removeMovePosition } from '@/store/willMoveTo';
 import playReal, { playRealState } from '@/utils/playReal';
 import replay, { replayState } from '@/utils/replay';
 import { PauseOutlined, PlayCircleOutlined, ReloadOutlined, SearchOutlined, UserOutlined } from '@ant-design/icons';
@@ -54,7 +55,10 @@ export default function PlayRealTab() {
 				side,
 				gameMode,
 				onMoveFinished: (pos: Position) => {
-					dispatch(removePosition(pos));
+					dispatch(removeMovePosition(pos));
+				},
+				onBuildFinished: () => {
+					dispatch(resetBuildPosition());
 				},
 				onWaitTimeChange: (time) => setWaitTime(time),
 				onShowCountDownChange: (show) => setIsShowCountDown(show),

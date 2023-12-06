@@ -22,10 +22,11 @@ export default function createGameManager(
 	numberOfTurns: number,
 	gameMode: EGameMode,
 	onMoveFinished?: (pos: Position) => void,
+	onBuildFinished?: () => void,
 ): GameManager {
 	switch (gameMode) {
 		case 'Caro':
-			return new CaroGameManager(field, numberOfTurns, onMoveFinished);
+			return new CaroGameManager(field, numberOfTurns, onMoveFinished, onBuildFinished);
 		case 'A*':
 			return new AStarGameManager(field, numberOfTurns);
 		case 'Border':

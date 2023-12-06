@@ -5,7 +5,8 @@ import Field from '@/models/Field';
 import GameAction from '@/models/GameAction';
 import { RootState } from '@/store';
 import { setCurrentAction, setGameState } from '@/store/gameState';
-import { removePosition } from '@/store/willMoveTo';
+import { resetBuildPosition } from '@/store/willBuildOn';
+import { removeMovePosition } from '@/store/willMoveTo';
 import playTest, { playTestState } from '@/utils/playTest';
 import { RandomFieldOptions } from '@/utils/randomField';
 import { BugOutlined, PauseOutlined, ThunderboltOutlined } from '@ant-design/icons';
@@ -70,7 +71,10 @@ export default function PlayTestTab() {
 				sideAMode,
 				sideBMode,
 				onMoveFinished: (pos) => {
-					dispatch(removePosition({ x: pos.x, y: pos.y }));
+					dispatch(removeMovePosition({ x: pos.x, y: pos.y }));
+				},
+				onBuildFinished: () => {
+					dispatch(resetBuildPosition());
 				},
 				onGameStateChange: (gameState) => dispatch(setGameState(gameState)),
 				onGameActionsChange: (actions) => {

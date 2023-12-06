@@ -153,4 +153,22 @@ export default class Position extends BasePosition implements IPosition {
 	public clone(): Position {
 		return new Position(this.x, this.y);
 	}
+
+	public between(pos1: Position, pos2: Position): boolean {
+		if (pos1.x === pos2.x && pos1.x === this.x) {
+			const y1 = Math.min(pos1.y, pos2.y);
+			const y2 = Math.max(pos1.y, pos2.y);
+
+			return this.y > y1 && this.y < y2;
+		}
+
+		if (pos1.y === pos2.y && pos1.y === this.y) {
+			const x1 = Math.min(pos1.x, pos2.x);
+			const x2 = Math.max(pos1.x, pos2.x);
+
+			return this.x > x1 && this.x < x2;
+		}
+
+		return false;
+	}
 }

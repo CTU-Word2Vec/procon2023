@@ -9,7 +9,7 @@ const willMoveTo = createSlice({
 		return [] as IPosition[];
 	},
 	reducers: {
-		addPosition: (state, action) => {
+		addMovePosition: (state, action) => {
 			if (state.find((position) => position.x === action.payload.x && position.y === action.payload.y)) {
 				state.splice(
 					state.findIndex((position) => position.x === action.payload.x && position.y === action.payload.y),
@@ -24,7 +24,7 @@ const willMoveTo = createSlice({
 
 			window.localStorage.setItem('willMoveTo', JSON.stringify(state));
 		},
-		removePosition: (state, action) => {
+		removeMovePosition: (state, action) => {
 			const index = state.findIndex(
 				(position) => position.x === action.payload.x && position.y === action.payload.y,
 			);
@@ -34,7 +34,7 @@ const willMoveTo = createSlice({
 
 			window.localStorage.setItem('willMoveTo', JSON.stringify(state));
 		},
-		reset() {
+		resetMovePosition() {
 			window.localStorage.setItem('willMoveTo', JSON.stringify([]));
 
 			return [] as IPosition[];
@@ -42,5 +42,5 @@ const willMoveTo = createSlice({
 	},
 });
 
-export const { addPosition, removePosition, reset } = willMoveTo.actions;
+export const { addMovePosition, removeMovePosition, resetMovePosition } = willMoveTo.actions;
 export default willMoveTo.reducer;

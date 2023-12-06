@@ -59,6 +59,7 @@ export interface PlayRealOptions {
 	 * @returns Void
 	 */
 	onMoveFinished?: (pos: Position) => void;
+	onBuildFinished?: () => void;
 }
 
 /**
@@ -85,11 +86,12 @@ export default async function playReal({
 	onGameActionsChange,
 	onPostError,
 	onMoveFinished,
+	onBuildFinished,
 }: PlayRealOptions) {
 	// Set playing state to true
 	playRealState.playing = true;
 
-	const gameManager = createGameManager(game.field, game.num_of_turns, gameMode, onMoveFinished); // * Tạo game manager từ field, số lượt đi và giải thuật
+	const gameManager = createGameManager(game.field, game.num_of_turns, gameMode, onMoveFinished, onBuildFinished); // * Tạo game manager từ field, số lượt đi và giải thuật
 
 	const actions = await playerService.getGameActions(game.id); // * Lấy các action đã đi trước đó
 	gameManager.addActions(actions); // * Thêm các action đã đi vào game manager

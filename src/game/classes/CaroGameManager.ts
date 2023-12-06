@@ -42,8 +42,13 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 		craftId: string;
 	}[];
 
-	constructor(field: Field, numberOfTurns?: number, onMoveFinished: (pos: Position) => void = () => {}) {
-		super(field, numberOfTurns, onMoveFinished);
+	constructor(
+		field: Field,
+		numberOfTurns?: number,
+		onMoveFinished: (pos: Position) => void = () => {},
+		onBuildFinished: () => void = () => {},
+	) {
+		super(field, numberOfTurns, onMoveFinished, onBuildFinished);
 
 		this.HASHED_BUILD_TEMPLATE = new HashedType<boolean>();
 
@@ -77,6 +82,19 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 	 */
 	private prepareGetNextActions(side: EWallSide = 'A') {
 		const willMoveTo = JSON.parse(window?.localStorage.getItem('willMoveTo') ?? '[]') as IPosition[];
+		let willBuildOn = JSON.parse(window?.localStorage.getItem('willBuildOn') ?? '[]') as IPosition[];
+
+		if (
+			willBuildOn.every(
+				(pos) =>
+					this.hashedWalls.exist(new Position(pos.x, pos.y)) &&
+					this.hashedWalls.read(new Position(pos.x, pos.y))!.side === side,
+			)
+		) {
+			this.onBuildFinished();
+			willBuildOn = [];
+		}
+
 		this.targetPositions = [];
 		this.hashedBuildPositions = new HashedType<boolean>();
 		this.hashedDestroyPositions = new HashedType<boolean>();
@@ -143,18 +161,19 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 				// * Cái này chỉ mang tính tương đối
 				switch (builds) {
 					case 1: // Nếu có 1 vị trí xây xung quanh thì xem như là sẽ tạo thành một vùng khép kín (+1.5 điểm)
-						this.scoreCounter.increase(new Position(x, y), 1.5);
+						this.scoreCounter.increase(pos, 1.5);
 						break;
 					case 2: // Nếu có 2 vị trí xây xung quanh thì xem như đã có tường ở khu vực đó (+1.25 điểm)
-						this.scoreCounter.increase(new Position(x, y), 1.25);
+						this.scoreCounter.increase(pos, 1.25);
 						break;
 					case 3: // Nếu có 3 vị trí xây xung quanh thì có nghĩa là chưa có tường ở khu vực đó (+1 điểm)
-						this.scoreCounter.increase(new Position(x, y), 1);
+						this.scoreCounter.increase(pos, 1);
 						break;
 					case 0:
+						this.scoreCounter.write(pos, 0);
 						break;
 					default: // Mặc định thì không biết được nên bonus luôn (+0.5 điểm)
-						this.scoreCounter.increase(new Position(x, y), 0.5);
+						this.scoreCounter.increase(pos, 0.5);
 				}
 
 				for (const p of pos.upperLeftUpperRightLowerLeftLowerRight()) {
@@ -185,7 +204,7 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 			for (const p of pos.topRightBottomLeft()) {
 				this.hashedBuildPositions.write(p, true);
 			}
-			this.scoreCounter.increase(pos, 1000);
+			this.scoreCounter.increase(pos, 10_000);
 
 			let minD = Infinity;
 			let craftId = '';
@@ -202,6 +221,52 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 			}
 
 			this.onlyMoveCrafts.push({ pos, craftId });
+		}
+
+		let xMin = Infinity,
+			xMax = -Infinity,
+			yMin = Infinity,
+			yMax = -Infinity;
+
+		for (const { x, y } of willBuildOn) {
+			if (x < xMin) xMin = x;
+			if (x > xMax) xMax = x;
+			if (y < yMin) yMin = y;
+			if (y > yMax) yMax = y;
+		}
+
+		if (xMin !== Infinity) {
+			for (let x = xMin; x <= xMax; x++) {
+				for (let y = yMin; y <= yMax; y++) {
+					const pos = new Position(x, y);
+
+					for (let i = 0; i < willBuildOn.length; i++) {
+						const posi = new Position(willBuildOn[i].x, willBuildOn[i].y);
+
+						for (let j = i + 1; j < willBuildOn.length; j++) {
+							const posj = new Position(willBuildOn[j].x, willBuildOn[j].y);
+
+							if (pos.between(posi, posj)) {
+								this.scoreCounter.write(pos, 3.5);
+								this.hashedBuildPositions.remove(pos);
+
+								if (!willBuildOn.some((p) => pos.isNear(new Position(p.x, p.y))))
+									this.scoreCounter.remove(pos);
+							}
+						}
+					}
+				}
+			}
+		}
+
+		for (const { x, y } of willBuildOn) {
+			const pos = new Position(x, y);
+
+			this.scoreCounter.remove(pos);
+
+			if (this.hashedWalls.exist(pos) && this.hashedWalls.read(pos)!.side === side) continue;
+
+			this.hashedBuildPositions.write(pos, true);
 		}
 
 		// Khúc này chuyển thành mảng để sử dụng bên ngoài

@@ -46,6 +46,7 @@ export interface PlayTestOptions {
 	 * @returns - Void
 	 */
 	onMoveFinished?: (pos: Position) => void;
+	onBuildFinished?: () => void;
 }
 
 /**
@@ -68,6 +69,7 @@ export default async function playTest({
 	sideAMode = 'Caro',
 	sideBMode = 'Border',
 	onMoveFinished,
+	onBuildFinished,
 	onGameStateChange,
 	onGameActionsChange,
 }: PlayTestOptions) {
@@ -77,8 +79,8 @@ export default async function playTest({
 	const delayTime = settingService.replayDelay;
 
 	const actions: GameAction[] = [];
-	const sideAgameManager = createGameManager(field, numberOfTurns, sideAMode, onMoveFinished); // * Khởi tạo GameManager cho Side A
-	const sideBgameManager = createGameManager(field, numberOfTurns, sideBMode, onMoveFinished); // * Khởi tạo GameManager cho Side B
+	const sideAgameManager = createGameManager(field, numberOfTurns, sideAMode, onMoveFinished, onBuildFinished); // * Khởi tạo GameManager cho Side A
+	const sideBgameManager = createGameManager(field, numberOfTurns, sideBMode, onMoveFinished, onBuildFinished); // * Khởi tạo GameManager cho Side B
 
 	const gameManagerMap = {
 		A: sideAgameManager, // * Map GameManager cho Side A
