@@ -37,7 +37,7 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 	private TEMPLATE_WIDTH: number;
 	private TEMPLATE_HEIGHT: number;
 
-	constructor(field: Field, numberOfTurns: number) {
+	constructor(field: Field, numberOfTurns?: number) {
 		super(field, numberOfTurns);
 
 		this.HASHED_BUILD_TEMPLATE = new HashedType<boolean>();
