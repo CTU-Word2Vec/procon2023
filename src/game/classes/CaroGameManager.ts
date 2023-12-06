@@ -141,7 +141,7 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 				}
 
 				// Nếu có lâu đài thì ưu tiên xây xung quanh lâu đài
-				if (this.hashedCastles.exist(pos)) this.scoreCounter.increase(pos, 1);
+				if (this.hashedCastles.exist(pos)) this.scoreCounter.increase(pos, 1.5);
 
 				for (let i = x - 4; i < x + 4; i++) {
 					for (let j = y - 4; j < y + 4; j++) {
