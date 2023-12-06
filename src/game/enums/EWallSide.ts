@@ -2,4 +2,4 @@
  * @description Wall side
  * @enum
  */
-export type EWallSide = 'A' | 'B';
+export type EWallSide = 'A' | 'B' | 'AB';
