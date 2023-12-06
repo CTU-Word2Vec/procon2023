@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { Position } from '@/game/classes';
 import GameManager from '@/game/classes/GameManager';
 import { EGameMode, gameModes } from '@/game/enums/EGameMode';
 import { EWallSide } from '@/game/enums/EWallSide';
@@ -7,6 +8,7 @@ import GameAction from '@/models/GameAction';
 import playerService from '@/services/player.service';
 import { RootState } from '@/store';
 import { setCurrentAction, setGameState } from '@/store/gameState';
+import { removePosition } from '@/store/willMoveTo';
 import playReal, { playRealState } from '@/utils/playReal';
 import replay, { replayState } from '@/utils/replay';
 import { PauseOutlined, PlayCircleOutlined, ReloadOutlined, SearchOutlined, UserOutlined } from '@ant-design/icons';
@@ -51,6 +53,9 @@ export default function PlayRealTab() {
 				game: game!,
 				side,
 				gameMode,
+				onMoveFinished: (pos: Position) => {
+					dispatch(removePosition(pos));
+				},
 				onWaitTimeChange: (time) => setWaitTime(time),
 				onShowCountDownChange: (show) => setIsShowCountDown(show),
 				onGameStateChange: (gameState) => dispatch(setGameState(gameState)),

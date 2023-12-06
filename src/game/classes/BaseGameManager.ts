@@ -14,13 +14,15 @@ import IScores from '../interfaces/IScores';
  * @implements IBaseGameManager
  */
 export default class BaseGameManager extends GameStateData implements IBaseGameManager {
+	protected onMoveFinished: (pos: Position) => void;
+
 	/**
 	 * @description Game manager constructor
 	 * @param field - Field of game
 	 * @param numberOfTurns - Number of turns
 	 * @constructor
 	 */
-	constructor(field: Field, numberOfTurns: number = 100) {
+	constructor(field: Field, numberOfTurns: number = 100, onMoveFinished: (pos: Position) => void = () => {}) {
 		const scores: {
 			[x: string]: IScores;
 		} = {};
@@ -69,6 +71,8 @@ export default class BaseGameManager extends GameStateData implements IBaseGameM
 			scores,
 			scoresHistory,
 		);
+
+		this.onMoveFinished = onMoveFinished;
 	}
 
 	getCraftsmansBySide(side: EWallSide): CraftsmenPosition[] {

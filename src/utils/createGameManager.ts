@@ -5,6 +5,7 @@ import {
 	DijkstraGameManager,
 	DijkstraPlusGameManager,
 	GameManager,
+	Position,
 } from '@/game/classes';
 import { EGameMode } from '@/game/enums';
 import Field from '@/models/Field';
@@ -16,10 +17,15 @@ import Field from '@/models/Field';
  * @param gameMode - Game mode
  * @returns - Game manager
  */
-export default function createGameManager(field: Field, numberOfTurns: number, gameMode: EGameMode): GameManager {
+export default function createGameManager(
+	field: Field,
+	numberOfTurns: number,
+	gameMode: EGameMode,
+	onMoveFinished?: (pos: Position) => void,
+): GameManager {
 	switch (gameMode) {
 		case 'Caro':
-			return new CaroGameManager(field, numberOfTurns);
+			return new CaroGameManager(field, numberOfTurns, onMoveFinished);
 		case 'A*':
 			return new AStarGameManager(field, numberOfTurns);
 		case 'Border':

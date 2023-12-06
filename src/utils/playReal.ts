@@ -1,3 +1,4 @@
+import { Position } from '@/game/classes';
 import { EGameMode, EWallSide } from '@/game/enums';
 import IGameStateData from '@/game/interfaces/IGameStateData';
 import Game from '@/models/Game';
@@ -52,6 +53,12 @@ export interface PlayRealOptions {
 	 * @returns Void
 	 */
 	onPostError?: (error: Error) => void;
+	/**
+	 * @description On move finished
+	 * @param pos - Position
+	 * @returns Void
+	 */
+	onMoveFinished?: (pos: Position) => void;
 }
 
 /**
@@ -77,11 +84,12 @@ export default async function playReal({
 	onGameStateChange,
 	onGameActionsChange,
 	onPostError,
+	onMoveFinished,
 }: PlayRealOptions) {
 	// Set playing state to true
 	playRealState.playing = true;
 
-	const gameManager = createGameManager(game.field, game.num_of_turns, gameMode); // * Tạo game manager từ field, số lượt đi và giải thuật
+	const gameManager = createGameManager(game.field, game.num_of_turns, gameMode, onMoveFinished); // * Tạo game manager từ field, số lượt đi và giải thuật
 
 	const actions = await playerService.getGameActions(game.id); // * Lấy các action đã đi trước đó
 	gameManager.addActions(actions); // * Thêm các action đã đi vào game manager

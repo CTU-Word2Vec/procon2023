@@ -5,6 +5,7 @@ import Field from '@/models/Field';
 import GameAction from '@/models/GameAction';
 import { RootState } from '@/store';
 import { setCurrentAction, setGameState } from '@/store/gameState';
+import { removePosition } from '@/store/willMoveTo';
 import playTest, { playTestState } from '@/utils/playTest';
 import { RandomFieldOptions } from '@/utils/randomField';
 import { BugOutlined, PauseOutlined, ThunderboltOutlined } from '@ant-design/icons';
@@ -38,8 +39,6 @@ export default function PlayTestTab() {
 	const [isRandoming, setIsRandoming] = useState(false);
 
 	const gameState = useSelector((state: RootState) => state.gameState.gameState);
-	const willMoveTo = useSelector((state: RootState) => state.willMoveTo);
-
 	const dispatch = useDispatch();
 
 	const handleRandomField = useCallback(
@@ -70,7 +69,9 @@ export default function PlayTestTab() {
 				field: randomedField!,
 				sideAMode,
 				sideBMode,
-				willMoveTo,
+				onMoveFinished: (pos) => {
+					dispatch(removePosition({ x: pos.x, y: pos.y }));
+				},
 				onGameStateChange: (gameState) => dispatch(setGameState(gameState)),
 				onGameActionsChange: (actions) => {
 					setActions(actions);
@@ -84,7 +85,7 @@ export default function PlayTestTab() {
 			setIsPlayingTest(false);
 			dispatch(setCurrentAction(undefined));
 		}
-	}, [dispatch, numberOfTurns, randomedField, sideAMode, sideBMode, willMoveTo]);
+	}, [dispatch, numberOfTurns, randomedField, sideAMode, sideBMode]);
 
 	const stopPlayTest = () => {
 		playTestState.playing = false;

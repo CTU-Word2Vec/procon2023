@@ -37,9 +37,13 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 	private HASHED_BUILD_TEMPLATE: HashedType<boolean>;
 	private TEMPLATE_WIDTH: number;
 	private TEMPLATE_HEIGHT: number;
+	private onlyMoveCrafts: {
+		pos: Position;
+		craftId: string;
+	}[];
 
-	constructor(field: Field, numberOfTurns?: number) {
-		super(field, numberOfTurns);
+	constructor(field: Field, numberOfTurns?: number, onMoveFinished: (pos: Position) => void = () => {}) {
+		super(field, numberOfTurns, onMoveFinished);
 
 		this.HASHED_BUILD_TEMPLATE = new HashedType<boolean>();
 
@@ -54,41 +58,16 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 
 		this.TEMPLATE_WIDTH = _BUILD_TEMPLATE[0].length;
 		this.TEMPLATE_HEIGHT = _BUILD_TEMPLATE.length;
+		this.onlyMoveCrafts = [];
 	}
 
-	public override getNextActions(side: EWallSide, willMoveTo: IPosition[] = []): ActionDto[] {
-		if (willMoveTo.length) {
-			this.hashedBuildPositions = new HashedType<boolean>();
-			this.hashedDestroyPositions = new HashedType<boolean>();
-
-			for (const pos of willMoveTo.map((p) => new Position(p.x, p.y))) {
-				const trbl = pos.topRightBottomLeft();
-
-				for (const p of trbl) {
-					if (this.checkCreate(p, side)) this.hashedBuildPositions.write(p, true);
-					if (this.checkDestroy(p, side)) this.hashedDestroyPositions.write(p, true);
-				}
-			}
-		} else this.prepareGetNextActions(side);
-
+	public override getNextActions(side: EWallSide): ActionDto[] {
+		this.prepareGetNextActions(side);
 		return super.getNextActions(side);
 	}
 
-	public override getNextActionsAsync(side: EWallSide, willMoveTo: IPosition[] = []): Promise<ActionDto[]> {
-		if (willMoveTo.length) {
-			this.hashedBuildPositions = new HashedType<boolean>();
-			this.hashedDestroyPositions = new HashedType<boolean>();
-
-			for (const pos of willMoveTo.map((p) => new Position(p.x, p.y))) {
-				const trbl = pos.topRightBottomLeft();
-
-				for (const p of trbl) {
-					if (this.checkCreate(p, side)) this.hashedBuildPositions.write(p, true);
-					if (this.checkDestroy(p, side)) this.hashedDestroyPositions.write(p, true);
-				}
-			}
-		} else this.prepareGetNextActions(side);
-
+	public override getNextActionsAsync(side: EWallSide): Promise<ActionDto[]> {
+		this.prepareGetNextActions(side);
 		return super.getNextActionsAsync(side);
 	}
 
@@ -96,50 +75,39 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 	 * @description Hàm này khởi tạo các giá trị sau: vị trí xây, vị trí phá, điểm của các vị trí và các vị trí đang cần đến
 	 * @param side - Team mình
 	 */
-	private prepareGetNextActions(side: EWallSide = 'A', willMoveTo: IPosition[] = []) {
+	private prepareGetNextActions(side: EWallSide = 'A') {
+		const willMoveTo = JSON.parse(window?.localStorage.getItem('willMoveTo') ?? '[]') as IPosition[];
 		this.targetPositions = [];
 		this.hashedBuildPositions = new HashedType<boolean>();
 		this.hashedDestroyPositions = new HashedType<boolean>();
 		this.scoreCounter = new HashedCounter();
+		this.onlyMoveCrafts = [];
 
-		// * Nếu có lệnh xây từ bên ngoài thì xây theo lệnh đó
-		if (willMoveTo.length) {
-			for (const pos of willMoveTo.map((p) => new Position(p.x, p.y))) {
-				const trbl = pos.topRightBottomLeft();
-
-				for (const p of trbl) {
-					if (this.checkCreate(p, side)) this.hashedBuildPositions.write(p, true);
-					if (this.checkDestroy(p, side)) this.hashedDestroyPositions.write(p, true);
-				}
+		// Đoạn này khởi tạo các vị trí xây và phá với điều kiện cơ bản
+		for (let x = 0; x < this.width; x++) {
+			for (let y = 0; y < this.height; y++) {
+				const pos = new Position(x, y);
+				// Nếu có thể xây, thì xây
+				if (this.checkCreate(pos, side)) this.hashedBuildPositions.write(pos, true);
+				// Check destroy scoped
+				if (this.checkDestroy(pos, side)) this.hashedDestroyPositions.write(pos, true);
 			}
-			// * Nếu từ bên ngoài truyền vào thì không cần khởi tạo các vị trí xây và phá
-		} else {
-			// Đoạn này khởi tạo các vị trí xây và phá với điều kiện cơ bản
-			for (let x = 0; x < this.width; x++) {
-				for (let y = 0; y < this.height; y++) {
-					const pos = new Position(x, y);
-					// Nếu có thể xây, thì xây
-					if (this.checkCreate(pos, side)) this.hashedBuildPositions.write(pos, true);
-					// Check destroy scoped
-					if (this.checkDestroy(pos, side)) this.hashedDestroyPositions.write(pos, true);
-				}
-			}
+		}
 
-			// Đoạn này khởi tạo các vị trí xây và phá với điều kiện đặc biệt
-			// Nếu có lâu đài thì xây xung quanh lâu đài với điều kiện lâu đài không được bao vây và không có đối phương ở gần đó
-			for (const castle of this.castles) {
-				for (const pos of castle.topRightBottomLeft()) {
-					if (this.checkNotCreate(pos, side)) continue;
-					this.hashedBuildPositions.write(pos, true);
-				}
+		// Đoạn này khởi tạo các vị trí xây và phá với điều kiện đặc biệt
+		// Nếu có lâu đài thì xây xung quanh lâu đài với điều kiện lâu đài không được bao vây và không có đối phương ở gần đó
+		for (const castle of this.castles) {
+			for (const pos of castle.topRightBottomLeft()) {
+				if (this.checkNotCreate(pos, side)) continue;
+				this.hashedBuildPositions.write(pos, true);
 			}
+		}
 
-			// Nếu có ao thì xây xung quanh ao với điều kiện ao không được bao vây và không có đối phương ở gần đó
-			for (const pond of this.ponds) {
-				for (const pos of pond.topRightBottomLeft()) {
-					if (this.checkNotCreate(pos, side)) continue;
-					this.hashedBuildPositions.write(pos, true);
-				}
+		// Nếu có ao thì xây xung quanh ao với điều kiện ao không được bao vây và không có đối phương ở gần đó
+		for (const pond of this.ponds) {
+			for (const pos of pond.topRightBottomLeft()) {
+				if (this.checkNotCreate(pos, side)) continue;
+				this.hashedBuildPositions.write(pos, true);
 			}
 		}
 
@@ -209,6 +177,31 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 					}
 				}
 			}
+		}
+
+		for (const { x, y } of willMoveTo) {
+			const pos = new Position(x, y);
+
+			for (const p of pos.topRightBottomLeft()) {
+				this.hashedBuildPositions.write(p, true);
+			}
+			this.scoreCounter.increase(pos, 1000);
+
+			let minD = Infinity;
+			let craftId = '';
+
+			for (const craf of this.getCraftsmansBySide(side).filter(
+				(c) => !this.onlyMoveCrafts.find((m) => m.craftId === c.id),
+			)) {
+				const d = craf.distance(pos, 'euclid');
+
+				if (d < minD) {
+					minD = d;
+					craftId = craf.id;
+				}
+			}
+
+			this.onlyMoveCrafts.push({ pos, craftId });
 		}
 
 		// Khúc này chuyển thành mảng để sử dụng bên ngoài
@@ -301,26 +294,43 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 	}
 
 	protected override getNextCraftsmenAction(craftmen: CraftsmenPosition): ActionDto {
-		// If the craftsman can build a wall, build it
-		const buildAction = this.getCraftsmenBuildAction(craftmen);
-		if (buildAction) return buildAction;
+		const existNextPos = this.onlyMoveCrafts.find((m) => m.craftId === craftmen.id);
+		const willFindNewPos = !existNextPos || existNextPos.pos.isEquals(craftmen);
 
-		// If the craftsman can destroy a wall, destroy it
-		const destroyAction = this.getDestroyAction(craftmen);
-		if (destroyAction) return destroyAction;
+		if (willFindNewPos) {
+			if (existNextPos) {
+				this.onMoveFinished(existNextPos.pos);
+			}
 
-		// Get next position for the craftsman
-		const pos = this.getNextPosition(craftmen);
-		if (!pos) return craftmen.getStayAction();
+			// If the craftsman can destroy a wall, destroy it
+			const destroyAction = this.getDestroyAction(craftmen);
+			if (destroyAction) return destroyAction;
 
-		// If the craftsman can go to the position, go to it
-		const nextAction = this.getActionToGoToPosition(craftmen, pos);
-		if (!nextAction) return craftmen.getStayAction();
+			// If the craftsman can build a wall, build it
+			const buildAction = this.getCraftsmenBuildAction(craftmen);
+			if (buildAction) return buildAction;
 
-		this.targetPositions.push(pos);
+			// Get next position for the craftsman
+			const pos = this.getNextPosition(craftmen);
+			if (!pos) return craftmen.getStayAction();
 
-		// If the craftsman can not do anything, stay
-		return nextAction;
+			// If the craftsman can go to the position, go to it
+			const nextAction = this.getActionToGoToPosition(craftmen, pos);
+			// If the craftsman can not do anything, stay
+			if (!nextAction) return craftmen.getStayAction();
+
+			this.targetPositions.push(pos);
+
+			return nextAction;
+		} else {
+			const nextAction = this.getActionToGoToPosition(craftmen, existNextPos.pos);
+			if (!nextAction) return craftmen.getStayAction();
+
+			this.targetPositions.push(existNextPos.pos);
+
+			// If the craftsman can not do anything, stay
+			return nextAction;
+		}
 	}
 
 	/**

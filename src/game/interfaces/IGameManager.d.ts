@@ -35,5 +35,5 @@ export default interface IGameManager extends IBaseGameManager {
 	 * @returns List of actions
 	 * @async
 	 */
-	getNextActionsAsync(side: EWallSide, willMoveTo?: IPosition[]): Promise<ActionDto[]>;
+	getNextActionsAsync(side: EWallSide): Promise<ActionDto[]>;
 }

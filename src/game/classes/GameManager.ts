@@ -486,8 +486,7 @@ export default class GameManager extends BaseGameManager implements IGameManager
 		return craftsmen.getStayAction();
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	public async getNextActionsAsync(side: EWallSide, _willMoveTo: IPosition[] = []): Promise<ActionDto[]> {
+	public async getNextActionsAsync(side: EWallSide): Promise<ActionDto[]> {
 		this.goingTo = new HashedType<Position>();
 
 		const craftmens = this.getCraftsmansBySide(side);
