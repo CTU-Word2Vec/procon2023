@@ -113,6 +113,10 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 				if (this.hashedPonds.exist(pos)) continue; // Nếu vị trí này có ao thì bỏ qua
 				if (this.hashedSide.exist(pos) && this.hashedSide.read(pos) === side) continue; // Nếu vị trí này có bên mình thì bỏ qua
 
+				if (x == 0 || y == 0 || x == this.width - 1 || y == this.height - 1) {
+					this.scoreCounter.decrease(pos, 0.1);
+				} // Nếu ở gần biên thì giảm điểm
+
 				const trbl = pos.topRightBottomLeft(); // Lấy các vị trí xung quanh
 				let builds = 0; // Đếm số lượng vị trí có thể xây xung quanh
 
@@ -131,18 +135,18 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 				// * Cái này chỉ mang tính tương đối
 				switch (builds) {
 					case 1: // Nếu có 1 vị trí xây xung quanh thì xem như là sẽ tạo thành một vùng khép kín (+1.5 điểm)
-						this.scoreCounter.write(new Position(x, y), 1.5);
+						this.scoreCounter.increase(new Position(x, y), 1.5);
 						break;
 					case 2: // Nếu có 2 vị trí xây xung quanh thì xem như đã có tường ở khu vực đó (+1.25 điểm)
-						this.scoreCounter.write(new Position(x, y), 1.25);
+						this.scoreCounter.increase(new Position(x, y), 1.25);
 						break;
 					case 3: // Nếu có 3 vị trí xây xung quanh thì có nghĩa là chưa có tường ở khu vực đó (+1 điểm)
-						this.scoreCounter.write(new Position(x, y), 1);
+						this.scoreCounter.increase(new Position(x, y), 1);
 						break;
 					case 0:
 						break;
 					default: // Mặc định thì không biết được nên bonus luôn (+0.5 điểm)
-						this.scoreCounter.write(new Position(x, y), 0.5);
+						this.scoreCounter.increase(new Position(x, y), 0.5);
 				}
 
 				for (const p of pos.upperLeftUpperRightLowerLeftLowerRight()) {
@@ -293,6 +297,25 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 
 		// 	return closestCastle;
 		// }
+
+		// const bonus = new HashedType<number>();
+		const stack = [new Position(craftmen.x, craftmen.y)];
+		const bonusVisited = new HashedType<boolean>();
+
+		for (; stack.length; ) {
+			const pos = stack.pop()!;
+			if (bonusVisited.exist(pos)) continue;
+			bonusVisited.write(pos, true);
+
+			if (!pos.isValid(this.width, this.height)) continue;
+			if (this.hashedWalls.exist(pos) && this.hashedWalls.read(pos)!.side !== craftmen.side) continue;
+			if (this.hashedBuildPositions.exist(pos)) continue;
+			if (!pos.topRightBottomLeft().some((p) => this.hashedBuildPositions.exist(p))) continue;
+
+			const builds = pos.topRightBottomLeft().filter((p) => this.hashedBuildPositions.exist(p)).length;
+
+			this.scoreCounter.write(pos, 1 / builds);
+		}
 
 		// Initialize positions array, use this like a queue
 		const queue = new PriorityQueue<Position>();
