@@ -161,7 +161,7 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 						const p = new Position(i, j);
 						if (!this.hashedWalls.exist(p)) continue;
 						if (this.hashedWalls.read(p)!.side === side) this.scoreCounter.increase(pos, 0.125);
-						else this.scoreCounter.decrease(pos, 0.125);
+						// else this.scoreCounter.decrease(pos, 0.125);
 					}
 				}
 			}
