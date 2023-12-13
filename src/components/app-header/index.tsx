@@ -1,6 +1,6 @@
 import logoCtu from '@/assets/logo-ctu.png';
 import { RootState } from '@/store';
-import { CodeOutlined, SettingOutlined } from '@ant-design/icons';
+import { CodeOutlined, QuestionCircleOutlined, SettingOutlined } from '@ant-design/icons';
 import { Button, Space } from 'antd';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -23,6 +23,15 @@ export default function AppHeader() {
 				</div>
 
 				<Space>
+					<Button
+						icon={<QuestionCircleOutlined />}
+						href='https://thangved.github.io/procon2023-docs'
+						target='_blank'
+						rel='noreferrer'
+					>
+						Hướng dẫn
+					</Button>
+
 					{gameState && (
 						<Button icon={<CodeOutlined />} onClick={() => setOpenJsonModal(true)}>
 							JSON
