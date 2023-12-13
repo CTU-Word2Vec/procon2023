@@ -18,21 +18,21 @@ import ActionList from '../action-list';
 export interface PlayRealTabProps {}
 
 const initialRandomFieldOptions: RandomFieldOptions = {
-	width: 20,
-	height: 20,
+	width: 15,
+	height: 15,
 	wall_coeff: 1,
-	territory_coeff: 5,
-	castle_coeff: 20,
-	numOfCastles: 5,
-	numOfCraftsmens: 5,
-	numOfPonds: 5,
+	territory_coeff: 1,
+	castle_coeff: 10,
+	numOfCastles: 2,
+	numOfCraftsmens: 3,
+	numOfPonds: 10,
 };
 
 export default function PlayTestTab() {
 	const [actions, setActions] = useState<GameAction[]>([]);
 	const [isPlayingTest, setIsPlayingTest] = useState(false);
 	const [randomedField, setRandomedField] = useState<Field>();
-	const [numberOfTurns, setNumberOfTurns] = useState(100);
+	const [numberOfTurns, setNumberOfTurns] = useState(60);
 	const [sideAMode, setSideAMode] = useState<EGameMode>('Caro');
 	const [sideBMode, setSideBMode] = useState<EGameMode>('Dijkstra');
 	const [isRandoming, setIsRandoming] = useState(false);
@@ -155,7 +155,7 @@ export default function PlayTestTab() {
 
 			{randomedField && gameState ? (
 				<>
-					<Form component={Card} title='Chọn giải thủật'>
+					<Form component={Card} title='Chọn giải thuật'>
 						<Form.Item label='Đội A'>
 							<Select
 								placeholder='Chọn giải thuật cho đội A'

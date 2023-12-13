@@ -2,7 +2,7 @@ import { EGameMode, EWallSide } from '@/game/enums';
 import IGameStateData from '@/game/interfaces/IGameStateData';
 import Game from '@/models/Game';
 import GameAction from '@/models/GameAction';
-import playerService from '@/services/player.service';
+import playerService, { CreateActionDto } from '@/services/player.service';
 import { createGameManager } from '.';
 import wait from './wait';
 
@@ -81,54 +81,59 @@ export default async function playReal({
 	// Set playing state to true
 	playRealState.playing = true;
 
-	const gameManager = createGameManager(game.field, game.num_of_turns, gameMode);
+	const gameManager = createGameManager(game.field, game.num_of_turns, gameMode); // * Tạo game manager từ field, số lượt đi và giải thuật
 
-	const actions = await playerService.getGameActions(game.id);
+	const actions = await playerService.getGameActions(game.id); // * Lấy các action đã đi trước đó
+	gameManager.addActions(actions); // * Thêm các action đã đi vào game manager
 
-	gameManager.addActions(actions);
+	onGameStateChange(gameManager.toObject()); // * Cập nhật lại game state
 
-	onGameStateChange(gameManager.toObject());
+	const status = await playerService.getTime(); // * Lấy thời gian hiện tại của server
 
-	const now = new Date().getTime();
-	const startTime = new Date(game.start_time).getTime();
+	const now = new Date(status.time).getTime(); // * Lấy thời gian hiện tại
+	const startTime = new Date(game.start_time).getTime(); // * Lấy thời gian bắt đầu game
 
-	let waitTime = 0;
+	let waitTime = 0; // * Thời gian chờ
 
 	if (now >= startTime) {
+		// * Nếu thời gian hiện tại lớn hơn thời gian bắt đầu game, nghĩa là game đã bắt đầu => Chờ đến lượt đi tiếp theo
 		waitTime = game.time_per_turn * 1000 - ((now - startTime) % (game.time_per_turn * 1000));
 	} else {
+		// * Nếu thời gian hiện tại nhỏ hơn thời gian bắt đầu game, nghĩa là game chưa bắt đầu => Chờ đến thời gian bắt đầu game
 		waitTime = startTime - now;
 	}
 
-	onWaitTimeChange?.(waitTime);
-	await wait(waitTime);
-	onWaitTimeChange?.(0);
+	onWaitTimeChange?.(waitTime); // * Cập nhật lại thời gian chờ
+	await wait(waitTime); // * Chờ đến thời gian bắt đầu game
+	onWaitTimeChange?.(0); // * Cập nhật lại thời gian chờ
 
-	onShowCountDownChange?.(true);
+	onShowCountDownChange?.(true); // * Hiển thị đếm ngược
 
 	for (; playRealState.playing; ) {
-		const actions = await playerService.getGameActions(game.id);
+		// * Vòng lặp chính
+		const actions = await playerService.getGameActions(game.id); // * Lấy các action đã đi trước đó
+		const { cur_turn } = await playerService.getGameStatus(game.id); // * Lấy lượt đi hiện tại, nếu qua lượt đi thì sẽ quăng lỗi
+		if (cur_turn > game.num_of_turns) break; // * Nếu lượt đi hiện tại lớn hơn số lượt đi thì thoát khỏi vòng lặp
 
-		onGameActionsChange(actions);
-		gameManager.addActions(actions);
-		onGameStateChange(gameManager.toObject());
+		onGameActionsChange(actions); // * Cập nhật lại các action đã đi
+		gameManager.addActions(actions, cur_turn); // * Thêm các action đã đi vào game manager
+		onGameStateChange(gameManager.toObject()); // * Cập nhật lại game state
 
-		const { cur_turn } = await playerService.getGameStatus(game.id);
+		const myTurn = // * Kiểm tra xem có phải lượt đi của mình không (đi trước 1 lượt)
+			(side === 'A' && cur_turn % 2 !== 0) || // * Nếu là side A thì lượt đi lẻ (đi trước 1 lượt)
+			(side === 'B' && cur_turn % 2 === 0); // * Nếu là side B thì lượt đi chẵn (đi trước 1 lượt)
+		if (myTurn) {
+			const body: CreateActionDto = {
+				turn: cur_turn + 1,
+				actions: await gameManager.getNextActionsAsync(side),
+			};
 
-		if (cur_turn > game.num_of_turns) break;
-
-		if ((side === 'A' && cur_turn % 2 !== 0) || (side === 'B' && cur_turn % 2 === 0)) {
-			playerService
-				.createAction(game.id, {
-					turn: cur_turn + 1,
-					actions: await gameManager.getNextActionsAsync(side),
-				})
-				.catch((error) => onPostError?.(error));
+			await playerService.createAction(game.id, body).catch((error) => onPostError?.(error));
 		}
 
-		const { remaining } = await playerService.getGameStatus(game.id);
+		const { remaining } = await playerService.getGameStatus(game.id); // * Lấy thời gian còn lại
 
-		await wait(remaining * 1000);
+		await wait(remaining * 1000); // * Chờ đến lượt đi tiếp theo
 	}
 
 	// Set playing state to false
