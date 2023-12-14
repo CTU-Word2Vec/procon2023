@@ -25,6 +25,7 @@ build-job:       # This job runs in the build stage, which runs first.
   stage: build
   script:
     - curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+    - hash -r
     - nvm install 20
     - npm ci
     - npm run build
