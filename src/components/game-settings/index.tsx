@@ -22,6 +22,7 @@ export default function GameSettings({ open, onCancel }: GameSettingsProps) {
 	const [token, setToken] = useState<string>(() => settingService.token);
 	const [apiEndpoint, setApiEndpoint] = useState<string>(() => settingService.endpoint);
 	const [replayDelay, setReplayDelay] = useState<number>(() => settingService.replayDelay);
+	const [isPinging, setIsPinging] = useState<boolean>(false);
 
 	const deboucedToken = useDebouce(token);
 	const deboucedApiEndpoint = useDebouce(apiEndpoint);
@@ -41,6 +42,7 @@ export default function GameSettings({ open, onCancel }: GameSettingsProps) {
 
 	const check = async () => {
 		try {
+			setIsPinging(true);
 			const res = await playerService.getTime();
 
 			const serverTime = new Date(res.time).getTime();
@@ -57,6 +59,8 @@ export default function GameSettings({ open, onCancel }: GameSettingsProps) {
 			});
 		} catch (error: any) {
 			message.error(error.message);
+		} finally {
+			setIsPinging(false);
 		}
 	};
 
@@ -68,6 +72,7 @@ export default function GameSettings({ open, onCancel }: GameSettingsProps) {
 			cancelText='Đóng'
 			okButtonProps={{
 				icon: <CheckCircleOutlined />,
+				loading: isPinging,
 			}}
 			cancelButtonProps={{
 				icon: <CloseCircleOutlined />,
