@@ -1,4 +1,5 @@
 import { buildDestroyActionParams } from '@/constants/action-params';
+import Field from '@/models/Field';
 import { ActionDto } from '@/services/player.service';
 import { EWallSide } from '../enums/EWallSide';
 import ICaroGameManager from '../interfaces/ICaroGameManager';
@@ -17,22 +18,11 @@ const BUILD_TEMPLATE = [
 	[false, false, true, false, false],
 ];
 
-// const BUILD_TEMPLATE = [
-// 	[false, true, false],
-// 	[true, false, true],
-// 	[false, true, false],
-// ];
-
-const TEMPLATE_WIDTH = BUILD_TEMPLATE[0].length;
-const TEMPLATE_HEIGHT = BUILD_TEMPLATE.length;
-
-const HASHED_BUILD_TEMPLATE = new HashedType<boolean>();
-for (const x in BUILD_TEMPLATE) {
-	for (const y in BUILD_TEMPLATE[x]) {
-		if (!BUILD_TEMPLATE[x][y]) continue;
-		HASHED_BUILD_TEMPLATE.write(new Position(+x, +y), true);
-	}
-}
+const BUILD_TEMPLATE_15x15 = [
+	[false, true, false],
+	[true, false, true],
+	[false, true, false],
+];
 
 /**
  * @description Caro game manager
@@ -43,6 +33,27 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 	private hashedBuildPositions: HashedType<boolean> = new HashedType<boolean>();
 	private hashedDestroyPositions: HashedType<boolean> = new HashedType<boolean>();
 	private scoreCounter: HashedCounter = new HashedCounter();
+	private HASHED_BUILD_TEMPLATE: HashedType<boolean>;
+	private TEMPLATE_WIDTH: number;
+	private TEMPLATE_HEIGHT: number;
+
+	constructor(field: Field, numberOfTurns?: number) {
+		super(field, numberOfTurns);
+
+		this.HASHED_BUILD_TEMPLATE = new HashedType<boolean>();
+
+		const _BUILD_TEMPLATE = this.width >= 16 ? BUILD_TEMPLATE : BUILD_TEMPLATE_15x15;
+
+		for (const x in BUILD_TEMPLATE) {
+			for (const y in _BUILD_TEMPLATE[x]) {
+				if (!_BUILD_TEMPLATE[x][y]) continue;
+				this.HASHED_BUILD_TEMPLATE.write(new Position(+x, +y), true);
+			}
+		}
+
+		this.TEMPLATE_WIDTH = _BUILD_TEMPLATE[0].length;
+		this.TEMPLATE_HEIGHT = _BUILD_TEMPLATE.length;
+	}
 
 	public override getNextActions(side: EWallSide): ActionDto[] {
 		this.prepareGetNextActions(side);
@@ -102,6 +113,10 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 				if (this.hashedPonds.exist(pos)) continue; // Nếu vị trí này có ao thì bỏ qua
 				if (this.hashedSide.exist(pos) && this.hashedSide.read(pos) === side) continue; // Nếu vị trí này có bên mình thì bỏ qua
 
+				if (x == 0 || y == 0 || x == this.width - 1 || y == this.height - 1) {
+					this.scoreCounter.decrease(pos, 0.1);
+				} // Nếu ở gần biên thì giảm điểm
+
 				const trbl = pos.topRightBottomLeft(); // Lấy các vị trí xung quanh
 				let builds = 0; // Đếm số lượng vị trí có thể xây xung quanh
 
@@ -120,18 +135,18 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 				// * Cái này chỉ mang tính tương đối
 				switch (builds) {
 					case 1: // Nếu có 1 vị trí xây xung quanh thì xem như là sẽ tạo thành một vùng khép kín (+1.5 điểm)
-						this.scoreCounter.write(new Position(x, y), 1.5);
+						this.scoreCounter.increase(new Position(x, y), 1.5);
 						break;
 					case 2: // Nếu có 2 vị trí xây xung quanh thì xem như đã có tường ở khu vực đó (+1.25 điểm)
-						this.scoreCounter.write(new Position(x, y), 1.25);
+						this.scoreCounter.increase(new Position(x, y), 1.25);
 						break;
 					case 3: // Nếu có 3 vị trí xây xung quanh thì có nghĩa là chưa có tường ở khu vực đó (+1 điểm)
-						this.scoreCounter.write(new Position(x, y), 1);
+						this.scoreCounter.increase(new Position(x, y), 1);
 						break;
 					case 0:
 						break;
 					default: // Mặc định thì không biết được nên bonus luôn (+0.5 điểm)
-						this.scoreCounter.write(new Position(x, y), 0.5);
+						this.scoreCounter.increase(new Position(x, y), 0.5);
 				}
 
 				for (const p of pos.upperLeftUpperRightLowerLeftLowerRight()) {
@@ -141,7 +156,18 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 				}
 
 				// Nếu có lâu đài thì ưu tiên xây xung quanh lâu đài
-				if (this.hashedCastles.exist(pos)) this.scoreCounter.increase(pos, 1);
+				if (this.hashedCastles.exist(pos)) this.scoreCounter.increase(pos, 1.5);
+
+				const distance = this.TEMPLATE_WIDTH - 1;
+
+				for (let i = x - distance; i < x + distance; i++) {
+					for (let j = y - distance; j < y + distance; j++) {
+						const p = new Position(i, j);
+						if (!this.hashedWalls.exist(p)) continue;
+						if (this.hashedWalls.read(p)!.side === side) this.scoreCounter.increase(pos, 0.125);
+						// else this.scoreCounter.decrease(pos, 0.125);
+					}
+				}
 			}
 		}
 
@@ -159,7 +185,9 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 	 */
 	private checkCreate(pos: Position, ownSide: EWallSide): boolean {
 		const needCondition =
-			HASHED_BUILD_TEMPLATE.exist(new Position(pos.x % (TEMPLATE_WIDTH - 1), pos.y % (TEMPLATE_HEIGHT - 1))) || // * Chia chia gì đó, thử đi rồi biết
+			this.HASHED_BUILD_TEMPLATE.exist(
+				new Position(pos.x % (this.TEMPLATE_WIDTH - 1), pos.y % (this.TEMPLATE_HEIGHT - 1)),
+			) || // * Chia chia gì đó, thử đi rồi biết
 			pos.x == this.width - 1 || // * Nếu ở gần biên thì xây luôn
 			pos.y == this.height - 1;
 
@@ -269,6 +297,25 @@ export default class CaroGameManager extends GameManager implements ICaroGameMan
 
 		// 	return closestCastle;
 		// }
+
+		// const bonus = new HashedType<number>();
+		const stack = [new Position(craftmen.x, craftmen.y)];
+		const bonusVisited = new HashedType<boolean>();
+
+		for (; stack.length; ) {
+			const pos = stack.pop()!;
+			if (bonusVisited.exist(pos)) continue;
+			bonusVisited.write(pos, true);
+
+			if (!pos.isValid(this.width, this.height)) continue;
+			if (this.hashedWalls.exist(pos) && this.hashedWalls.read(pos)!.side !== craftmen.side) continue;
+			if (this.hashedBuildPositions.exist(pos)) continue;
+			if (!pos.topRightBottomLeft().some((p) => this.hashedBuildPositions.exist(p))) continue;
+
+			const builds = pos.topRightBottomLeft().filter((p) => this.hashedBuildPositions.exist(p)).length;
+
+			this.scoreCounter.write(pos, 1 / builds);
+		}
 
 		// Initialize positions array, use this like a queue
 		const queue = new PriorityQueue<Position>();

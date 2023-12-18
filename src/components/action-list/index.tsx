@@ -1,10 +1,11 @@
+import { EWallSide } from '@/game/enums';
 import GameAction from '@/models/GameAction';
 import { Select } from 'antd';
 import React, { useState } from 'react';
 import ActionItem from './action-item';
 import styles from './index.module.scss';
 
-type ShowType = 'all' | 'A' | 'B';
+type ShowType = 'all' | EWallSide;
 
 export interface ActionListProps {
 	actions: GameAction[];

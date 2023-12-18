@@ -275,7 +275,7 @@ export default function GameBoard({ state, action }: GameBoardProps) {
 							zIndex: state.height,
 							fontSize: 10,
 							fontWeight: 'normal',
-							// color: 'blue',
+							color: 'red',
 						}}
 					>
 						{pos.data.toFixed(1)}

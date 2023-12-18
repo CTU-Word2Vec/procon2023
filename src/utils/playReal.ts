@@ -116,12 +116,12 @@ export default async function playReal({
 		if (cur_turn > game.num_of_turns) break; // * Nếu lượt đi hiện tại lớn hơn số lượt đi thì thoát khỏi vòng lặp
 
 		onGameActionsChange(actions); // * Cập nhật lại các action đã đi
-		gameManager.addActions(actions); // * Thêm các action đã đi vào game manager
+		gameManager.addActions(actions, cur_turn); // * Thêm các action đã đi vào game manager
 		onGameStateChange(gameManager.toObject()); // * Cập nhật lại game state
 
 		const myTurn = // * Kiểm tra xem có phải lượt đi của mình không (đi trước 1 lượt)
-			(side === 'A' && cur_turn % 2 === 0) || // * Nếu là side A thì lượt đi lẻ (đi trước 1 lượt)
-			(side === 'B' && cur_turn % 2 !== 0); // * Nếu là side B thì lượt đi chẵn (đi trước 1 lượt)
+			(side === 'A' && cur_turn % 2 !== 0) || // * Nếu là side A thì lượt đi lẻ (đi trước 1 lượt)
+			(side === 'B' && cur_turn % 2 === 0); // * Nếu là side B thì lượt đi chẵn (đi trước 1 lượt)
 		if (myTurn) {
 			const body: CreateActionDto = {
 				turn: cur_turn + 1,

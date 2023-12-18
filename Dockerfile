@@ -1,5 +1,7 @@
 FROM node:20-alpine as build
 
+LABEL org.opencontainers.image.description "CTU.Word2Vec Procon 2023 Game client"
+
 WORKDIR /app
 
 COPY package*.json ./
