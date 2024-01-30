@@ -29,6 +29,7 @@
 		"coverage": "vitest run --coverage"
 	},
 	"dependencies": {
+		"@ant-design/happy-work-theme": "^1.0.0",
 		"@ant-design/icons": "^5.2.6",
 		"@formkit/auto-animate": "^0.8.1",
 		"@monaco-editor/react": "^4.6.0",
