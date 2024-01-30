@@ -1,3 +1,4 @@
+import { HappyProvider } from '@ant-design/happy-work-theme';
 import { App, ConfigProvider } from 'antd';
 import 'antd/dist/reset.css';
 import React from 'react';
@@ -20,9 +21,11 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 					},
 				}}
 			>
-				<App>
-					<RouterProvider router={router} />
-				</App>
+				<HappyProvider>
+					<App>
+						<RouterProvider router={router} />
+					</App>
+				</HappyProvider>
 			</ConfigProvider>
 		</Provider>
 	</React.StrictMode>,
