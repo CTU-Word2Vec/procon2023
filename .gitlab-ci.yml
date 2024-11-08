@@ -1,27 +1,27 @@
 image: node:20
 
 test:
-  stage: test
-  cache:
-    paths:
-      - node_modules/
-  script:
-    - npm ci
-    - npm run test -- --run
+    stage: test
+    cache:
+        paths:
+            - node_modules/
+    script:
+        - npm ci
+        - npm run test -- --run
 
 pages:
-  stage: deploy
-  cache:
-    paths:
-      - node_modules/
-  script:
-    - npm ci
-    - npm run build
-    - rm -rf public
-    - cp dist/index.html dist/404.html
-    - mv dist public
-  artifacts:
-    paths:
-      - public
-  only:
-    - master
+    stage: deploy
+    cache:
+        paths:
+            - node_modules/
+    script:
+        - npm ci
+        - npm run build
+        - rm -rf public
+        - cp dist/index.html dist/404.html
+        - mv dist public
+    artifacts:
+        paths:
+            - public
+    only:
+        - master

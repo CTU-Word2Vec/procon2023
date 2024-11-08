@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.9](https://github.com/CTU-Word2Vec/procon2023/compare/v0.0.8...v0.0.9) (2024-11-08)
+
+### Features
+
+-   add documentation to game ui ([0bec623](https://github.com/CTU-Word2Vec/procon2023/commits/0bec6230ce6cc114fb3f7d153cf23459ac92bec4))
+-   add happy work theme ([6fc81ff](https://github.com/CTU-Word2Vec/procon2023/commits/6fc81ff657eae1c86ca4ced82967ea5bd5cf5e7e))
+-   update weight ([97bc729](https://github.com/CTU-Word2Vec/procon2023/commits/97bc729e1bfcca8d89abfef59cbbe7be2477798a))
+
+### Bug Fixes
+
+-   add await to create action ([c59e2e1](https://github.com/CTU-Word2Vec/procon2023/commits/c59e2e14c2cd4883dd59cc80e130f208f7ed4687))
+-   add loading status while pinging ([a4b15ff](https://github.com/CTU-Word2Vec/procon2023/commits/a4b15fffed21a30993c28b5231d9f4343dd36078))
+-   fix add actions ([3b33852](https://github.com/CTU-Word2Vec/procon2023/commits/3b3385209b01b0336efcf29559b85d2ccfdd49f3))
+-   fix caro game manager constructor arguments ([33ab575](https://github.com/CTU-Word2Vec/procon2023/commits/33ab575c98896a9e3dd4ddd8e31f47a5094d7450))
+-   fix game side ([a3ecb15](https://github.com/CTU-Word2Vec/procon2023/commits/a3ecb15adfa07e65e88b100f234f38d0c1da896b))
+-   fix gitlab ci ([cc58295](https://github.com/CTU-Word2Vec/procon2023/commits/cc5829580273f1df29f3b331a9380f25023d877d))
+-   fix play real bug ([8d3b631](https://github.com/CTU-Word2Vec/procon2023/commits/8d3b631a9f48ebf11ff9b3ad5320bfc51720318e))
+-   wrong turn ([e1dfd7b](https://github.com/CTU-Word2Vec/procon2023/commits/e1dfd7b84a30ea260582b299b4b072ebc8a94bda))
+
+## 0.0.0 (2023-11-27)
+
 ### [0.0.8](https://github.com/CTU-Word2Vec/procon2023/compare/v0.0.7...v0.0.8) (2023-12-04)
 
 ### [0.0.7](https://github.com/CTU-Word2Vec/procon2023/compare/v0.0.6...v0.0.7) (2023-12-04)
